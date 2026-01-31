@@ -1,21 +1,19 @@
 import React from 'react';
 import { User, Users, Cpu, BookOpen, Sparkles, Archive, ShoppingCart, Play } from 'lucide-react';
 
-export default function HomeScreen({ onStart, onParty, onManage, onStorage }) { // onStorage 추가
+export default function HomeScreen({ onStart, onParty, onManage, onStorage, onRecord, onGacha }) { // onGacha 추가
   const navItems = [
     { id: 'party', icon: Users, label: '편성', color: 'text-blue-300', action: onParty },
     { id: 'manage', icon: Cpu, label: '관리', color: 'text-cyan-300', action: onManage },
-    { id: 'record', icon: BookOpen, label: '기록', color: 'text-emerald-300', action: () => console.log("기록함: 준비중") },
-    { id: 'gacha', icon: Sparkles, label: '연결', color: 'text-violet-300', action: () => console.log("가챠: 준비중") },
-    { id: 'storage', icon: Archive, label: '창고', color: 'text-amber-300', action: onStorage }, // 연결!
+    { id: 'record', icon: BookOpen, label: '기록', color: 'text-emerald-300', action: onRecord },
+    { id: 'gacha', icon: Sparkles, label: '연결', color: 'text-violet-300', action: onGacha }, // 연결!
+    { id: 'storage', icon: Archive, label: '창고', color: 'text-amber-300', action: onStorage },
     { id: 'shop', icon: ShoppingCart, label: '상점', color: 'text-rose-300', action: () => console.log("상점: 준비중") },
   ];
 
   return (
-    // ... (이하 기존 코드와 동일) ...
     <div className="flex flex-col h-[100dvh] w-full max-w-md mx-auto bg-[#0f172a] overflow-hidden font-sans border-x border-white/10 shadow-2xl text-slate-100 relative">
-      
-      {/* 배경 스타일 */}
+      {/* 스타일 및 배경은 기존과 동일하므로 생략 (기존 파일 내용 유지) */}
       <style>{`
         @keyframes twinkle { 0%, 100% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 0.8; transform: scale(1.2); } }
         .star { position: absolute; background: white; border-radius: 50%; animation: twinkle 3s infinite ease-in-out; }
@@ -28,7 +26,11 @@ export default function HomeScreen({ onStart, onParty, onManage, onStorage }) { 
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#020617] via-[#1e1b4b] to-[#0f172a] pointer-events-none">
         {[...Array(30)].map((_, i) => (
             <div key={i} className="star" style={{
-                top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`, width: `${Math.random() * 2 + 1}px`, height: `${Math.random() * 2 + 1}px`, animationDelay: `${Math.random() * 3}s`
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                width: `${Math.random() * 2 + 1}px`,
+                height: `${Math.random() * 2 + 1}px`,
+                animationDelay: `${Math.random() * 3}s`
             }}></div>
         ))}
       </div>
@@ -83,7 +85,7 @@ export default function HomeScreen({ onStart, onParty, onManage, onStorage }) { 
             {navItems.map((item) => (
                 <button 
                     key={item.id}
-                    onClick={item.action}
+                    onClick={item.action || (() => console.log(`Nav to ${item.id}`))}
                     className="flex-1 flex flex-col items-center justify-center py-2 gap-1.5 rounded-xl hover:bg-white/5 active:bg-white/10 transition-colors group relative"
                 >
                     <item.icon size={20} className={`${item.color} opacity-70 group-hover:opacity-100 transition-opacity drop-shadow-md`} />
