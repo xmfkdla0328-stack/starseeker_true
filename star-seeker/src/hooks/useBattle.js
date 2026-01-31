@@ -1,118 +1,318 @@
-// --- 전체 캐릭터 데이터베이스 (도감) ---
-export const ALL_CHARACTERS = [
-  { 
-    id: 1, name: "서주목", role: "Keeper", 
-    baseHp: 1200, baseAtk: 55, baseDef: 25, baseSpd: 25, 
-    color: "from-blue-600 to-blue-800", desc: "삶의 증명을 위하여 싸우는 남겨진 자",
-    efficiency: 1.1, star: 5,
-    skills: ['요리', '채집', '관찰'],
-    combatSkills: {
-        normal: { name: "강타", desc: "방어력의 100% 위력으로 단일 적을 공격합니다.", mult: 1.0 },
-        ultimate: { name: "신장의 맹세", desc: "방어력의 150% 위력으로 모든 적을 공격하고, 전체 아군이 받는 피해를 20% 감소시킵니다.", mult: 1.5, buffVal: 0.2 }
-    },
-    profile: { age: "20대(GP-A1기준)", height: "186cm", hobby: "고기 요리", like: "모닥불", dislike: "축축한 것" },
-    bondStories: [
-        { id: 1, title: "땅을 내려다보며", unlockLevel: 1, desc: "모든 일이 끝난 뒤, 당신은 홀로 사람들로부터 멀리 떨어져 혼자 있는 그를 발견한다." },
-        { id: 2, title: "발 내딛을 곳을 찾다가", unlockLevel: 3, desc: "약간의 시간이 지나 오랜만에 방문한 GP-A1에서, 당신은 성시하와 다투고 있는 그를 발견한다." },
-        { id: 3, title: "고개를 드니", unlockLevel: 5, desc: "송별회 날, 그는 별하늘 아래로 당신을 불러낸다." }
-    ]
-  },
-  { 
-    id: 2, name: "시에", role: "EXECUTOR", 
-    baseHp: 850, baseAtk: 95, baseDef: 12, baseSpd: 30, 
-    color: "from-rose-600 to-rose-800", desc: "죽음을 등진 이방인",
-    efficiency: 0.95, star: 5,
-    skills: ['카리스마', '관찰', '직감'],
-    combatSkills: {
-        normal: { name: "공에서 일로", desc: "공격력의 120% 위력으로 단일 적을 공격합니다.", mult: 1.2 },
-        ultimate: { name: "일에서 공으로", desc: "자신의 치명타 피해를 40% 상승시키고, 단일 적을 350%의 위력으로 공격합니다.", mult: 3.5, buffVal: 0.4 }
-    },
-    profile: { age: "알 수 없음", height: "190cm", hobby: "수면", like: "고요함", dislike: "강제, 강압" },
-    bondStories: [
-        { id: 1, title: "전장의 냄새", unlockLevel: 1, desc: "처음 전장에 섰던 날." },
-        { id: 2, title: "부러진 검", unlockLevel: 3, desc: "패배로부터 배운 것." }
-    ]
-  },
-  { 
-    id: 3, name: "성시하", role: "PATHFINDER", 
-    baseHp: 700, baseAtk: 140, baseDef: 8, baseSpd: 40, 
-    color: "from-violet-600 to-violet-800", desc: "바라보는 것은 동경의 뒷면",
-    efficiency: 1.5, star: 4,
-    skills: ['관찰', '계산'],
-    combatSkills: {
-        normal: { name: "연타", desc: "공격력의 80% 위력으로 단일 적을 공격합니다.", mult: 0.8 },
-        ultimate: { name: "기록자의 증명", desc: "공격력의 200% 위력으로 모든 적을 공격합니다.", mult: 2.0 }
-    },
-    profile: { age: "10대 후반(GP-A1기준)", height: "172cm", hobby: "글 읽기", like: "활자", dislike: "후회" },
-    bondStories: [
-        { id: 1, title: "탐구자의 길", unlockLevel: 1, desc: "마법에 매료된 이유." },
-        { id: 2, title: "금지된 서적", unlockLevel: 3, desc: "지식을 향한 위험한 갈망." },
-        { id: 3, title: "공허의 속삭임", unlockLevel: 5, desc: "그녀가 심연을 들여다보았을 때." }
-    ]
-  },
-  { 
-    id: 4, name: "아다드", role: "SUSTAINER", 
-    baseHp: 650, baseAtk: 35, baseDef: 8, baseSpd: 30, 
-    color: "from-emerald-600 to-emerald-800", desc: "풍요는 존재의 증명이 될 수 있는가?",
-    efficiency: 1.0, star: 5,
-    skills: ['화술', '계산', '리더쉽'],
-    combatSkills: {
-        normal: { name: "견제 사격", desc: "공격력의 50% 위력으로 생명력이 제일 낮은 아군을 회복합니다.", mult: 0.5 },
-        ultimate: { name: "우상향의 천국", desc: "공격력의 150% 위력으로 아군의 생명력을 회복하고, 공격력의 30% 위력으로 2턴간 아군의 생명력을 지속 회복합니다.", mult: 1.5, dotMult: 0.3 }
-    },
-    profile: { age: "30대(안테α기준)", height: "182cm", hobby: "티타임", like: "우상향", dislike: "붉은색" },
-    bondStories: [
-        { id: 1, title: "숭배의 다른 이름은 의존", unlockLevel: 1, desc: "사이프러스 주식회사의 범우주적 주식 상장을 위하여, 아다드는 헤페리스의 도움을 얻고자 한다." },
-        { id: 2, title: "그러나 우러를 별이 유성이라면", unlockLevel: 3, desc: "사이프러스 주식회사와 헤페리스와의 사업 교류 도중, 그는 함께 티타임을 가지자고 제의해온다." },
-        { id: 3, title: "별의 꼬리를 쫒아 달리는 발걸음은 어쩌면 동행", unlockLevel: 5, desc: "사이프러스 주식회사의 성공적인 주식 상장 후, 아다드는 당신에게 감사를 표해온다." }
-    ]
-  },
-  { 
-    id: 5, name: "람만", role: "SUSTAINER", 
-    baseHp: 600, baseAtk: 130, baseDef: 5, baseSpd: 35, 
-    color: "from-amber-600 to-amber-800", desc: "절제 없는 소비는 인간의 본성",
-    efficiency: 0.8, star: 4,
-    skills: ['화술', '유혹'],
-    combatSkills: {
-        normal: { name: "머니건", desc: "공격력의 90% 위력으로 적을 공격합니다.", mult: 0.9 },
-        ultimate: { name: "무절제한 소비의 낙원으로", desc: "공격력의 120%의 위력으로 모든 적을 공격하고, 공격력의 200% 위력으로 아군 전체의 생명력을 회복시킵니다.", mult: 1.2, healMult: 2.0 }
-    },
-    profile: { age: "30대(안테α기준)", height: "182cm", hobby: "축제", like: "시끌벅적한 것", dislike: "인내, 절제" },
-    bondStories: [
-        { id: 1, title: "소원을 이루어주는 자를 불러 신이라 한다면", unlockLevel: 1, desc: "당신이 여론조사 차 실존 데이터 형상으로 살아가는 것에 대한 불만은 없는지 물었을 때, 그는 웃는 낯으로 답해온다." },
-        { id: 2, title: "신이란 인정과 사랑에 목마른 자를 의미함이라", unlockLevel: 3, desc: "또 같은 일을 반복할 의사가 있는지 묻는 당신에게, 그는 한 가지 요구를 해온다." }
-    ]
-  },
-  { 
-    id: 6, name: "천백", role: "EXECUTOR", 
-    baseHp: 1100, baseAtk: 55, baseDef: 10, baseSpd: 30, 
-    color: "from-orange-600 to-red-700", desc: "모르고도 행함은 무엇을 위함인가?",
-    efficiency: 1.2, star: 4,
-    skills: ['괴력'],
-    combatSkills: {
-        normal: { name: "일점 찌르기", desc: "공격력의 110% 위력으로 적을 공격합니다.", mult: 1.1 },
-        ultimate: { name: "들리기에 응하였으니", desc: "자신의 공격력을 20% 상승시키고, 공격력의 200% 위력으로 모든 적을 공격합니다.", mult: 2.0, buffVal: 0.2 }
-    },
-    profile: { age: "31(신강 기준)", height: "179cm", hobby: "명상", like: "검 손질, 간식", dislike: "강약약강" },
-    bondStories: [
-        { id: 1, title: "의미 없는 행위", unlockLevel: 1, desc: "신강 내 난민들의 충돌을 해결하고서 돌아오는 길, 당신은 지친 얼굴의 천백에게 디저트를 권한다." },
-        { id: 2, title: "의미를 필요로 하지 않는 행위", unlockLevel: 1, desc: "오랜만에 다시 만난 천백은 당신에게 자신이 직접 만들었다는 서툰 솜씨의 간식을 권한다." }
-    ]
-  },
-   { 
-    id: 7, name: "에키드나", role: "PATHFINDER", 
-    baseHp: 600, baseAtk: 130, baseDef: 5, baseSpd: 45, 
-    color: "from-amber-600 to-amber-800", desc: "구세주의 귀환을 기다리는 사과 나무의 뱀",
-    efficiency: 0.8, star: 5,
-    skills: ['만능', '제조', '수호'],
-    combatSkills: {
-        normal: { name: "코드 입력: 7AD0N", desc: "공격력의 100% 위력으로 적을 공격합니다.", mult: 1.0 },
-        ultimate: { name: "오퍼레이션: N03L", desc: "공격력의 200% 위력으로 모든 적을 공격합니다.", mult: 2.0 }
-    },
-    profile: { age: "알 수 없음", height: "알 수 없음", hobby: "헤페리스 청소", like: "청결, 바보", dislike: "불결함, 미련한 것" },
-    bondStories: [
-        { id: 1, title: "???", unlockLevel: 1, desc: "???" },
-        { id: 2, title: "???", unlockLevel: 3, desc: "???" }
-    ]
-  },
-];
+import { useEffect } from 'react';
+import { TICK_RATE, ACTION_THRESHOLD, ENEMY_CAUSALITY_TRIGGER, WARNING_DURATION_MS } from '../data/gameData';
+import useBattleState from './useBattleState';
+
+export default function useBattle(initialParty, userStats, hpMultiplier, onGameEnd) {
+  const {
+    logs, allies, setAllies, enemy, setEnemy, 
+    playerCausality, setPlayerCausality,
+    enemyWarning, setEnemyWarning, 
+    buffs, setBuffs, 
+    addLog, gainCausality
+  } = useBattleState(initialParty, userStats, hpMultiplier);
+
+  // --- 메인 게임 루프 ---
+  useEffect(() => {
+    if (!enemy || allies.length === 0) return;
+
+    const interval = setInterval(() => {
+      let shieldJustExpired = false;
+      const nextBuffs = { ...buffs };
+      let buffChanged = false;
+
+      // 1. 전역 버프(Global Buffs) 관리
+      ['atk', 'shield', 'speed', 'damageReduction', 'regen'].forEach(key => {
+        if (nextBuffs[key].active) {
+          nextBuffs[key].timeLeft -= TICK_RATE;
+          if (nextBuffs[key].timeLeft <= 0) {
+            nextBuffs[key].active = false;
+            buffChanged = true;
+            if (key === 'shield') { shieldJustExpired = true; addLog(`[알림] 방어막이 소멸합니다.`, 'system'); }
+            else if (key === 'damageReduction') addLog(`[알림] 피해 감소 효과 종료.`, 'system');
+          }
+        }
+      });
+      if (buffChanged) setBuffs(nextBuffs);
+
+      // 2. 적(Enemy) 행동
+      setEnemy(prevEnemy => {
+        if (prevEnemy.hp <= 0) return prevEnemy;
+        let newEnemy = { ...prevEnemy };
+
+        // (1) 특수 패턴 충전
+        if (newEnemy.isCharging) {
+          newEnemy.chargeTimer -= TICK_RATE;
+          if (newEnemy.chargeTimer <= 0) {
+            setEnemyWarning(false);
+            newEnemy.isCharging = false;
+            newEnemy.causality = 0;
+            
+            const damage = Math.floor(newEnemy.baseAtk * 1.8);
+            addLog(`☄️ ${newEnemy.name}의 [파멸의 일격]!`, 'enemy_ult');
+            
+            setAllies(curr => curr.map(a => {
+               if (a.hp <= 0) return a;
+               let finalDmg = Math.max(0, damage - a.def);
+
+               if (nextBuffs.damageReduction.active) {
+                 finalDmg = Math.floor(finalDmg * (1 - nextBuffs.damageReduction.val));
+               }
+
+               let remainingShield = shieldJustExpired ? 0 : a.shield;
+               if (remainingShield >= finalDmg) { remainingShield -= finalDmg; finalDmg = 0; }
+               else { finalDmg -= remainingShield; remainingShield = 0; }
+               
+               gainCausality(1 * a.efficiency);
+               return { ...a, hp: Math.max(0, a.hp - finalDmg), shield: remainingShield };
+            }));
+          }
+          return newEnemy;
+        }
+
+        // (2) 일반 행동
+        newEnemy.actionGauge += (newEnemy.baseSpd * (1 + Math.random() * 0.1));
+        if (newEnemy.actionGauge >= ACTION_THRESHOLD) {
+          newEnemy.actionGauge = 0;
+          if (newEnemy.causality >= ENEMY_CAUSALITY_TRIGGER) {
+            newEnemy.isCharging = true;
+            newEnemy.chargeTimer = WARNING_DURATION_MS;
+            setEnemyWarning(true);
+            addLog(`[경고] 인과율 급증 감지! (${newEnemy.name})`, 'warning');
+          } else {
+            // 일반 공격
+            const liveAllies = allies.filter(a => a.hp > 0);
+            if (liveAllies.length > 0) {
+              const target = liveAllies[Math.floor(Math.random() * liveAllies.length)];
+              const damage = Math.max(0, newEnemy.baseAtk - target.def);
+              
+              let finalDmg = damage;
+              if (nextBuffs.damageReduction.active) {
+                 finalDmg = Math.floor(damage * (1 - nextBuffs.damageReduction.val));
+              }
+
+              addLog(`⚔️ 적의 공격 -> ${target.name} (DMG: ${finalDmg})`, 'enemy_atk');
+              
+              setAllies(curr => curr.map(a => {
+                if (a.id === target.id) {
+                   let shieldCalc = shieldJustExpired ? 0 : a.shield;
+                   let dmgToApply = finalDmg;
+                   
+                   if (shieldCalc >= dmgToApply) { shieldCalc -= dmgToApply; dmgToApply = 0; }
+                   else { dmgToApply -= shieldCalc; shieldCalc = 0; }
+                   
+                   gainCausality(1 * a.efficiency);
+                   return { ...a, hp: Math.max(0, a.hp - dmgToApply), shield: shieldCalc };
+                }
+                if (shieldJustExpired) return { ...a, shield: 0 };
+                return a;
+              }));
+              newEnemy.causality += 2;
+            }
+          }
+        }
+        return newEnemy;
+      });
+
+      // 3. 아군(Allies) 행동
+      setAllies(prevAllies => {
+        let nextAllies = [...prevAllies];
+        let enemyDamageTaken = 0;
+
+        for (let i = 0; i < nextAllies.length; i++) {
+          let ally = { ...nextAllies[i] };
+          
+          // 개별 버프 초기화 (처음 실행 시)
+          if (!ally.selfBuffs) ally.selfBuffs = { atkUp: 0, critDmgUp: 0, buffTime: 0 };
+
+          // 개별 버프 시간 차감
+          if (ally.selfBuffs.buffTime > 0) {
+            ally.selfBuffs.buffTime -= TICK_RATE;
+            if (ally.selfBuffs.buffTime <= 0) {
+                ally.selfBuffs = { atkUp: 0, critDmgUp: 0, buffTime: 0 }; // 초기화
+                addLog(`${ally.name}의 강화 효과가 종료되었습니다.`, 'system');
+            }
+          }
+
+          if (shieldJustExpired) ally.shield = 0;
+
+          // 도트 힐 (아다드) - 1초(1000ms)마다 발동
+          if (nextBuffs.regen.active && nextBuffs.regen.timeLeft % 1000 < TICK_RATE && ally.hp > 0) {
+             const healAmount = nextBuffs.regen.val;
+             ally.hp = Math.min(ally.maxHp, ally.hp + healAmount);
+          }
+
+          if (ally.hp <= 0) {
+            nextAllies[i] = ally;
+            continue;
+          }
+
+          const speedMultiplier = nextBuffs.speed.active ? nextBuffs.speed.val : 1;
+          ally.actionGauge += (ally.spd * speedMultiplier * (1 + Math.random() * 0.1));
+
+          if (ally.actionGauge >= ACTION_THRESHOLD) {
+            ally.actionGauge = 0;
+            
+            // 공격력 계산 (기본 * 전역버프 * 자가버프)
+            const globalAtkMult = nextBuffs.atk.active ? (1 + nextBuffs.atk.val) : 1;
+            const selfAtkMult = 1 + ally.selfBuffs.atkUp;
+            const finalAtk = ally.atk * globalAtkMult * selfAtkMult;
+            
+            const eff = ally.efficiency || 1.0;
+
+            // [치명타 계산]
+            const baseCritRate = 0.1; // 기본 10%
+            const baseCritDmg = 1.5;  // 기본 150%
+            const selfCritDmgMult = 1 + ally.selfBuffs.critDmgUp; // 시에 버프
+            
+            const isCrit = Math.random() < baseCritRate;
+            const finalCritMultiplier = isCrit ? (baseCritDmg * selfCritDmgMult) : 1.0;
+
+            // --- 필살기 ---
+            if (ally.ultGauge >= ally.maxUltGauge) {
+              ally.ultGauge = 0;
+              const skill = ally.combatSkills.ultimate;
+              
+              // [서주목] 방어력 계수 + 받피감(20%)
+              if (ally.id === 1) { 
+                  let dmg = Math.floor(ally.def * skill.mult * finalCritMultiplier);
+                  enemyDamageTaken += dmg;
+                  setBuffs(b => ({ ...b, damageReduction: { active: true, val: skill.buffVal || 0.2, timeLeft: 10000 } }));
+                  addLog(`✨ [${ally.name}] ${skill.name}! ${isCrit ? '(CRIT!)' : ''}`, 'ally_ult');
+              } 
+              // [시에] 치명타 피해 증가 버프 후 공격
+              else if (ally.id === 2) {
+                  // 버프 적용 (40%)
+                  ally.selfBuffs = { ...ally.selfBuffs, critDmgUp: skill.buffVal || 0.4, buffTime: 10000 };
+                  // 버프가 적용된 상태로 데미지 계산을 위해 크리 배율 재계산
+                  const boostedCritMult = 1 + (skill.buffVal || 0.4);
+                  const currentCritMultiplier = isCrit ? (baseCritDmg * boostedCritMult) : 1.0;
+                  
+                  let dmg = Math.floor(finalAtk * skill.mult * currentCritMultiplier);
+                  enemyDamageTaken += dmg;
+                  addLog(`✨ [${ally.name}] ${skill.name}! (치명피해 증가)`, 'ally_ult');
+              }
+              // [천백] 공격력 증가 버프 후 공격
+              else if (ally.id === 6) {
+                  // 버프 적용 (20%)
+                  ally.selfBuffs = { ...ally.selfBuffs, atkUp: skill.buffVal || 0.2, buffTime: 10000 };
+                  // 버프가 적용된 상태로 데미지 계산
+                  const boostedAtk = finalAtk * (1 + (skill.buffVal || 0.2)); 
+                  let dmg = Math.floor(boostedAtk * skill.mult * finalCritMultiplier);
+                  enemyDamageTaken += dmg;
+                  addLog(`✨ [${ally.name}] ${skill.name}! (공격력 증가)`, 'ally_ult');
+              }
+              // [아다드] 전체 회복 + 도트 힐
+              else if (ally.id === 4) { 
+                  const healAmount = Math.floor(finalAtk * skill.mult); 
+                  nextAllies = nextAllies.map(a => a.hp > 0 ? { ...a, hp: Math.min(a.maxHp, a.hp + healAmount) } : a);
+                  
+                  const regenVal = Math.floor(finalAtk * (skill.dotMult || 0.3));
+                  setBuffs(b => ({ ...b, regen: { active: true, val: regenVal, timeLeft: 10000 } }));
+                  addLog(`✨ [${ally.name}] ${skill.name}! (전체 회복)`, 'ally_ult');
+              }
+              // [람만] 공격 + 전체 회복
+              else if (ally.id === 5) { 
+                  const dmg = Math.floor(finalAtk * skill.mult * finalCritMultiplier); 
+                  const healAmount = Math.floor(finalAtk * (skill.healMult || 2.0));
+                  enemyDamageTaken += dmg;
+                  nextAllies = nextAllies.map(a => a.hp > 0 ? { ...a, hp: Math.min(a.maxHp, a.hp + healAmount) } : a);
+                  addLog(`✨ [${ally.name}] ${skill.name}! (공격+회복)`, 'ally_ult');
+              }
+              // [그 외 일반 딜러]
+              else { 
+                  let dmg = Math.floor(finalAtk * skill.mult * finalCritMultiplier);
+                  enemyDamageTaken += dmg;
+                  addLog(`✨ [${ally.name}] ${skill.name}! ${isCrit ? '(CRIT!)' : ''}`, 'ally_ult');
+              }
+              gainCausality(3 * eff);
+            } 
+            
+            // --- 평타 ---
+            else {
+              const skill = ally.combatSkills.normal;
+              
+              // [아다드] 평타: 생명력이 제일 낮은 아군 회복
+              if (ally.id === 4) { 
+                  let targetIdx = -1;
+                  let minRatio = 1.01;
+                  
+                  // 현재 시점의 아군들 중에서 가장 위급한 대상 찾기
+                  nextAllies.forEach((a, idx) => {
+                      if (a.hp > 0 && (a.hp / a.maxHp) < minRatio) {
+                          minRatio = a.hp / a.maxHp;
+                          targetIdx = idx;
+                      }
+                  });
+                  if (targetIdx === -1) targetIdx = i; // 다 죽었으면 자신
+
+                  const healAmount = Math.floor(finalAtk * skill.mult);
+                  
+                  if (targetIdx === i) {
+                     ally.hp = Math.min(ally.maxHp, ally.hp + healAmount);
+                  } else {
+                     nextAllies[targetIdx] = { 
+                         ...nextAllies[targetIdx], 
+                         hp: Math.min(nextAllies[targetIdx].maxHp, nextAllies[targetIdx].hp + healAmount) 
+                     };
+                  }
+                  addLog(`${ally.name}의 ${skill.name} -> ${nextAllies[targetIdx].name} 치유 (${healAmount})`, 'ally_atk');
+              }
+              // [서주목] 평타: 방어력 계수
+              else if (ally.id === 1) { 
+                  let dmg = Math.floor(ally.def * skill.mult * finalCritMultiplier);
+                  enemyDamageTaken += dmg;
+                  addLog(`${ally.name}의 ${skill.name}. ${isCrit ? '(Crit!)' : ''} (DMG: ${dmg})`, 'ally_atk');
+              }
+              // [그 외] 공격력 계수
+              else {
+                  let dmg = Math.floor(finalAtk * skill.mult * finalCritMultiplier);
+                  enemyDamageTaken += dmg;
+                  addLog(`${ally.name}의 ${skill.name}. ${isCrit ? '(Crit!)' : ''} (DMG: ${dmg})`, 'ally_atk');
+              }
+
+              ally.ultGauge = Math.min(ally.maxUltGauge, ally.ultGauge + 20);
+              gainCausality(1 * eff);
+            }
+          }
+          nextAllies[i] = ally; // 변경된 본인 상태 저장
+        }
+
+        // 적 데미지 처리
+        if (enemyDamageTaken > 0) {
+            setEnemy(e => ({ ...e, hp: Math.max(0, e.hp - enemyDamageTaken) }));
+        }
+
+        return nextAllies;
+      });
+
+      if (enemy && enemy.hp <= 0) onGameEnd('win');
+      else if (allies.length > 0 && allies.every(a => a.hp <= 0)) onGameEnd('lose');
+
+    }, TICK_RATE);
+
+    return () => clearInterval(interval);
+  }, [enemy, allies, buffs, hpMultiplier, userStats, addLog, gainCausality, onGameEnd]);
+
+  // 유저 스킬
+  const useSkill = (type) => {
+    if (type === 'atk') {
+      if (playerCausality < 10) { addLog("CP 부족", "system"); return; }
+      setPlayerCausality(prev => prev - 10);
+      setBuffs(prev => ({ ...prev, atk: { active: true, timeLeft: 10000, val: 0.2 } }));
+      addLog(">>> [인과율] 무력 강화", "skill");
+    } else if (type === 'shield') {
+      if (playerCausality < 20) { addLog("CP 부족", "system"); return; }
+      setPlayerCausality(prev => prev - 20);
+      setAllies(prev => prev.map(a => ({ ...a, shield: Math.floor(a.maxHp * 0.5) })));
+      setBuffs(prev => ({ ...prev, shield: { active: true, timeLeft: 5000, val: 1 } }));
+      addLog(">>> [인과율] 절대 방어", "skill");
+    } else if (type === 'speed') {
+      if (playerCausality < 30) { addLog("CP 부족", "system"); return; }
+      setPlayerCausality(prev => prev - 30);
+      setBuffs(prev => ({ ...prev, speed: { active: true, timeLeft: 10000, val: 1.5 } }));
+      addLog(">>> [인과율] 시간 가속", "skill");
+    }
+  };
+
+  return { logs, allies, enemy, playerCausality, enemyWarning, buffs, useSkill };
+}
