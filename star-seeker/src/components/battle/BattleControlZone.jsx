@@ -2,11 +2,12 @@ import React from 'react';
 import { Sword, Shield, Zap, Sparkles, Brain, Heart } from 'lucide-react';
 
 export default function BattleControlZone({ playerCausality, buffs, userStats, onUseSkill }) {
+  // [수정] 최상위 div에서 flex-1 클래스 제거
   return (
-    <div className="flex-[2] p-3 flex flex-col z-20 backdrop-blur-md bg-[#0f172a]/80 border-t border-white/10 rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.3)]">
+    <div className="p-3 flex flex-col z-20 backdrop-blur-md bg-[#0f172a]/80 border-t border-white/10 rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.3)] min-h-0">
       
       {/* 인과력 게이지 */}
-      <div className="flex items-center justify-between mb-3 px-1">
+      <div className="flex items-center justify-between mb-3 px-1 flex-shrink-0">
         <div className="flex items-center gap-2 text-cyan-300 font-bold tracking-wider text-sm drop-shadow-md">
           <Sparkles size={14} className="animate-pulse" />
           <span>CAUSALITY</span>
@@ -21,7 +22,7 @@ export default function BattleControlZone({ playerCausality, buffs, userStats, o
       </div>
 
       {/* 스킬 버튼 */}
-      <div className="flex gap-3 h-full mb-3">
+      <div className="flex gap-3 flex-1 mb-3 min-h-0">
         <button onClick={() => onUseSkill('atk')} className={`flex-1 flex flex-col items-center justify-center rounded-lg border backdrop-blur-md transition-all duration-300 group ${buffs.atk.active ? 'border-rose-500/50 bg-rose-500/10 shadow-[0_0_15px_rgba(244,63,94,0.2)]' : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/30 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] active:scale-95'}`}>
           <Sword size={18} className={`mb-1 transition-colors ${buffs.atk.active ? 'text-rose-400' : 'text-slate-400 group-hover:text-rose-300'}`} />
           <span className={`text-[10px] font-bold tracking-wide ${buffs.atk.active ? 'text-rose-200' : 'text-slate-300 group-hover:text-white'}`}>ATTACK</span>
@@ -40,7 +41,7 @@ export default function BattleControlZone({ playerCausality, buffs, userStats, o
       </div>
 
       {/* 스탯 정보 */}
-      <div className="flex justify-between items-center bg-black/40 rounded px-4 py-2 text-[10px] text-slate-400 border border-white/5 font-mono">
+      <div className="flex justify-between items-center bg-black/40 rounded px-4 py-2 text-[10px] text-slate-400 border border-white/5 font-mono flex-shrink-0">
         <div className="flex items-center gap-1.5"><Sword size={10} className="text-rose-400" /> {userStats.str}</div>
         <div className="flex items-center gap-1.5"><Zap size={10} className="text-amber-400" /> {userStats.agi}</div>
         <div className="flex items-center gap-1.5"><Brain size={10} className="text-violet-400" /> {userStats.int}</div>

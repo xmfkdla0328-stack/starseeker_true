@@ -10,14 +10,14 @@ import HomeScreen from './components/HomeScreen';
 import SelectScreen from './components/SelectScreen';
 import StorySelectScreen from './components/StorySelectScreen';
 import EventScreen from './components/EventScreen';
-import BattleScreen from './components/BattleScreen';
+import BattleScreen from './screens/BattleScreen'; // 유일하게 screens 폴더
 import PartyScreen from './components/PartyScreen';
 import ManagementScreen from './components/ManagementScreen';
 import StorageScreen from './components/StorageScreen';
 import GuideBookScreen from './components/GuideBookScreen';
 import GachaScreen from './components/GachaScreen';
 import ResourcesScreen from './components/ResourcesScreen';
-import AutoResourcesScreen from './components/AutoResourcesScreen'; // [추가]
+import AutoResourcesScreen from './components/AutoResourcesScreen';
 
 export default function App() {
   const nav = useGameNavigation();
@@ -29,13 +29,8 @@ export default function App() {
     else if (contentType === 'mining') nav.goMiningSelect();
   };
 
-  // [추가] 자원 채굴 화면 핸들러
   const handleAutoMiningEntry = () => {
-    // 자동 채굴 화면으로 이동하는 네비게이션 함수를 nav 훅에 추가하거나 직접 state 변경
-    // 여기서는 nav.goResult 등을 재활용하기보다, nav에 새로운 상태를 추가했다고 가정하고 사용
-    // * useGameNavigation.js에 goAutoMining 추가 필요. 없으면 직접 setGameState 사용.
-    // 임시로 직접 문자열 사용:
-    nav.goResult('auto_mining'); // useGameNavigation의 goResult가 setGameState(result)이므로 재활용 가능
+    nav.goResult('auto_mining'); 
   };
 
   return (

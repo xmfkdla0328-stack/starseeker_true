@@ -20,8 +20,9 @@ export default function BattleLogZone({ logs }) {
     }
   };
 
+  // [수정] h-full 추가, mx-2 my-2 및 flex-[3] 제거
   return (
-    <div className="flex-[3] relative overflow-hidden z-10 mx-2 my-2 rounded-lg bg-black/20 border border-white/5 backdrop-blur-sm flex flex-col">
+    <div className="relative overflow-hidden z-10 rounded-lg bg-black/20 border border-white/5 backdrop-blur-sm flex flex-col h-full">
       <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-black/60 to-transparent z-10 pointer-events-none flex items-center px-3">
         <span className="text-[9px] text-slate-500 uppercase tracking-widest">System Log // Realtime Analysis</span>
       </div>

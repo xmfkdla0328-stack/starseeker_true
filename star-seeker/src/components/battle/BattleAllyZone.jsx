@@ -2,8 +2,9 @@ import React from 'react';
 import { Shield } from 'lucide-react';
 
 export default function BattleAllyZone({ allies }) {
+  // [수정] h-full, items-center 클래스 제거하여 내부 수직 여백 제거
   return (
-    <div className="flex-[1] px-2 py-1 grid grid-cols-4 gap-2 items-center z-10 backdrop-blur-md bg-white/5 border-t border-b border-white/10">
+    <div className="flex-[1] px-2 grid grid-cols-4 gap-2 z-10 backdrop-blur-md bg-white/5 border-white/10">
       {allies.map((ally) => (
         <div key={ally.id} className={`relative flex flex-col items-center p-1 rounded-lg border border-white/5 bg-gradient-to-b from-white/5 to-transparent transition-all ${ally.hp <= 0 ? 'opacity-30 grayscale' : 'hover:bg-white/10'}`}>
           {ally.shield > 0 && (
