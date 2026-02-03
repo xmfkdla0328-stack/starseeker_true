@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import './App.css';
 
 // Hooks
@@ -32,6 +32,9 @@ export default function App() {
   const handleAutoMiningEntry = () => {
     nav.goResult('auto_mining'); 
   };
+
+  const initialParty = useMemo(() => data.partyList.map(p => data.roster.find(r => r.id === p.id)), [data.partyList, data.roster]);
+  const onGameEnd = useCallback((result) => nav.goResult(result), [nav]);
 
   return (
     <div className="flex flex-col h-[100dvh] w-full max-w-md mx-auto bg-[#0f172a] overflow-hidden font-sans border-x border-white/10 shadow-2xl text-slate-100 selection:bg-cyan-500/30 relative">
@@ -91,8 +94,8 @@ export default function App() {
         <BattleScreen 
             userStats={data.userStats} 
             hpMultiplier={data.hpMultiplier} 
-            initialParty={data.partyList.map(p => data.roster.find(r => r.id === p.id))} 
-            onGameEnd={nav.goResult} 
+            initialParty={initialParty} 
+            onGameEnd={onGameEnd} 
         />
       )}
 

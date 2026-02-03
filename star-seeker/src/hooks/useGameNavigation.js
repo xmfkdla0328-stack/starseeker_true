@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 export default function useGameNavigation() {
   // gameState: 'home' | 'party' | 'manage' | 'storage' | 'guide' | 'gacha' | 'select' | 'story_select' | 'mining_select' | 'event' | 'active' | 'win' | 'lose'
   const [gameState, setGameState] = useState('home');
 
-  const handlers = {
+  const handlers = useMemo(() => ({
     goHome: () => setGameState('home'),
     goSelect: () => setGameState('select'),
     goParty: () => setGameState('party'),
@@ -17,7 +17,7 @@ export default function useGameNavigation() {
     goEvent: () => setGameState('event'),
     goBattle: () => setGameState('active'),
     goResult: (result) => setGameState(result), // 'win' or 'lose'
-  };
+  }), []);
 
   return { gameState, ...handlers };
 }
