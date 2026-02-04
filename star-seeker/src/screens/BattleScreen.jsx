@@ -65,7 +65,7 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd }) {
 
       <ControlArea>
         <BattleControlZone 
-            causality={playerCausality} 
+            playerCausality={playerCausality} 
             onUseSkill={useSkill} 
             buffs={buffs}
             userStats={userStats} 
