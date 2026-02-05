@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Scroll, ArrowLeft, AlertCircle } from 'lucide-react';
 import StoryViewer from './event/StoryViewer';
 import ChoicePanel from './event/ChoicePanel';
@@ -10,8 +10,24 @@ export default function EventScreen({ activeEventId = 'prologue', onOptionSelect
   const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
   const [phase, setPhase] = useState('loading');
   
-  // [추가] 지금까지 지나온 대사들을 저장할 배열
+  // 지난 대사(Log) 저장용 배열
   const [history, setHistory] = useState([]);
+
+  // --------------------------------------------------------
+  // [BGM 시스템] 오디오 객체 관리
+  // --------------------------------------------------------
+  const audioRef = useRef(new Audio()); 
+  const currentBgmSrc = useRef(null);   
+
+  useEffect(() => {
+    audioRef.current.volume = 0.5; 
+    audioRef.current.loop = true;  
+
+    return () => {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    };
+  }, []);
 
   useEffect(() => {
     const data = getStoryEvent(activeEventId);
@@ -20,10 +36,6 @@ export default function EventScreen({ activeEventId = 'prologue', onOptionSelect
       setCurrentSceneIndex(0);
       const firstScene = data.scenes[0];
       setPhase(firstScene.type === 'choice' ? 'choice' : 'story');
-      // [추가] 첫 대사 히스토리에 추가 (단, 스크립트 타입인 경우만)
-      if (firstScene.type === 'script' || firstScene.type === 'question') {
-          setHistory([firstScene]);
-      }
     } else {
       console.error(`Event ID [${activeEventId}] not found.`);
       setPhase('error');
@@ -32,8 +44,33 @@ export default function EventScreen({ activeEventId = 'prologue', onOptionSelect
 
   const currentScene = eventData?.scenes[currentSceneIndex];
 
+  // [BGM 시스템] 씬 변경 시 BGM 체크 및 재생 로직
+  useEffect(() => {
+    if (!currentScene) return;
+
+    const nextBgm = currentScene.bgm;
+
+    if (nextBgm && nextBgm !== currentBgmSrc.current) {
+        audioRef.current.src = nextBgm;
+        audioRef.current.play().catch(e => console.log("Audio play prevented (Interact needed):", e));
+        currentBgmSrc.current = nextBgm;
+    }
+    else if (nextBgm === null || nextBgm === "") {
+        audioRef.current.pause();
+        currentBgmSrc.current = null;
+    }
+  }, [currentScene]);
+
+  // --- 진행 로직 ---
+
   const handleNext = () => {
     if (!currentScene) return;
+    
+    // 로그 저장 (단, UI 숨김 모드이거나 내용이 없는 씬은 저장하지 않음)
+    if ((currentScene.type === 'script' || currentScene.type === 'monologue' || currentScene.type === 'question') && currentScene.text) {
+        setHistory(prev => [...prev, currentScene]);
+    }
+
     if (currentScene.isEnd) {
       onEventComplete();
       return;
@@ -44,11 +81,6 @@ export default function EventScreen({ activeEventId = 'prologue', onOptionSelect
         setCurrentSceneIndex(nextIdx);
         const nextScene = eventData.scenes[nextIdx];
         
-        // [추가] 다음 대사를 히스토리에 누적
-        if (nextScene.type === 'script' || nextScene.type === 'question') {
-            setHistory(prev => [...prev, nextScene]);
-        }
-
         if (nextScene.type === 'choice') setPhase('choice');
         else setPhase('story');
     } else {
@@ -59,11 +91,10 @@ export default function EventScreen({ activeEventId = 'prologue', onOptionSelect
   const handleChoice = (choice) => {
     if (choice.effect) onOptionSelected(choice.effect);
     
-    // [추가] 선택한 선택지도 로그에 남기기 (선택사항)
     setHistory(prev => [...prev, { 
         type: 'system', 
         text: `[선택] ${choice.text}`, 
-        speaker: 'System' 
+        speaker: 'Player' 
     }]);
 
     if (choice.nextSceneId) {
@@ -71,12 +102,6 @@ export default function EventScreen({ activeEventId = 'prologue', onOptionSelect
         if (nextIndex !== -1) {
             setCurrentSceneIndex(nextIndex);
             const nextScene = eventData.scenes[nextIndex];
-            
-            // [추가] 점프한 대사도 히스토리에 추가
-            if (nextScene.type === 'script' || nextScene.type === 'question') {
-                setHistory(prev => [...prev, nextScene]);
-            }
-
             setPhase(nextScene.type === 'choice' ? 'choice' : 'story');
         } else {
             console.error("Next scene not found:", choice.nextSceneId);
@@ -128,7 +153,7 @@ export default function EventScreen({ activeEventId = 'prologue', onOptionSelect
             {(phase === 'story' || (currentScene && currentScene.type === 'question')) && (
                 <StoryViewer 
                     script={currentScene} 
-                    history={history} // [핵심] 히스토리 전달
+                    history={history}
                     onNext={handleNext} 
                 />
             )}

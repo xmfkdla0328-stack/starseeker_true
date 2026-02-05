@@ -8,7 +8,7 @@ export default function StorySelectScreen({ onSelectChapter, onBack }) {
       id: 'prologue',
       title: '서장: 누구를 위하여 종은 울리나?',
       subTitle: 'Prologue: For Whom the Bell Tolls',
-      description: '우리는 아주 오래도록 기다려왔어.',
+      description: '수 없이 많은 나의 시체 위에서.',
       isLocked: false, // 진입 가능
       level: 1,
     },
