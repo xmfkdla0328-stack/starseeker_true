@@ -1,123 +1,146 @@
-import React, { useState } from 'react';
-import { Scroll, Hand, ArrowRight, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Scroll, ArrowLeft, AlertCircle } from 'lucide-react';
+import StoryViewer from './event/StoryViewer';
+import ChoicePanel from './event/ChoicePanel';
+import RewardPopup from './event/RewardPopup';
+import { getStoryEvent } from '../data/storyRegistry';
 
-export default function EventScreen({ onOptionSelected, onEventComplete }) {
-  const [eventPhase, setEventPhase] = useState(0); // 0: 선택, 1: 결과(터치), 2: 결과(무시), 3: 조우
+export default function EventScreen({ activeEventId = 'prologue', onOptionSelected, onEventComplete, navigate }) {
+  const [eventData, setEventData] = useState(null);
+  const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
+  const [phase, setPhase] = useState('loading');
+  
+  // [추가] 지금까지 지나온 대사들을 저장할 배열
+  const [history, setHistory] = useState([]);
 
-  const handleChoice = (choice) => {
-    if (choice === 'touch') {
-      // 부모 컴포넌트(App)에 페널티 적용 요청
-      onOptionSelected({ type: 'hp', value: 0.9 });
-      setEventPhase(1);
+  useEffect(() => {
+    const data = getStoryEvent(activeEventId);
+    if (data) {
+      setEventData(data);
+      setCurrentSceneIndex(0);
+      const firstScene = data.scenes[0];
+      setPhase(firstScene.type === 'choice' ? 'choice' : 'story');
+      // [추가] 첫 대사 히스토리에 추가 (단, 스크립트 타입인 경우만)
+      if (firstScene.type === 'script' || firstScene.type === 'question') {
+          setHistory([firstScene]);
+      }
     } else {
-      // 부모 컴포넌트(App)에 스탯 상승 요청
-      onOptionSelected({ type: 'stat', stat: 'int', value: 1 });
-      setEventPhase(2);
+      console.error(`Event ID [${activeEventId}] not found.`);
+      setPhase('error');
+    }
+  }, [activeEventId]);
+
+  const currentScene = eventData?.scenes[currentSceneIndex];
+
+  const handleNext = () => {
+    if (!currentScene) return;
+    if (currentScene.isEnd) {
+      onEventComplete();
+      return;
+    }
+
+    if (currentSceneIndex < eventData.scenes.length - 1) {
+        const nextIdx = currentSceneIndex + 1;
+        setCurrentSceneIndex(nextIdx);
+        const nextScene = eventData.scenes[nextIdx];
+        
+        // [추가] 다음 대사를 히스토리에 누적
+        if (nextScene.type === 'script' || nextScene.type === 'question') {
+            setHistory(prev => [...prev, nextScene]);
+        }
+
+        if (nextScene.type === 'choice') setPhase('choice');
+        else setPhase('story');
+    } else {
+        onEventComplete();
     }
   };
 
+  const handleChoice = (choice) => {
+    if (choice.effect) onOptionSelected(choice.effect);
+    
+    // [추가] 선택한 선택지도 로그에 남기기 (선택사항)
+    setHistory(prev => [...prev, { 
+        type: 'system', 
+        text: `[선택] ${choice.text}`, 
+        speaker: 'System' 
+    }]);
+
+    if (choice.nextSceneId) {
+        const nextIndex = eventData.scenes.findIndex(s => s.id === choice.nextSceneId);
+        if (nextIndex !== -1) {
+            setCurrentSceneIndex(nextIndex);
+            const nextScene = eventData.scenes[nextIndex];
+            
+            // [추가] 점프한 대사도 히스토리에 추가
+            if (nextScene.type === 'script' || nextScene.type === 'question') {
+                setHistory(prev => [...prev, nextScene]);
+            }
+
+            setPhase(nextScene.type === 'choice' ? 'choice' : 'story');
+        } else {
+            console.error("Next scene not found:", choice.nextSceneId);
+            onEventComplete();
+        }
+    } else {
+        handleNext();
+    }
+  };
+
+  if (phase === 'loading') return <div className="text-white p-6">데이터 로딩 중...</div>;
+  if (phase === 'error') return (
+    <div className="text-rose-400 p-6 flex flex-col items-center justify-center h-full">
+        <AlertCircle size={48} className="mb-4"/>
+        <p>이벤트 데이터를 찾을 수 없습니다.</p>
+        <button onClick={() => navigate('Home')} className="mt-4 px-4 py-2 bg-slate-700 rounded">돌아가기</button>
+    </div>
+  );
+
+  const isStoryMode = phase === 'story' || (currentScene && currentScene.type === 'question');
+
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-6 z-10 space-y-6 animate-fade-in">
-      <div className="w-full bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-xl shadow-2xl">
-        <div className="flex items-center gap-2 mb-4 text-amber-200">
-          <Scroll size={20} />
-          <span className="font-bold tracking-widest text-sm">EVENT LOG</span>
+    <div className={`flex-1 flex flex-col relative z-10 animate-fade-in h-full bg-[#0f172a]
+        ${isStoryMode ? 'p-0' : 'p-6'}`}>
+      
+      {!isStoryMode && (
+        <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-4">
+            <button onClick={() => navigate && navigate('Home')} className="p-2 text-slate-400 hover:text-white">
+                <ArrowLeft size={20} />
+            </button>
+            <div className="flex items-center gap-2 text-amber-200">
+            <Scroll size={20} />
+            <span className="font-bold tracking-widest text-sm truncate max-w-[200px]">
+                {eventData.title}
+            </span>
+            </div>
+            <div className="w-8"></div>
         </div>
+      )}
 
-        {eventPhase === 0 && (
-          <div className="space-y-6 animate-fade-in">
-            <p className="text-slate-300 leading-relaxed">
-              어두운 통로를 지나던 중, <span className="text-cyan-300 font-bold">기묘한 빛을 내뿜는 비석</span>을 발견했습니다. 
-              표면에는 알 수 없는 고대 문자가 새겨져 있으며, 미세한 진동이 느껴집니다.
-            </p>
-            <p className="text-slate-400 text-sm italic">만져보시겠습니까?</p>
+      <div className={`flex-1 flex flex-col justify-center w-full mx-auto transition-all duration-500
+          ${isStoryMode ? 'max-w-full h-full' : 'max-w-lg'}`}>
+        
+        <div className={`w-full flex flex-col transition-all duration-500
+            ${isStoryMode 
+                ? 'h-full bg-black'
+                : 'bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-xl shadow-2xl min-h-[300px]'}`}>
             
-            <div className="flex flex-col gap-3 pt-2">
-              <button 
-                onClick={() => handleChoice('touch')}
-                className="w-full py-4 px-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-cyan-500/50 rounded-lg text-left transition-all group"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-cyan-200 font-bold group-hover:text-cyan-100">기묘한 비석을 만져본다.</span>
-                  <Hand size={16} className="text-slate-500 group-hover:text-cyan-400" />
-                </div>
-                <span className="text-xs text-slate-500 group-hover:text-slate-400 mt-1 block">호기심이 당신을 이끕니다...</span>
-              </button>
+            {(phase === 'story' || (currentScene && currentScene.type === 'question')) && (
+                <StoryViewer 
+                    script={currentScene} 
+                    history={history} // [핵심] 히스토리 전달
+                    onNext={handleNext} 
+                />
+            )}
 
-              <button 
-                onClick={() => handleChoice('ignore')}
-                className="w-full py-4 px-6 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-emerald-500/50 rounded-lg text-left transition-all group"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-emerald-200 font-bold group-hover:text-emerald-100">만지지 않고 지나간다.</span>
-                  <ArrowRight size={16} className="text-slate-500 group-hover:text-emerald-400" />
-                </div>
-                <span className="text-xs text-slate-500 group-hover:text-slate-400 mt-1 block">지능 +1</span>
-              </button>
-            </div>
-          </div>
-        )}
+            {phase === 'choice' && (
+                <ChoicePanel 
+                    choices={currentScene.choices} 
+                    onSelect={handleChoice} 
+                />
+            )}
 
-        {eventPhase === 1 && (
-          <div className="space-y-6 animate-fade-in">
-            <p className="text-rose-300 leading-relaxed">
-              손을 대자마자 끔찍한 오한이 전신을 휘감습니다!<br/>
-              <br/>
-              "......!!"<br/>
-              <br/>
-              이상하게도 뭔가 생명력이 빠져나가는 느낌이 듭니다... 
-              당신은 서둘러 손을 떼고 비석을 지나쳤습니다.
-            </p>
-            <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded text-rose-200 text-sm text-center">
-              파티원 전체 HP -10%
-            </div>
-            <button 
-              onClick={() => setEventPhase(3)}
-              className="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded transition-colors"
-            >
-              다음으로
-            </button>
-          </div>
-        )}
-
-        {eventPhase === 2 && (
-          <div className="space-y-6 animate-fade-in">
-            <p className="text-emerald-300 leading-relaxed">
-              당신은 냉철한 판단으로 비석을 무시하고 지나갑니다.<br/>
-              불필요한 위험을 감수할 필요는 없으니까요.<br/>
-              <br/>
-              현명한 판단이었습니다. 머리가 한결 맑아지는 기분입니다.
-            </p>
-            <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded text-emerald-200 text-sm text-center">
-              지능(INT) +1 상승
-            </div>
-            <button 
-              onClick={() => setEventPhase(3)}
-              className="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded transition-colors"
-            >
-              다음으로
-            </button>
-          </div>
-        )}
-
-        {eventPhase === 3 && (
-          <div className="space-y-6 animate-fade-in">
-            <div className="flex justify-center my-4">
-              <AlertTriangle size={48} className="text-fuchsia-500 animate-pulse" />
-            </div>
-            <p className="text-white text-lg font-bold text-center leading-relaxed">
-              공허의 감시자가 나타났다!<br/>
-              <span className="text-sm font-normal text-slate-400">상대하고 지나가야 할 것 같습니다.</span>
-            </p>
-            
-            <button 
-              onClick={onEventComplete}
-              className="w-full py-4 bg-gradient-to-r from-rose-900 to-rose-700 hover:from-rose-800 hover:to-rose-600 text-white font-bold rounded shadow-lg shadow-rose-900/50 border border-rose-500 transition-all hover:scale-[1.02]"
-            >
-              전투 개시 (BATTLE START)
-            </button>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );

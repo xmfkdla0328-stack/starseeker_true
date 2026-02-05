@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ENEMY_TEMPLATE, CAUSALITY_MAX } from '../../data/gameData'; // 경로 수정
+import { CAUSALITY_MAX } from '../../data/gameData';
+import { ENEMY_TEMPLATE } from '../../data/enemyData'; // [수정] 경로 변경
 
 export default function useBattleState(initialParty, userStats, hpMultiplier) {
   // --- 상태 선언 ---
@@ -28,12 +29,12 @@ export default function useBattleState(initialParty, userStats, hpMultiplier) {
     setPlayerCausality(prev => Math.min(prev + finalAmount, CAUSALITY_MAX));
   }, [userStats.int]);
 
-  // --- 초기화 로직 (전투 시작 시 1회 실행) ---
+  // --- 전투 초기화 ---
   useEffect(() => {
     if (!initialParty || initialParty.length === 0) return;
 
+    // 아군 초기화
     const initializedAllies = initialParty.map(char => {
-      // 스탯 계산
       const maxHp = Math.floor(char.baseHp * (1 + userStats.chr * 0.01));
       const currentHp = Math.floor(maxHp * hpMultiplier);
       const atk = Math.floor(char.baseAtk * (1 + userStats.str * 0.01));
@@ -47,43 +48,43 @@ export default function useBattleState(initialParty, userStats, hpMultiplier) {
         atk: atk,
         def: def,
         spd: spd,
-        // 스킬 정보 안전하게 매핑
         combatSkills: char.combatSkills || { 
             normal: { name: "기본 공격", mult: 1.0 }, 
             ultimate: { name: "필살기", mult: 2.5 } 
         },
-        actionGauge: Math.random() * 500, // 턴 겹침 방지 랜덤 시작
+        actionGauge: Math.random() * 500,
         ultGauge: 0,
         maxUltGauge: 100,
         shield: 0,
         efficiency: char.efficiency || 1.0,
+        selfBuffs: { atkUp: 0, critDmgUp: 0, buffTime: 0 }
       };
     });
     setAllies(initializedAllies);
 
-    setEnemy({
-      ...ENEMY_TEMPLATE,
-      hp: ENEMY_TEMPLATE.maxHp,
-      causality: 0,
-      actionGauge: 0,
-      isCharging: false,
-      chargeTimer: 0,
-    });
-
-    addLog("=== 전투 개시 ===", "system");
-    if (hpMultiplier < 1.0) {
-        addLog("[상태이상] 알 수 없는 힘에 의해 체력이 감소했습니다.", "warning");
+    // [수정] 적 초기화: 분리된 enemyData.js의 템플릿 사용
+    if (ENEMY_TEMPLATE) {
+        setEnemy({
+            ...ENEMY_TEMPLATE,
+            hp: ENEMY_TEMPLATE.maxHp,
+            actionGauge: 0,
+            ultGauge: 0,
+            causality: 0,
+            isCharging: false,
+            chargeTimer: 0,
+            chargingSkill: null
+        });
     }
+    
+    addLog("전투 시뮬레이션 개시...", "system");
 
-  }, [userStats, hpMultiplier, initialParty, addLog]);
+  }, [initialParty, userStats, hpMultiplier, addLog]);
 
   return {
-    logs, setLogs,
-    allies, setAllies,
-    enemy, setEnemy,
+    logs, allies, setAllies, enemy, setEnemy, 
     playerCausality, setPlayerCausality,
-    enemyWarning, setEnemyWarning,
-    buffs, setBuffs,
+    enemyWarning, setEnemyWarning, 
+    buffs, setBuffs, 
     addLog, gainCausality
   };
 }

@@ -8,7 +8,7 @@ export default function StorySelectScreen({ onSelectChapter, onBack }) {
       id: 'prologue',
       title: '서장: 누구를 위하여 종은 울리나?',
       subTitle: 'Prologue: For Whom the Bell Tolls',
-      description: '기이한 신호에 이끌려 도착한 이름 없는 행성. 그곳에서 발견된 고대 유적과 심상치 않은 공허의 반응.',
+      description: '우리는 아주 오래도록 기다려왔어.',
       isLocked: false, // 진입 가능
       level: 1,
     },

@@ -1,15 +1,17 @@
-// 캐릭터 데이터는 별도 파일에서 관리
+// 캐릭터 데이터는 별도 파일에서 관리하며 여기서 다시 내보냅니다
 export { ALL_CHARACTERS } from './characterData';
 
 // --- 게임 설정 상수 ---
-export const TICK_RATE = 50;
-export const ACTION_THRESHOLD = 1000;
-export const CAUSALITY_MAX = 100;
-export const ENEMY_CAUSALITY_TRIGGER = 10;
-export const WARNING_DURATION_MS = 3000;
+export const TICK_RATE = 50; // 전투 루프 갱신 주기 (ms)
+export const ACTION_THRESHOLD = 1000; // 행동 게이지 완충 값
+export const CAUSALITY_MAX = 100; // 인과율 최대치
+export const ENEMY_CAUSALITY_TRIGGER = 10; // 적 인과력 스킬 발동 조건
+export const WARNING_DURATION_MS = 3000; // 기본 경고 시간
 
+// 유저 초기 스탯
 export const INITIAL_USER_STATS = {
   str: 10, agi: 10, int: 10, wil: 10, chr: 10,
+  hp: 100, atk: 15, def: 5, spd: 10
 };
 
 // --- 전체 아이템 데이터베이스 ---
@@ -35,15 +37,7 @@ export const ALL_ITEMS = {
     name: '인과석',
     type: 'currency',
     rarity: 'legendary',
-    desc: '인과율의 흐름을 고정하여 새로운 가능성을 불러오는 신비한 돌입니다.',
+    desc: '인과율의 흐름을 고정시켜 새로운 가능성(캐릭터)을 관측할 때 사용합니다.',
     iconType: 'stone'
   }
-};
-
-export const ENEMY_TEMPLATE = {
-  name: "공허의 감시자",
-  maxHp: 20000,
-  baseAtk: 150,
-  baseDef: 15,
-  baseSpd: 55,
 };

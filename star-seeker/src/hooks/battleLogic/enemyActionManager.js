@@ -1,4 +1,4 @@
-import { ACTION_THRESHOLD, TICK_RATE } from '../../data/gameData';
+import { ACTION_THRESHOLD, TICK_RATE, ENEMY_CAUSALITY_TRIGGER } from '../../data/gameData';
 
 // 살아있는 아군 중 랜덤으로 타겟을 선택하는 함수
 function selectRandomAlly(allies) {
@@ -8,68 +8,126 @@ function selectRandomAlly(allies) {
 }
 
 /**
- * 적의 행동 로직을 처리합니다.
- * @param {object} context - 전투의 모든 상태와 함수를 담고 있는 객체
- * @returns {object} - 적의 상태 변화와 아군에게 가해질 데미지 정보
+ * 적의 행동 로직 (AI)
+ * 구조: 충전 체크 -> (행동 게이지 충전) -> 턴 획득 -> [인과력 스킬 > 필살기 > 일반 공격] 판단
  */
 export function handleEnemyActions(context) {
     const { enemy, allies, addLog } = context;
 
+    // 상태 복사
     let newActionGauge = enemy.actionGauge;
     let newCausality = enemy.causality;
+    let newUltGauge = enemy.ultGauge;
     let isCharging = enemy.isCharging;
     let chargeTimer = enemy.chargeTimer;
+    let chargingSkill = enemy.chargingSkill; // 현재 준비 중인 스킬 타입
     let damageToAllies = [];
 
     if (enemy.hp <= 0) {
-        return { newActionGauge, newCausality, isCharging, chargeTimer, damageToAllies };
+        return { updatedEnemy: { ...enemy }, damageToAllies: [] };
     }
     
-    // 1. 충전(charging) 상태 관리
+    // ----------------------------------------------------
+    // 1. 충전(Charging) 상태 처리 (스킬 준비 중)
+    // ----------------------------------------------------
     if (isCharging) {
         chargeTimer -= TICK_RATE;
+        
+        // 충전 완료! 스킬 발동
         if (chargeTimer <= 0) {
-            addLog(`적의 강력한 광역 공격!`, 'enemy-attack');
-            // 살아있는 모든 아군에게 데미지
-            allies.forEach(ally => {
-                if (ally.hp > 0) {
-                    damageToAllies.push({ targetId: ally.id, amount: Math.floor(enemy.atk * 2.0) });
+            let skillData = null;
+            let logType = 'enemy_atk';
+
+            // 준비했던 스킬이 무엇인지 확인
+            if (chargingSkill === 'causality') {
+                skillData = enemy.skills.causality;
+                logType = 'enemy_ult'; // 인과력 스킬 강조
+                newCausality = 0; // 인과력 소모
+            } else if (chargingSkill === 'ultimate') {
+                skillData = enemy.skills.ultimate;
+                logType = 'enemy_atk'; // 필살기
+                newUltGauge = 0; // 게이지 소모
+                newCausality += (skillData.causalityGain || 0); // 필살기 사용으로 인과력 축적
+            }
+
+            if (skillData) {
+                addLog(`☄️ ${enemy.name}의 [${skillData.name}] 발동!`, logType);
+                
+                // 데미지 판정 (광역/단일)
+                if (skillData.isAoe) {
+                    allies.forEach(ally => {
+                        if (ally.hp > 0) {
+                            damageToAllies.push({ targetId: ally.id, amount: Math.floor(enemy.baseAtk * skillData.mult) });
+                        }
+                    });
+                } else {
+                    const target = selectRandomAlly(allies);
+                    if (target) {
+                        damageToAllies.push({ targetId: target.id, amount: Math.floor(enemy.baseAtk * skillData.mult) });
+                    }
                 }
-            });
+            }
+
+            // 상태 초기화
             isCharging = false;
+            chargingSkill = null;
             newActionGauge = 0;
         }
     }
-    // 2. 일반 행동
+    // ----------------------------------------------------
+    // 2. 일반 상태 (행동 게이지 충전 및 패턴 결정)
+    // ----------------------------------------------------
     else {
-        newActionGauge += (enemy.spd * (1 + Math.random() * 0.1));
+        newActionGauge += (enemy.baseSpd * (1 + Math.random() * 0.1));
 
+        // 턴 획득
         if (newActionGauge >= ACTION_THRESHOLD) {
             newActionGauge = 0;
 
-            // 행동 결정: CP(causality)가 5 이상이면 50% 확률로 충전, 아니면 일반 공격
-            if (newCausality >= 5 && Math.random() < 0.5) {
+            // [패턴 1] 인과력 조건 충족 시 -> 인과력 스킬 예고 (최우선)
+            if (newCausality >= ENEMY_CAUSALITY_TRIGGER) {
+                const skillData = enemy.skills.causality;
                 isCharging = true;
-                chargeTimer = 3000; // 3초 충전
-                newCausality -= 5;
-                addLog('적이 힘을 모으기 시작합니다!', 'enemy-warning');
-            } else {
+                chargingSkill = 'causality';
+                chargeTimer = skillData.chargeTime || 3000;
+                addLog(`⚠️ ${enemy.name}이(가) [${skillData.name}]을(를) 준비합니다...`, 'warning');
+            } 
+            // [패턴 2] 필살기 게이지 충족 시 -> 필살기 예고 (차선)
+            else if (newUltGauge >= enemy.maxUltGauge) {
+                const skillData = enemy.skills.ultimate;
+                isCharging = true;
+                chargingSkill = 'ultimate';
+                chargeTimer = skillData.chargeTime || 2000;
+                addLog(`🔥 ${enemy.name}에게서 불길한 기운이 느껴집니다. (${skillData.name})`, 'warning');
+            } 
+            // [패턴 3] 일반 공격 (즉시 시전)
+            else {
+                const skillData = enemy.skills.normal;
                 const target = selectRandomAlly(allies);
+                
                 if (target) {
-                    const damage = Math.floor(enemy.atk * (0.8 + Math.random() * 0.4)); // 데미지 변동폭 추가
-                    addLog(`⚔️ 적의 공격 -> ${target.name} (DMG: ${damage})`, 'enemy-attack');
-                    damageToAllies.push({ targetId: target.id, amount: damage });
-                    newCausality += 1;
+                    const dmg = Math.floor(enemy.baseAtk * skillData.mult);
+                    addLog(`⚔️ ${enemy.name}의 [${skillData.name}] -> ${target.name}`, 'enemy_atk');
+                    damageToAllies.push({ targetId: target.id, amount: dmg });
+                    
+                    // 게이지 및 인과력 축적
+                    newUltGauge += (skillData.gaugeGain || 0);
+                    newCausality += (skillData.causalityGain || 0);
                 }
             }
         }
     }
 
-    return {
-        newActionGauge,
-        newCausality,
-        isCharging,
-        chargeTimer,
-        damageToAllies,
+    return { 
+        updatedEnemy: { 
+            ...enemy, 
+            actionGauge: newActionGauge, 
+            causality: newCausality, 
+            ultGauge: Math.min(newUltGauge, enemy.maxUltGauge),
+            isCharging, 
+            chargeTimer,
+            chargingSkill
+        },
+        damageToAllies
     };
 }
