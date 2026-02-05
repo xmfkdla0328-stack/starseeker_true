@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function RewardPopup({ text, onConfirm }) {
   return (
-    <div className="flex-1 flex flex-col justify-center items-center text-center animate-fade-in space-y-6">
+    <div className="flex-1 flex flex-col justify-center items-center text-center animate-fade-in space-y-6 bg-[#0f172a] h-full p-6 rounded-xl border border-white/10">
       <div className="p-4 bg-black/20 rounded-lg border border-white/10 w-full">
         <p className="text-slate-200 leading-relaxed whitespace-pre-wrap">
             {text}

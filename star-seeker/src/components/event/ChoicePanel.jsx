@@ -3,8 +3,8 @@ import { Hand, ArrowRight } from 'lucide-react';
 
 export default function ChoicePanel({ choices, onSelect }) {
   return (
-    <div className="flex-1 flex flex-col justify-center space-y-4 animate-fade-in">
-      <p className="text-slate-400 text-sm italic text-center mb-2">분기점</p>
+    <div className="flex-1 flex flex-col justify-center space-y-4 animate-fade-in bg-[#0f172a] h-full p-6 rounded-xl border border-white/10">
+      <p className="text-slate-400 text-sm italic text-center mb-4">선택의 기로...</p>
       
       {choices.map((choice) => (
         <button 
