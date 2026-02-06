@@ -52,8 +52,7 @@ export const prologue_event = {
       id: 6, 
       type: 'monologue',
       text: `비록 신체 말단 부위는 감각이 소실되었지만.
-그래도 신체를 지탱하고, 일으켜 세우는 것은 가능하다.
-이 정도면 충분하다. 한차례 크게 숨을 마시고, 몸을 일으켜 세운다.`, 
+그래도 신체를 지탱하고, 일으켜 세우는 것은 가능하다.`, 
       speaker: "???", 
       bg: "red_alert",
     },
@@ -62,9 +61,11 @@ export const prologue_event = {
       id: 7, 
       type: 'script', 
       text: "관측자!", 
+      keywordUnlock: 'kw_observer',
       speaker: "누군가",
       characterImage: "/images/characters/ekidna_normal.png",
-      bg: "ruin_entrance"
+      bg: "ruin_entrance",
+      highlight: ["관측자"] // [핵심] 이 속성을 추가하여 해당 단어만 색상을 변경합니다.
     },
     { 
       // [8] 일반 대사 (Script) - 여기서부터 UI 스타일 복귀
@@ -79,7 +80,7 @@ export const prologue_event = {
       // [9] 일반 대사 (Script) - 여기서부터 UI 스타일 복귀
       id: 9, 
       type: 'script', 
-      text: `잠시만, 잠시만 기다려.
+      text: `너…상태가…! 잠시, 잠시만 기다려.
 내가 곧바로 신체 복구용 키트를─.`, 
       speaker: "에키드나",
       characterImage: "/images/characters/ekidna_normal.png",
@@ -153,8 +154,7 @@ export const prologue_event = {
       id: 18, 
       type: 'monologue',
       text: `그렇다 해도 상관 없다.
-당장 필요로 하는 기관들은 정상적으로 작동하고 있다.
-그 외의 것들은 지금 시점에서는 모두 소모재일 뿐이다.`, 
+당장 필요로 하는 기관들은 정상적으로 작동하고 있으니까.`, 
       speaker: "???", 
       bg: "red_alert",
     },
@@ -170,6 +170,84 @@ export const prologue_event = {
     },
     {
       id: 20,
+      type: 'script',
+      text: `지금 그게 문제가 아니잖아! 뭐던지 일단 치료부터 해야-.`,
+      speaker: "에키드나",
+      characterImage: "/images/characters/ekidna_normal.png",
+      bg: "ruin_entrance",
+    },
+    {
+    id: 21,
+    type: 'script',
+    text: `에키드나, 내 몸은 내가 제일 잘 알아.
+부질 없는 짓에 매달릴 때가 아니야.`,
+    speaker: "???",
+    characterImage: "/images/characters/noel_normal.png",
+    bg: "ruin_entrance",
+    },
+    {
+      id: 22,
+      type: 'script',
+      text: `그러니 부탁해, 도와줘.`,
+      speaker: "???",
+      characterImage: "/images/characters/noel_normal.png",
+      bg: "ruin_entrance",
+    },
+    {
+      id: 23,
+      type: 'script',
+      text: `…넌 언제나 그런 식이지.`,
+      speaker: "에키드나",
+      characterImage: "/images/characters/ekidna_normal.png",
+      bg: "ruin_entrance",
+    },
+    {
+      id: 24, 
+      type: 'monologue',
+      text: `화를 눌러 삼키는 기색으로, 에키드나는 이를 악물고 내 앞에 선다.`, 
+      speaker: "???", 
+      bg: "red_alert",
+    },
+    {
+      id: 24, 
+      type: 'monologue',
+      text: `언제나 이런 식이지. 언제나 제멋대로 구는 나를, 결국에 너는 늘 따라와준다.`, 
+      speaker: "???", 
+      bg: "red_alert",
+    },
+    {
+      id: 25,
+      type: 'script',
+      text: `고마워.`,
+      speaker: "???",
+      characterImage: "/images/characters/noel_normal.png",
+      bg: "ruin_entrance",
+    },
+    {
+      id: 24, 
+      type: 'monologue',
+      text: `감사의 말을 전하고, 보이지 않는 시야 너머 바다와도 같이 밀려오는 인과력의 근원을 응시한다.`, 
+      speaker: "???", 
+      bg: "red_alert",
+    },
+    {
+      id: 24, 
+      type: 'monologue',
+      text: `그곳에, 지금까지 무의미한 것을 알면서도 싸워온 이유가 있다.`, 
+      speaker: "???", 
+      bg: "red_alert",
+    },
+    {
+      id: 25, 
+      type: 'script',
+      text: `가자.`, 
+      speaker: "???", 
+      characterImage: "/images/characters/noel_normal.png",
+      bg: "red_alert",
+    },
+
+    {
+      id: 26,
       type: 'choice',
       choices: [
         {
@@ -177,7 +255,7 @@ export const prologue_event = {
           text: `인과력을 사용한다.`,
           type: 'risk',
           riskText: '<인과력> 키워드 필요',
-          nextSceneId: 21,
+          nextSceneId: 27,
           // [핵심] 조건: 인과력 키워드 보유 필수
           condition: { type: 'keyword', id: 'kw_causality', name: '인과력' }
         }
@@ -185,7 +263,7 @@ export const prologue_event = {
     },
     {
       // [21] 전투 돌입 전 특수 연출 화면 (Warp White 적용)
-      id: 21,
+      id: 27,
       type: 'script',
       text: "", 
       bg: "ruin_entrance",

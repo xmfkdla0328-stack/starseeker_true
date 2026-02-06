@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { TICK_RATE } from '../../data/gameData';
 import useBattleState from './useBattleState';
 import { handleAllyActions } from './actionManager';
@@ -14,7 +14,10 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
     addLog, gainCausality
   } = useBattleState(initialParty, userStats, hpMultiplier);
 
-  // --- Refs ---
+  // [New] 전투 시작 여부 플래그 (연출 대기용)
+  const [isBattleStarted, setIsBattleStarted] = useState(false);
+
+  // Refs
   const onGameEndRef = useRef(onGameEnd);
   useEffect(() => { onGameEndRef.current = onGameEnd; }, [onGameEnd]);
 
@@ -29,10 +32,10 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
 
   // --- 메인 게임 루프 ---
   useEffect(() => {
-    if (!initialParty || initialParty.length === 0 || !onGameEndRef.current) return;
+    // [핵심] isBattleStarted가 false이면 루프를 돌리지 않음
+    if (!initialParty || initialParty.length === 0 || !onGameEndRef.current || !isBattleStarted) return;
 
     const interval = setInterval(() => {
-      // [수정 1] 이번 틱(Tick)에서 사용할 로컬 상태 변수 생성 (덮어쓰기 방지)
       let currentAllies = [...alliesRef.current];
       let currentBuffs = buffsRef.current;
 
@@ -40,14 +43,14 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
       const { updatedBuffs, shieldJustExpired, hasChanged } = manageBuffs(currentBuffs, addLog);
       if (hasChanged) {
         setBuffs(updatedBuffs);
-        currentBuffs = updatedBuffs; // 최신 버프 상태 반영
+        currentBuffs = updatedBuffs;
       }
 
       // 2. 적(Enemy) 행동 처리
       if (enemyRef.current && enemyRef.current.hp > 0) {
         const enemyContext = { 
             enemy: enemyRef.current, 
-            allies: currentAllies, // 최신 아군 상태 전달
+            allies: currentAllies, 
             addLog 
         };
         
@@ -58,23 +61,19 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
             setEnemyWarning(updatedEnemy.isCharging); 
         }
 
-        // [수정 2] 적 공격 데미지를 'currentAllies' 변수에 즉시 반영
         if (damageToAllies && damageToAllies.length > 0) {
             currentAllies = currentAllies.map(ally => {
                 const hitInfo = damageToAllies.find(d => d.targetId == ally.id);
-                
                 if (hitInfo) {
                     let rawDmg = hitInfo.amount;
                     let def = ally.def || 0;
                     let finalDmg = Math.max(1, rawDmg - def);
 
-                    // 피해 감소 버프
                     if (currentBuffs.damageReduction.active) {
                         const reductionRate = currentBuffs.damageReduction.val || 0;
                         finalDmg = Math.floor(finalDmg * (1 - reductionRate));
                     }
 
-                    // 쉴드 계산
                     let remainingShield = ally.shield || 0;
                     if (remainingShield > 0) {
                         if (remainingShield >= finalDmg) {
@@ -86,12 +85,10 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
                         }
                     }
 
-                    // 피격 시 인과력 획득
                     if (finalDmg > 0) {
                         gainCausality(1 * (ally.efficiency || 1.0));
                     }
 
-                    // HP 변경 반영
                     return { ...ally, hp: Math.max(0, ally.hp - finalDmg), shield: remainingShield };
                 }
                 return ally;
@@ -100,7 +97,6 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
       }
 
       // 3. 아군(Ally) 행동 처리
-      // [수정 3] 적에게 맞아 HP가 깎인 상태인 'currentAllies'를 넘겨줍니다.
       const { updatedAllies, damageToEnemy } = handleAllyActions({
           allies: currentAllies, 
           buffs: currentBuffs,
@@ -110,12 +106,10 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
           gainCausality,
       });
 
-      // 아군이 적에게 준 데미지 반영
       if (damageToEnemy > 0) {
           setEnemy(e => ({ ...e, hp: Math.max(0, e.hp - damageToEnemy) }));
       }
       
-      // [수정 4] 최종적으로 계산된 상태(적 데미지 + 아군 게이지 변화)를 한 번만 적용
       setAllies(updatedAllies);
 
       // 4. 승패 체크
@@ -128,7 +122,6 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
           return e;
       });
       
-      // updatedAllies(최신 상태)를 기준으로 패배 체크
       if (updatedAllies.length > 0 && updatedAllies.every(a => a.hp <= 0)) {
           addLog("모든 아군이 쓰러졌습니다... 패배", "system");
           if(onGameEndRef.current) onGameEndRef.current('lose');
@@ -137,10 +130,13 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
     }, TICK_RATE);
 
     return () => clearInterval(interval);
-  }, [initialParty, userStats, hpMultiplier, setAllies, setBuffs, setEnemy, setEnemyWarning, addLog, gainCausality]); 
+  }, [initialParty, userStats, hpMultiplier, setAllies, setBuffs, setEnemy, setEnemyWarning, addLog, gainCausality, isBattleStarted]); // isBattleStarted 의존성 추가
 
-  // 유저 스킬 (인과력 소모)
+  // 유저 스킬
   const useSkill = (type) => {
+    // [추가] 전투 시작 전에는 스킬 사용 불가
+    if (!isBattleStarted) return;
+
     const cost = { atk: 10, shield: 20, speed: 30 };
     if (playerCausality < cost[type]) { 
         addLog("CP(인과력)가 부족합니다.", "system"); 
@@ -162,5 +158,11 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
     }
   };
 
-  return { logs, allies, enemy, playerCausality, enemyWarning, buffs, useSkill };
+  // [New] 외부에서 전투를 시작시킬 수 있는 함수 노출
+  const startBattle = () => {
+    setIsBattleStarted(true);
+    addLog("--- 전투가 시작됩니다 ---", "system");
+  };
+
+  return { logs, allies, enemy, playerCausality, enemyWarning, buffs, useSkill, startBattle, isBattleStarted };
 }
