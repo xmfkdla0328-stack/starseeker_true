@@ -111,3 +111,34 @@
     /* 붉은색 네온 글로우 효과 추가 */
     filter: drop-shadow(0 0 3px rgba(239, 68, 68, 0.8)) drop-shadow(0 0 8px rgba(220, 38, 38, 0.4));
 }
+
+/* [신규] 하얀 빛으로 빨려들어가는 워프 효과 */
+@keyframes warpExpand {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+    20% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(50); /* 화면 전체를 덮을 만큼 확대 */
+        opacity: 1;
+        background-color: white;
+    }
+}
+
+.warp-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle, #ffffff 40%, rgba(255,255,255,0.5) 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 40px 20px rgba(255, 255, 255, 0.8);
+    /* 가속도가 붙는 느낌을 위해 cubic-bezier 사용 */
+    animation: warpExpand 2s cubic-bezier(0.8, 0, 0.2, 1) forwards;
+    pointer-events: none;
+    z-index: 100;
+}

@@ -1,14 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { User, History, X } from 'lucide-react';
-import useTypewriter from '../../hooks/event/useTypewriter'; // 타이핑 훅
-import LogModal from './LogModal'; // 같은 폴더
+import useTypewriter from '../../hooks/event/useTypewriter'; // 훅 import 확인
+import LogModal from './LogModal';
 
 export default function StoryViewer({ script, history, onNext }) {
   const hasImage = !!script.characterImage;
   const [showLog, setShowLog] = useState(false);
   
+  // [핵심] 타이핑 효과 훅 사용
   const { displayedText, isTyping, forceComplete } = useTypewriter(script.text || "");
 
+  // 자동 넘김 (Duration) - 타이핑 끝난 후 작동
   useEffect(() => {
     let autoTimer;
     if (!isTyping && script.duration > 0) {
@@ -17,33 +19,27 @@ export default function StoryViewer({ script, history, onNext }) {
     return () => clearTimeout(autoTimer);
   }, [isTyping, script.duration, onNext]);
 
+  // 인터랙션 핸들러 (스킵 또는 다음)
   const handleInteraction = (e) => {
     if (e) e.stopPropagation();
     if (isTyping) forceComplete();
     else onNext();
   };
 
+  // 텍스트 스타일 결정
   const getTextStyle = () => {
     if (script.type === 'monologue') return 'font-serif text-slate-400 italic tracking-wide'; 
     if (script.type === 'question') return 'font-sans text-cyan-200 font-bold';
     return 'font-serif text-slate-100 font-bold tracking-wide leading-relaxed';
   };
 
-  // [New] 하이라이트 단어 파싱 및 스타일링 함수
+  // 하이라이트 텍스트 처리
   const renderStyledText = (text) => {
     if (!script.highlight || script.highlight.length === 0) return text;
-
-    // 하이라이트 단어들을 정규식 패턴으로 만듦 (예: /인과력|다른단어/g)
     const regex = new RegExp(`(${script.highlight.join('|')})`, 'g');
-    
-    // 텍스트를 단어 기준으로 쪼개서 배열로 만듦
     return text.split(regex).map((part, index) => {
         if (script.highlight.includes(part)) {
-            return (
-                <span key={index} className="text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse">
-                    {part}
-                </span>
-            );
+            return <span key={index} className="text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)] animate-pulse">{part}</span>;
         }
         return part;
     });
@@ -54,13 +50,17 @@ export default function StoryViewer({ script, history, onNext }) {
       
       {showLog && <LogModal history={history} onClose={() => setShowLog(false)} />}
 
+      {/* 배경 레이어 */}
       <div className={`absolute inset-0 w-full h-full transition-colors duration-1000 z-0 ${script.bg === 'red_alert' ? 'bg-red-950' : script.bg === 'black' ? 'bg-black' : 'bg-slate-900'}`}>
          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/80" />
+         
          {script.characterImage && !script.hideUI && ( 
             <div className="absolute right-0 bottom-0 w-3/4 h-3/4 opacity-5 mix-blend-overlay pointer-events-none">
                 <img src={script.characterImage} className="w-full h-full object-cover mask-image-gradient grayscale" alt="" />
             </div>
          )}
+
+         {/* [1] 심장 박동 효과 */}
          {script.effect === 'heartbeat' && (
             <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none opacity-80">
                 <svg viewBox="0 0 800 200" className="w-full h-64 animate-scan-pass drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]">
@@ -69,12 +69,20 @@ export default function StoryViewer({ script, history, onNext }) {
                 <div className="absolute inset-0 bg-[radial-gradient(circle,transparent_60%,rgba(239,68,68,0.2)_100%)] animate-pulse"></div>
             </div>
          )}
+
+         {/* [2] 하얀 빛 워프 효과 */}
+         {script.effect === 'warp_white' && (
+            <div className="absolute inset-0 overflow-hidden z-50 pointer-events-none">
+                <div className="warp-circle"></div>
+                <div className="absolute inset-0 bg-white animate-fade-in opacity-0" style={{ animationDuration: '2s', animationDelay: '0.5s', animationFillMode: 'forwards' }}></div>
+            </div>
+         )}
       </div>
 
+      {/* UI 레이어 */}
       {!script.hideUI && (
           <div className="absolute inset-0 z-10 flex flex-col justify-end p-4 md:p-8 pb-6 animate-fade-in">
             <div className="relative w-full max-w-4xl mx-auto">
-                
                 <div className={`absolute left-2 bottom-full translate-y-8 z-30 transition-all duration-500 ease-out origin-bottom-left ${hasImage ? 'opacity-100 scale-100' : 'opacity-0 scale-90 pointer-events-none'}`}>
                     {script.characterImage && (
                         <div className="w-24 h-24 md:w-28 md:h-28 rounded-lg border-2 border-white/15 bg-slate-800 shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden">
@@ -97,7 +105,7 @@ export default function StoryViewer({ script, history, onNext }) {
                         <History size={18} />
                     </button>
 
-                    {/* [수정] renderStyledText 함수로 텍스트 렌더링 */}
+                    {/* 대사 텍스트 출력 (타이핑 효과 적용) */}
                     <div className={`transition-all duration-300 ${hasImage ? 'pt-12' : 'pt-8'} flex-1`}>
                         <p className={`text-base md:text-lg leading-loose whitespace-pre-wrap text-shadow-sm ${getTextStyle()}`}>
                             {renderStyledText(displayedText)}

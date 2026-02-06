@@ -1,10 +1,18 @@
 export const ALL_KEYWORDS = [
     {
+        id: 'kw_causality', // [핵심] 인과력 키워드 ID
+        title: '인과력',
+        category: '현상',
+        desc: '모든 결과에는 원인이 따른다는 법칙을 물리적으로 간섭할 수 있는 힘. 관측자만이 이 힘을 인지하고 다룰 수 있다.',
+        isHidden: false 
+    },
+    // ... 기존 데이터
+    {
         id: 'kw_origin',
         title: '시초의 빛',
         category: '현상',
         desc: '우주가 탄생하던 순간에 발생했다고 전해지는 근원적인 파동. 모든 인과율의 시작점이라 불린다.',
-        isHidden: false // 기본 해금 여부 (테스트용)
+        isHidden: false 
     },
     {
         id: 'kw_void',
@@ -24,7 +32,7 @@ export const ALL_KEYWORDS = [
         id: 'kw_observer',
         title: '관측자',
         category: '직업',
-        desc: '인과율의 흐름을 읽고 개입할 수 있는 유일한 존재. 플레이어를 지칭한다.',
+        desc: '인과율의 흐름을 읽고 개입할 수 있는 유일한 존재.',
         isHidden: false
     }
 ];

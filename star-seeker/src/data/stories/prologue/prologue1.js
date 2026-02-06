@@ -162,10 +162,37 @@ export const prologue_event = {
       id: 19,
       type: 'script',
       text: `인과력을 감지하고, 다루는 데에는 아무런 문제도 없어.`,
+      keywordUnlock: 'kw_causality',
       speaker: "???",
       characterImage: "/images/characters/noel_normal.png",
-      bg: "red_alert",
+      bg: "ruin_entrance",
       highlight: ["인과력"] // [핵심] 이 속성을 추가하여 해당 단어만 색상을 변경합니다.
+    },
+    {
+      id: 20,
+      type: 'choice',
+      choices: [
+        {
+          id: 'use_power',
+          text: `인과력을 사용한다.`,
+          type: 'risk',
+          riskText: '<인과력> 키워드 필요',
+          nextSceneId: 21,
+          // [핵심] 조건: 인과력 키워드 보유 필수
+          condition: { type: 'keyword', id: 'kw_causality', name: '인과력' }
+        }
+      ]
+    },
+    {
+      // [21] 전투 돌입 전 특수 연출 화면 (Warp White 적용)
+      id: 21,
+      type: 'script',
+      text: "", 
+      bg: "ruin_entrance",
+      hideUI: true, 
+      effect: "warp_white", // [핵심] 하얀 빛으로 빨려들어가는 효과 적용
+      duration: 2000, 
+      isEnd: true 
     }
   ]
 };
