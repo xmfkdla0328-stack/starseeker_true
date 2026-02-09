@@ -2,7 +2,7 @@
 export const ALL_CHARACTERS = [
   { 
     id: 1, name: "서주목", role: "Keeper", 
-    baseHp: 1200, baseAtk: 55, baseDef: 25, baseSpd: 25, 
+    baseHp: 1200, baseAtk: 55, baseDef: 25, baseSpd: 5, 
     color: "from-blue-600 to-blue-800", desc: "삶의 증명을 위하여 싸우는 남겨진 자",
     efficiency: 1.1, star: 5,
     skills: ['요리', '채집', '관찰'],
@@ -21,7 +21,7 @@ export const ALL_CHARACTERS = [
   },
   { 
     id: 2, name: "시에", role: "EXECUTOR", 
-    baseHp: 850, baseAtk: 95, baseDef: 12, baseSpd: 30, 
+    baseHp: 850, baseAtk: 95, baseDef: 12, baseSpd: 5, 
     color: "from-rose-600 to-rose-800", desc: "죽음을 등진 이방인",
     efficiency: 0.95, star: 5,
     skills: ['카리스마', '관찰', '직감'],
@@ -39,7 +39,7 @@ export const ALL_CHARACTERS = [
   },
   { 
     id: 3, name: "성시하", role: "PATHFINDER", 
-    baseHp: 700, baseAtk: 140, baseDef: 8, baseSpd: 40, 
+    baseHp: 700, baseAtk: 140, baseDef: 8, baseSpd: 5, 
     color: "from-violet-600 to-violet-800", desc: "바라보는 것은 동경의 뒷면",
     efficiency: 1.5, star: 4,
     skills: ['관찰', '계산'],
@@ -57,7 +57,7 @@ export const ALL_CHARACTERS = [
   },
   { 
     id: 4, name: "아다드", role: "SUSTAINER", 
-    baseHp: 650, baseAtk: 35, baseDef: 8, baseSpd: 30, 
+    baseHp: 650, baseAtk: 35, baseDef: 8, baseSpd: 5, 
     color: "from-emerald-600 to-emerald-800", desc: "풍요는 존재의 증명이 될 수 있는가?",
     efficiency: 1.0, star: 5,
     skills: ['화술', '계산', '리더쉽'],

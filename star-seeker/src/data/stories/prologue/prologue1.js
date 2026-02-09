@@ -211,7 +211,7 @@ export const prologue_event = {
     {
       id: 24, 
       type: 'monologue',
-      text: `언제나 이런 식이지. 언제나 제멋대로 구는 나를, 결국에 너는 늘 따라와준다.`, 
+      text: `오랜 경험을 통해, 내가 그의 말을 듣지 않을 것임을 이미 알고 있어 그런 것이겠지.`, 
       speaker: "???", 
       bg: "red_alert",
     },
@@ -270,7 +270,8 @@ export const prologue_event = {
       hideUI: true, 
       effect: "warp_white", // [핵심] 하얀 빛으로 빨려들어가는 효과 적용
       duration: 2000, 
-      isEnd: true 
+      isEnd: true, 
+      nextAction: 'battle:tutorial_boss' 
     }
   ]
 };

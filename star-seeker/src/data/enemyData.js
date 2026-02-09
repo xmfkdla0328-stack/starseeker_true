@@ -1,49 +1,67 @@
 // --- 적군 데이터베이스 (Enemy Data) ---
 
-// 기본 보스 몬스터 템플릿
-export const ENEMY_TEMPLATE = {
-    id: 'enemy_guardian',
-    name: '공허의 감시자',
-    level: 1,
-    hp: 50000,
-    maxHp: 50000,
-    baseAtk: 120,
-    baseSpd: 40,
-    
-    // 상태 게이지 초기값
-    actionGauge: 0,
-    ultGauge: 0,        
-    maxUltGauge: 100,   
-    causality: 0,       
-    
-    // 상태 플래그 초기값
-    isCharging: false,
-    chargeTimer: 0,
-    chargingSkill: null, 
+export const ENEMIES = {
+    // [기본 보스]
+    'guardian': {
+      id: 'guardian',
+      name: '공허의 감시자',
+      level: 1,
+      hp: 50000,
+      maxHp: 50000,
+      baseAtk: 120,
+      baseSpd: 40,
+      skills: {
+        normal: { name: "공허의 손톱", desc: "일반 공격", mult: 1.0, gaugeGain: 20, causalityGain: 1 },
+        ultimate: { name: "심연의 포효", desc: "필살기", mult: 2.5, isAoe: true, chargeTime: 2000, causalityGain: 5 },
+        causality: { name: "인과율 붕괴", desc: "인과력 스킬", mult: 4.0, isAoe: true, chargeTime: 3000 }
+      }
+    },
   
-    // 스킬 데이터
-    skills: {
-      normal: { 
-          name: "공허의 손톱", 
-          desc: "일반 공격", 
-          mult: 1.0, 
-          gaugeGain: 20, // 타격 시 필살기 게이지 충전
-          causalityGain: 1 // 타격 시 인과력 충전
-      },
-      ultimate: { 
-          name: "심연의 포효", 
-          desc: "필살기 (게이지 소모)", 
-          mult: 2.5, 
-          isAoe: true, // 광역 공격
-          chargeTime: 2000, // 2초 예고
-          causalityGain: 5 // 사용 시 인과력 대폭 충전
-      },
-      causality: { 
-          name: "인과율 붕괴", 
-          desc: "인과력 스킬 (인과력 소모)", 
-          mult: 4.0, 
-          isAoe: true,
-          chargeTime: 3000 // 3초 예고
+    // [튜토리얼 보스] 재앙 (약화됨)
+    'tutorial_boss': {
+      id: 'tutorial_boss',
+      name: '재앙',
+      level: 99, 
+      
+      // [핵심] 약화된 상태 설정: 최대 체력은 높지만 시작 체력은 낮음
+      maxHp: 50000,
+      initialHp: 5000, 
+  
+      baseAtk: 200, 
+      baseSpd: 30,  
+  
+      // 상태 초기값
+      actionGauge: 0,
+      ultGauge: 0,
+      maxUltGauge: 100,
+      causality: 0,
+      
+      skills: {
+        normal: { 
+            name: "나를 부르라", 
+            desc: "일반 공격", 
+            mult: 1.0, 
+            gaugeGain: 25, 
+            causalityGain: 2 
+        },
+        ultimate: { 
+            name: "나의 이름은", 
+            desc: "필살기 (게이지 소모)", 
+            mult: 3.0, 
+            isAoe: true, 
+            chargeTime: 2500, 
+            causalityGain: 10 
+        },
+        causality: { 
+            name: "멈추지 않는 파도", 
+            desc: "인과력 스킬 (인과력 소모)", 
+            mult: 5.0, 
+            isAoe: true,
+            chargeTime: 4000 
+        }
       }
     }
   };
+  
+  // 기본 템플릿 (Fallback)
+  export const ENEMY_TEMPLATE = ENEMIES['guardian'];

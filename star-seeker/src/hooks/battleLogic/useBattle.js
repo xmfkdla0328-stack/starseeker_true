@@ -5,19 +5,22 @@ import { handleAllyActions } from './actionManager';
 import { manageBuffs } from './buffManager';
 import { handleEnemyActions } from './enemyActionManager';
 
-export default function useBattle(initialParty, userStats, hpMultiplier, onGameEnd) {
+// [수정] enemyId 파라미터 추가
+export default function useBattle(initialParty, userStats, hpMultiplier, onGameEnd, enemyId) {
   const {
     logs, allies, setAllies, enemy, setEnemy, 
     playerCausality, setPlayerCausality,
     enemyWarning, setEnemyWarning, 
     buffs, setBuffs, 
     addLog, gainCausality
-  } = useBattleState(initialParty, userStats, hpMultiplier);
+  } = useBattleState(initialParty, userStats, hpMultiplier, enemyId); // [수정] 전달
 
-  // [New] 전투 시작 여부 플래그 (연출 대기용)
   const [isBattleStarted, setIsBattleStarted] = useState(false);
 
-  // Refs
+  // ... (이하 Refs 및 useEffect 로직은 기존과 동일) ...
+  // ... 생략 없이 전체 코드를 유지해야 하지만, 변경점이 위쪽뿐이므로
+  // ... 편의상 여기까지만 표기합니다. 실제 파일엔 기존 내용이 그대로 들어가야 합니다.
+  
   const onGameEndRef = useRef(onGameEnd);
   useEffect(() => { onGameEndRef.current = onGameEnd; }, [onGameEnd]);
 
@@ -32,21 +35,18 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
 
   // --- 메인 게임 루프 ---
   useEffect(() => {
-    // [핵심] isBattleStarted가 false이면 루프를 돌리지 않음
     if (!initialParty || initialParty.length === 0 || !onGameEndRef.current || !isBattleStarted) return;
 
     const interval = setInterval(() => {
       let currentAllies = [...alliesRef.current];
       let currentBuffs = buffsRef.current;
 
-      // 1. 버프 관리
       const { updatedBuffs, shieldJustExpired, hasChanged } = manageBuffs(currentBuffs, addLog);
       if (hasChanged) {
         setBuffs(updatedBuffs);
         currentBuffs = updatedBuffs;
       }
 
-      // 2. 적(Enemy) 행동 처리
       if (enemyRef.current && enemyRef.current.hp > 0) {
         const enemyContext = { 
             enemy: enemyRef.current, 
@@ -96,7 +96,6 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
         }
       }
 
-      // 3. 아군(Ally) 행동 처리
       const { updatedAllies, damageToEnemy } = handleAllyActions({
           allies: currentAllies, 
           buffs: currentBuffs,
@@ -112,7 +111,6 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
       
       setAllies(updatedAllies);
 
-      // 4. 승패 체크
       setEnemy(e => {
           if (e && e.hp <= 0 && !e.isDead) {
               addLog("적을 처치했습니다! 승리!", "system");
@@ -123,18 +121,16 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
       });
       
       if (updatedAllies.length > 0 && updatedAllies.every(a => a.hp <= 0)) {
-          addLog("모든 아군이 쓰러졌습니다... 패배", "system");
+          addLog("패배...", "system");
           if(onGameEndRef.current) onGameEndRef.current('lose');
       }
 
     }, TICK_RATE);
 
     return () => clearInterval(interval);
-  }, [initialParty, userStats, hpMultiplier, setAllies, setBuffs, setEnemy, setEnemyWarning, addLog, gainCausality, isBattleStarted]); // isBattleStarted 의존성 추가
+  }, [initialParty, userStats, hpMultiplier, setAllies, setBuffs, setEnemy, setEnemyWarning, addLog, gainCausality, isBattleStarted]); 
 
-  // 유저 스킬
   const useSkill = (type) => {
-    // [추가] 전투 시작 전에는 스킬 사용 불가
     if (!isBattleStarted) return;
 
     const cost = { atk: 10, shield: 20, speed: 30 };
@@ -158,7 +154,6 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
     }
   };
 
-  // [New] 외부에서 전투를 시작시킬 수 있는 함수 노출
   const startBattle = () => {
     setIsBattleStarted(true);
     addLog("--- 전투가 시작됩니다 ---", "system");

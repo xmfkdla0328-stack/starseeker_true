@@ -22,7 +22,6 @@ const EnemyArea = styled.div`
   flex: 2; 
   min-height: 0;
   overflow: hidden;
-  /* 애니메이션 적용을 위한 클래스 매핑 */
   &.intro-hidden { opacity: 0; }
   /* App.css의 .intro-slide-up 클래스 사용 */
 `;
@@ -63,7 +62,8 @@ const BattleStartOverlay = styled.div`
     pointer-events: ${props => props.$fading ? 'none' : 'auto'};
 `;
 
-function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd }) {
+// [수정] enemyId prop 추가
+function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, enemyId }) {
   const { 
     logs, 
     allies, 
@@ -74,7 +74,7 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd }) {
     useSkill,
     startBattle, 
     isBattleStarted 
-  } = useBattle(initialParty, userStats, hpMultiplier, onGameEnd);
+  } = useBattle(initialParty, userStats, hpMultiplier, onGameEnd, enemyId); // [수정] ID 전달
 
   const [introStep, setIntroStep] = useState(0);
 
@@ -97,9 +97,7 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd }) {
 
   return (
     <BattleScreenContainer>
-      {/* 1. 적 영역 (보스) */}
       <EnemyArea className={introStep === 0 ? 'intro-hidden' : 'intro-slide-up'}>
-        {/* [핵심] showStatus prop 전달: Step 3부터 상태창 보임 */}
         {enemy && (
             <BattleEnemyZone 
                 enemy={enemy} 
@@ -109,17 +107,14 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd }) {
         )}
       </EnemyArea>
 
-      {/* 2. 아군 영역 */}
       <AllyArea $visible={introStep >= 3}>
         <BattleAllyZone allies={allies} />
       </AllyArea>
 
-      {/* 3. 로그 영역 */}
       <LogArea $visible={introStep >= 3}>
         <BattleLogZone logs={logs} />
       </LogArea>
 
-      {/* 4. 컨트롤 영역 */}
       <ControlArea $visible={introStep >= 3}>
         <BattleControlZone 
           playerCausality={playerCausality} 
@@ -129,7 +124,6 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd }) {
         />
       </ControlArea>
 
-      {/* 5. 전투 개시 버튼 */}
       {(introStep === 2 || introStep === 3) && (
           <BattleStartOverlay $fading={introStep === 3}>
               <div className={introStep === 3 ? 'cyber-button-exit' : 'cyber-button-enter'}>

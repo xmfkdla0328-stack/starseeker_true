@@ -7,7 +7,6 @@ import { getStoryEvent } from '../data/storyRegistry';
 import { ALL_KEYWORDS } from '../data/keywordData';
 import useEventBGM from '../hooks/event/useEventBGM';
 
-// [수정됨] 키워드 획득 알림 컴포넌트 (설명 기능 제거)
 const KeywordToast = ({ keywordId, onClose }) => {
     const keyword = ALL_KEYWORDS.find(k => k.id === keywordId);
 
@@ -17,7 +16,7 @@ const KeywordToast = ({ keywordId, onClose }) => {
         <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 animate-fade-in-up w-[90%] max-w-sm">
             <div 
                 className="bg-slate-900/95 border border-emerald-500/50 rounded-lg p-4 shadow-[0_0_20px_rgba(16,185,129,0.3)] backdrop-blur-md cursor-pointer transition-all hover:bg-slate-800"
-                onClick={onClose} // [수정] 클릭 시 설명 대신 팝업 닫기
+                onClick={onClose}
             >
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-emerald-500/20 rounded-full text-emerald-400 flex-shrink-0">
@@ -47,7 +46,6 @@ export default function EventScreen({
   const [history, setHistory] = useState([]);
   const [newKeyword, setNewKeyword] = useState(null); 
 
-  // 데이터 로드
   useEffect(() => {
     const data = getStoryEvent(activeEventId);
     if (data) {
@@ -61,33 +59,26 @@ export default function EventScreen({
 
   const currentScene = eventData?.scenes[currentSceneIndex];
 
-  // BGM 로직
   useEventBGM(currentScene);
 
-  // 키워드 획득 체크
   useEffect(() => {
     if (currentScene && currentScene.keywordUnlock) {
         if (onUnlockKeyword) onUnlockKeyword(currentScene.keywordUnlock);
         setNewKeyword(currentScene.keywordUnlock);
-        
-        // 3초 뒤 자동 닫힘
         const timer = setTimeout(() => setNewKeyword(null), 3000);
         return () => clearTimeout(timer);
     }
   }, [currentScene, onUnlockKeyword]);
 
-  // --- 진행 로직 ---
-
   const handleNext = () => {
     if (!currentScene) return;
     
-    // 로그 저장
     if ((currentScene.type === 'script' || currentScene.type === 'monologue' || currentScene.type === 'question') && currentScene.text) {
         setHistory(prev => [...prev, currentScene]);
     }
 
     if (currentScene.isEnd) {
-      onEventComplete();
+      onEventComplete(currentScene.nextAction);
       return;
     }
 
@@ -129,7 +120,6 @@ export default function EventScreen({
   return (
     <div className={`flex-1 flex flex-col relative z-10 animate-fade-in h-full bg-[#0f172a] ${isStoryMode ? 'p-0' : 'p-6'}`}>
       
-      {/* 키워드 획득 팝업 */}
       {newKeyword && <KeywordToast keywordId={newKeyword} onClose={() => setNewKeyword(null)} />}
 
       {!isStoryMode && (
