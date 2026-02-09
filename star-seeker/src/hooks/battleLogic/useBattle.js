@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { TICK_RATE } from '../../data/gameData';
 import useBattleState from './useBattleState';
 import { handleAllyActions } from './actionManager';
 import { manageBuffs } from './buffManager';
 import { handleEnemyActions } from './enemyActionManager';
 
-// [수정] enemyId 파라미터 추가
 export default function useBattle(initialParty, userStats, hpMultiplier, onGameEnd, enemyId) {
   const {
     logs, allies, setAllies, enemy, setEnemy, 
@@ -13,14 +12,12 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
     enemyWarning, setEnemyWarning, 
     buffs, setBuffs, 
     addLog, gainCausality
-  } = useBattleState(initialParty, userStats, hpMultiplier, enemyId); // [수정] 전달
+  } = useBattleState(initialParty, userStats, hpMultiplier, enemyId);
 
   const [isBattleStarted, setIsBattleStarted] = useState(false);
+  // [New] 일시정지 상태 관리
+  const [isPaused, setIsPaused] = useState(false);
 
-  // ... (이하 Refs 및 useEffect 로직은 기존과 동일) ...
-  // ... 생략 없이 전체 코드를 유지해야 하지만, 변경점이 위쪽뿐이므로
-  // ... 편의상 여기까지만 표기합니다. 실제 파일엔 기존 내용이 그대로 들어가야 합니다.
-  
   const onGameEndRef = useRef(onGameEnd);
   useEffect(() => { onGameEndRef.current = onGameEnd; }, [onGameEnd]);
 
@@ -33,9 +30,15 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
   const enemyRef = useRef(enemy);
   useEffect(() => { enemyRef.current = enemy; }, [enemy]);
 
+  // [New] 일시정지 토글 함수
+  const togglePause = useCallback((forceState) => {
+    setIsPaused(prev => forceState !== undefined ? forceState : !prev);
+  }, []);
+
   // --- 메인 게임 루프 ---
   useEffect(() => {
-    if (!initialParty || initialParty.length === 0 || !onGameEndRef.current || !isBattleStarted) return;
+    // [수정] !isPaused 조건 추가: 일시정지 상태가 아닐 때만 루프 실행
+    if (!initialParty || initialParty.length === 0 || !onGameEndRef.current || !isBattleStarted || isPaused) return;
 
     const interval = setInterval(() => {
       let currentAllies = [...alliesRef.current];
@@ -128,10 +131,11 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
     }, TICK_RATE);
 
     return () => clearInterval(interval);
-  }, [initialParty, userStats, hpMultiplier, setAllies, setBuffs, setEnemy, setEnemyWarning, addLog, gainCausality, isBattleStarted]); 
+  }, [initialParty, userStats, hpMultiplier, setAllies, setBuffs, setEnemy, setEnemyWarning, addLog, gainCausality, isBattleStarted, isPaused]); // [수정] 의존성 배열에 isPaused 추가
 
   const useSkill = (type) => {
-    if (!isBattleStarted) return;
+    // [수정] 일시정지 중에는 스킬 사용 불가
+    if (!isBattleStarted || isPaused) return;
 
     const cost = { atk: 10, shield: 20, speed: 30 };
     if (playerCausality < cost[type]) { 
@@ -156,8 +160,15 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
 
   const startBattle = () => {
     setIsBattleStarted(true);
+    // [New] 전투 시작 시 일시정지 해제 보장
+    setIsPaused(false); 
     addLog("--- 전투가 시작됩니다 ---", "system");
   };
 
-  return { logs, allies, enemy, playerCausality, enemyWarning, buffs, useSkill, startBattle, isBattleStarted };
+  // [수정] isPaused, togglePause 반환 추가
+  return { 
+    logs, allies, enemy, playerCausality, enemyWarning, buffs, 
+    useSkill, startBattle, isBattleStarted,
+    isPaused, togglePause 
+  };
 }

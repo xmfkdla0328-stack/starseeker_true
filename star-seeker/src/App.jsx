@@ -5,12 +5,12 @@ import './App.css';
 import useGameNavigation from './hooks/useGameNavigation';
 import useGameData from './hooks/useGameData';
 
-// Screens (컴포넌트 임포트)
+// Screens
 import HomeScreen from './components/HomeScreen';
 import SelectScreen from './components/SelectScreen';
 import StorySelectScreen from './components/StorySelectScreen';
 import EventScreen from './components/EventScreen';
-import BattleScreen from './screens/BattleScreen'; // screens 폴더 확인
+import BattleScreen from './screens/BattleScreen'; 
 import PartyScreen from './components/PartyScreen';
 import ManagementScreen from './components/ManagementScreen';
 import StorageScreen from './components/StorageScreen';
@@ -23,13 +23,24 @@ export default function App() {
   const nav = useGameNavigation();
   const data = useGameData();
 
-  // [New] 현재 전투의 적 ID 관리
+  // 현재 전투의 적 ID 관리
   const [currentEnemyId, setCurrentEnemyId] = useState(null);
 
-  // --- 중간 핸들러 ---
+  // --- 핸들러 ---
   const handleContentSelect = (contentType) => {
     if (contentType === 'story') nav.goStorySelect();
     else if (contentType === 'mining') nav.goMiningSelect();
+  };
+
+  // [New] 직접 채굴(테스트 전투) 진입 핸들러
+  const handleDirectMining = () => {
+    // 1. 테스트할 적(Enemy)의 ID를 설정합니다.
+    // 주의: 'test_dummy'라는 ID가 src/data/enemyData.js에 실제로 존재해야 오류가 안 납니다.
+    // 기존에 만드신 'tutorial_boss' 등을 넣어서 테스트하셔도 됩니다.
+    setCurrentEnemyId('tutorial_boss'); 
+    
+    // 2. 전투 화면으로 이동합니다.
+    nav.goBattle();
   };
 
   const handleAutoMiningEntry = () => {
@@ -43,15 +54,13 @@ export default function App() {
   
   const onGameEnd = useCallback((result) => nav.goResult(result), [nav]);
 
-  // [New] 스토리 완료 및 전투 진입 핸들러
   const handleEventComplete = (nextAction) => {
-    // nextAction이 'battle:tutorial_boss' 형태일 경우 처리
     if (typeof nextAction === 'string' && nextAction.startsWith('battle:')) {
         const enemyId = nextAction.split(':')[1];
-        setCurrentEnemyId(enemyId); // 적 ID 설정
-        nav.goBattle(); // 전투 화면으로 이동
+        setCurrentEnemyId(enemyId); 
+        nav.goBattle(); 
     } else {
-        nav.goBattle(); // 기본 전투 (Fallback)
+        nav.goBattle(); // Fallback
     }
   };
 
@@ -80,16 +89,15 @@ export default function App() {
       {nav.gameState === 'select' && <SelectScreen onSelectContent={handleContentSelect} onBack={nav.goHome} />}
       {nav.gameState === 'story_select' && <StorySelectScreen onSelectChapter={() => nav.goEvent()} onBack={nav.goSelect} />}
       
-      {/* 자원 채굴 선택 화면 */}
+      {/* [수정] 자원 채굴 선택 화면: 직접 채굴 핸들러 연결 */}
       {nav.gameState === 'mining_select' && (
         <ResourcesScreen 
             onBack={nav.goSelect} 
-            onDirectMining={() => alert("준비 중")} 
+            onDirectMining={handleDirectMining} // [Changed] alert 대신 핸들러 연결
             onAutoMining={handleAutoMiningEntry} 
         />
       )}
 
-      {/* 자동 채굴 화면 */}
       {nav.gameState === 'auto_mining' && (
         <AutoResourcesScreen 
             miningState={data.miningState}
@@ -107,7 +115,6 @@ export default function App() {
       {nav.gameState === 'guide' && <GuideBookScreen collectedKeywords={data.collectedKeywords} onBack={nav.goHome} />}
       {nav.gameState === 'gacha' && <GachaScreen roster={data.roster} setRoster={data.setRoster} inventory={data.inventory} setInventory={data.setInventory} onBack={nav.goHome} />}
       
-      {/* 이벤트 화면 연결 */}
       {nav.gameState === 'event' && (
         <EventScreen 
             onOptionSelected={data.handleOptionSelected} 
@@ -118,7 +125,7 @@ export default function App() {
         />
       )}
       
-      {/* 전투 화면 연결 */}
+      {/* 전투 화면 */}
       {nav.gameState === 'active' && (
         <BattleScreen 
             userStats={data.userStats} 

@@ -1,39 +1,41 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { User, History, X } from 'lucide-react';
-import useTypewriter from '../../hooks/event/useTypewriter'; // 훅 import 확인
+import React, { useState, useEffect } from 'react';
+import { History } from 'lucide-react';
+import useTypewriter from '../../hooks/event/useTypewriter'; 
 import LogModal from './LogModal';
 
-export default function StoryViewer({ script, history, onNext }) {
+// [New] paused prop 추가
+export default function StoryViewer({ script, history, onNext, paused }) {
   const hasImage = !!script.characterImage;
   const [showLog, setShowLog] = useState(false);
   
-  // [핵심] 타이핑 효과 훅 사용
   const { displayedText, isTyping, forceComplete } = useTypewriter(script.text || "");
 
-  // 자동 넘김 (Duration) - 타이핑 끝난 후 작동
+  // [수정] 자동 넘김 로직: paused가 true면 타이머 동작 안 함
   useEffect(() => {
     let autoTimer;
-    if (!isTyping && script.duration > 0) {
+    // paused 상태가 아닐 때만 타이머 작동
+    if (!isTyping && script.duration > 0 && !paused) {
         autoTimer = setTimeout(() => onNext(), script.duration);
     }
     return () => clearTimeout(autoTimer);
-  }, [isTyping, script.duration, onNext]);
+  }, [isTyping, script.duration, onNext, paused]);
 
-  // 인터랙션 핸들러 (스킵 또는 다음)
   const handleInteraction = (e) => {
     if (e) e.stopPropagation();
+    
+    // [New] 일시정지 중이면 클릭 무시
+    if (paused) return;
+
     if (isTyping) forceComplete();
     else onNext();
   };
 
-  // 텍스트 스타일 결정
   const getTextStyle = () => {
     if (script.type === 'monologue') return 'font-serif text-slate-400 italic tracking-wide'; 
     if (script.type === 'question') return 'font-sans text-cyan-200 font-bold';
     return 'font-serif text-slate-100 font-bold tracking-wide leading-relaxed';
   };
 
-  // 하이라이트 텍스트 처리
   const renderStyledText = (text) => {
     if (!script.highlight || script.highlight.length === 0) return text;
     const regex = new RegExp(`(${script.highlight.join('|')})`, 'g');
@@ -60,7 +62,6 @@ export default function StoryViewer({ script, history, onNext }) {
             </div>
          )}
 
-         {/* [1] 심장 박동 효과 */}
          {script.effect === 'heartbeat' && (
             <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none opacity-80">
                 <svg viewBox="0 0 800 200" className="w-full h-64 animate-scan-pass drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]">
@@ -70,7 +71,6 @@ export default function StoryViewer({ script, history, onNext }) {
             </div>
          )}
 
-         {/* [2] 하얀 빛 워프 효과 */}
          {script.effect === 'warp_white' && (
             <div className="absolute inset-0 overflow-hidden z-50 pointer-events-none">
                 <div className="warp-circle"></div>
@@ -105,7 +105,6 @@ export default function StoryViewer({ script, history, onNext }) {
                         <History size={18} />
                     </button>
 
-                    {/* 대사 텍스트 출력 (타이핑 효과 적용) */}
                     <div className={`transition-all duration-300 ${hasImage ? 'pt-12' : 'pt-8'} flex-1`}>
                         <p className={`text-base md:text-lg leading-loose whitespace-pre-wrap text-shadow-sm ${getTextStyle()}`}>
                             {renderStyledText(displayedText)}

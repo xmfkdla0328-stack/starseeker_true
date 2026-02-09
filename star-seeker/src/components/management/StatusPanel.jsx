@@ -1,64 +1,99 @@
-import React from 'react';
-import { Shield, Sword, Heart, Zap, Brain, Star, Lock } from 'lucide-react';
+import React, { useState } from 'react';
+import { Activity, Shield, Zap, Heart, Crosshair } from 'lucide-react';
+import EquipmentSlot from './EquipmentSlot';
+import EquipmentModal from './EquipmentModal';
+import { EQUIP_SLOTS } from '../../data/equipmentData';
 
-export default function StatusPanel({ char }) {
-  const efficiencyPercent = Math.round((char.efficiency || 1.0) * 100);
-  const normalMult = (char.normalMult || 1.0).toFixed(1);
-  const skillMult = (char.skillMult || 2.5).toFixed(1);
+export default function StatusPanel({ 
+  character, 
+  equipmentList, 
+  onEquip, 
+  onUnequip, 
+  finalStats // [New] 부모로부터 계산된 최종 스탯을 받음
+}) {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedSlotIndex, setSelectedSlotIndex] = useState(null);
+  const [selectedSlotType, setSelectedSlotType] = useState(null);
+
+  // 슬롯 정의 (인덱스 순서대로 매핑)
+  const slots = [
+    { label: 'Neural', type: EQUIP_SLOTS.SLOT_1 },
+    { label: 'Cortex', type: EQUIP_SLOTS.SLOT_2 },
+    { label: 'Auxiliary', type: EQUIP_SLOTS.SLOT_3 },
+  ];
+
+  const handleSlotClick = (index, type) => {
+    setSelectedSlotIndex(index);
+    setSelectedSlotType(type);
+    setModalOpen(true);
+  };
+
+  const handleEquipItem = (item) => {
+    onEquip(character.id, selectedSlotIndex, item);
+    setModalOpen(false);
+  };
+
+  // 표시할 스탯 (최종 스탯 기준)
+  const stats = finalStats || character; // fallback
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="p-4 bg-white/5 border border-white/10 rounded-xl backdrop-blur-sm">
-        <h3 className="text-xs text-slate-400 mb-2 font-mono">BIO-DATA</h3>
-        <p className="text-sm text-slate-200 leading-relaxed font-light">
-          "{char.desc}"
-        </p>
+    <div className="bg-slate-900/50 rounded-xl p-5 border border-white/10 h-full flex flex-col">
+      <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
+        <Activity size={14} /> Status Overview
+      </h3>
+
+      {/* 1. 스탯 정보 (최종 수치 표시) */}
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        <StatRow icon={<Heart size={14} className="text-rose-400" />} label="HP" value={stats.hp} />
+        <StatRow icon={<Zap size={14} className="text-amber-400" />} label="ATK" value={stats.atk} />
+        <StatRow icon={<Shield size={14} className="text-emerald-400" />} label="DEF" value={stats.def} />
+        <StatRow icon={<Activity size={14} className="text-blue-400" />} label="SPD" value={stats.speed} />
+        <StatRow icon={<Crosshair size={14} className="text-purple-400" />} label="CRIT" value={`${stats.critRate}%`} />
+        <StatRow icon={<Zap size={14} className="text-orange-400" />} label="C.DMG" value={`${stats.critDmg}%`} />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <StatCard icon={Heart} label="MAX HP" value={char.baseHp} color="text-rose-400" />
-        <StatCard icon={Sword} label="ATK" value={char.baseAtk} color="text-amber-400" />
-        <StatCard icon={Shield} label="DEF" value={char.baseDef} color="text-emerald-400" />
-        <StatCard icon={Zap} label="SPD" value={char.baseSpd} color="text-violet-400" />
-        <StatCard icon={Brain} label="Efficiency" value={`${efficiencyPercent}%`} color="text-cyan-400" />
-        <StatCard icon={Star} label="Star Rank" value={`${char.star} ★`} color="text-yellow-400" />
+      <div className="h-[1px] bg-white/10 w-full my-2"></div>
+
+      {/* 2. 장비 슬롯 영역 */}
+      <div className="flex-1">
+        <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-3 flex items-center gap-2">
+          Equipment
+        </h3>
+        <div className="grid grid-cols-3 gap-3">
+          {slots.map((slot, idx) => {
+            const equippedItemId = character.equipped[idx];
+            const equippedItem = equippedItemId ? equipmentList.find(e => e.id === equippedItemId) : null;
+
+            return (
+              <EquipmentSlot 
+                key={idx}
+                label={slot.label}
+                item={equippedItem}
+                onClick={() => handleSlotClick(idx, slot.type)}
+                onUnequip={() => onUnequip(character.id, idx)}
+              />
+            );
+          })}
+        </div>
       </div>
 
-      <div className="flex gap-2">
-        <div className="flex-1 p-2 bg-white/5 rounded border border-white/5 text-center">
-          <span className="text-[10px] text-slate-400 block">평타 배율</span>
-          <span className="text-sm font-mono text-slate-200">x{normalMult}</span>
-        </div>
-        <div className="flex-1 p-2 bg-white/5 rounded border border-white/5 text-center">
-          <span className="text-[10px] text-slate-400 block">필살기 배율</span>
-          <span className="text-sm font-mono text-slate-200">x{skillMult}</span>
-        </div>
-      </div>
-
-      <div>
-        <h3 className="text-xs text-slate-400 mb-3 font-mono">EQUIPMENT SLOTS</h3>
-        <div className="flex gap-4 justify-center">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="w-16 h-16 bg-black/40 border border-white/10 rounded-lg flex items-center justify-center">
-              <Lock size={16} className="text-slate-600" />
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* 장비 선택 모달 */}
+      <EquipmentModal 
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        equipmentList={equipmentList}
+        slotType={selectedSlotType}
+        onEquip={handleEquipItem}
+      />
     </div>
   );
 }
 
-function StatCard({ icon: Icon, label, value, color }) {
-  return (
-    <div className="flex items-center justify-between p-3 bg-white/5 border border-white/5 rounded-lg hover:bg-white/10 transition-colors">
-      <div className="flex items-center gap-2">
-        <div className={`p-1.5 rounded bg-black/30 ${color}`}>
-          <Icon size={14} />
-        </div>
-        <span className="text-[10px] text-slate-400 font-bold tracking-wider">{label}</span>
-      </div>
-      <span className="text-sm font-mono text-white">{value}</span>
+const StatRow = ({ icon, label, value }) => (
+  <div className="flex items-center justify-between bg-black/20 p-2 rounded">
+    <div className="flex items-center gap-2 text-slate-400 text-xs">
+      {icon} <span>{label}</span>
     </div>
-  );
-}
+    <span className="text-white font-mono font-bold text-sm">{value}</span>
+  </div>
+);
