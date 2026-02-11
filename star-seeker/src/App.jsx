@@ -5,7 +5,7 @@ import './App.css';
 import useGameNavigation from './hooks/useGameNavigation';
 import useGameData from './hooks/useGameData';
 
-// Screens
+// Screens (기존 import 유지)
 import HomeScreen from './components/HomeScreen';
 import SelectScreen from './components/SelectScreen';
 import StorySelectScreen from './components/StorySelectScreen';
@@ -21,25 +21,19 @@ import AutoResourcesScreen from './components/AutoResourcesScreen';
 
 export default function App() {
   const nav = useGameNavigation();
-  const data = useGameData();
+  
+  // [Mod] data 객체 전체를 받아오거나 필요한거 구조분해
+  const data = useGameData(); 
 
-  // 현재 전투의 적 ID 관리
   const [currentEnemyId, setCurrentEnemyId] = useState(null);
 
-  // --- 핸들러 ---
   const handleContentSelect = (contentType) => {
     if (contentType === 'story') nav.goStorySelect();
     else if (contentType === 'mining') nav.goMiningSelect();
   };
 
-  // [New] 직접 채굴(테스트 전투) 진입 핸들러
   const handleDirectMining = () => {
-    // 1. 테스트할 적(Enemy)의 ID를 설정합니다.
-    // 주의: 'test_dummy'라는 ID가 src/data/enemyData.js에 실제로 존재해야 오류가 안 납니다.
-    // 기존에 만드신 'tutorial_boss' 등을 넣어서 테스트하셔도 됩니다.
     setCurrentEnemyId('tutorial_boss'); 
-    
-    // 2. 전투 화면으로 이동합니다.
     nav.goBattle();
   };
 
@@ -60,21 +54,19 @@ export default function App() {
         setCurrentEnemyId(enemyId); 
         nav.goBattle(); 
     } else {
-        nav.goBattle(); // Fallback
+        nav.goBattle(); 
     }
   };
 
   return (
     <div className="flex flex-col h-[100dvh] w-full max-w-md mx-auto bg-[#0f172a] overflow-hidden font-sans border-x border-white/10 shadow-2xl text-slate-100 selection:bg-cyan-500/30 relative">
       
-      {/* 배경 레이어 */}
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#020617] via-[#1e1b4b] to-[#0f172a] pointer-events-none">
         {[...Array(20)].map((_, i) => (
             <div key={i} className="star" style={{ top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`, width: `${Math.random() * 2 + 1}px`, height: `${Math.random() * 2 + 1}px`, animationDelay: `${Math.random() * 3}s` }}></div>
         ))}
       </div>
 
-      {/* --- 화면 라우팅 --- */}
       {nav.gameState === 'home' && (
         <HomeScreen 
             onStart={nav.goSelect} 
@@ -89,11 +81,10 @@ export default function App() {
       {nav.gameState === 'select' && <SelectScreen onSelectContent={handleContentSelect} onBack={nav.goHome} />}
       {nav.gameState === 'story_select' && <StorySelectScreen onSelectChapter={() => nav.goEvent()} onBack={nav.goSelect} />}
       
-      {/* [수정] 자원 채굴 선택 화면: 직접 채굴 핸들러 연결 */}
       {nav.gameState === 'mining_select' && (
         <ResourcesScreen 
             onBack={nav.goSelect} 
-            onDirectMining={handleDirectMining} // [Changed] alert 대신 핸들러 연결
+            onDirectMining={handleDirectMining} 
             onAutoMining={handleAutoMiningEntry} 
         />
       )}
@@ -110,7 +101,25 @@ export default function App() {
       )}
       
       {nav.gameState === 'party' && <PartyScreen currentParty={data.partyList} onUpdateParty={data.setPartyList} onBack={nav.goHome} />}
-      {nav.gameState === 'manage' && <ManagementScreen roster={data.roster} inventory={data.inventory} onUnlockNode={data.handleUnlockNode} onBack={nav.goHome} />}
+      
+      {/* [Fix] ManagementScreen에 필요한 모든 Props 전달 */}
+      {nav.gameState === 'manage' && (
+        <ManagementScreen 
+            roster={data.roster} 
+            inventory={data.inventory} 
+            onUnlockNode={data.handleUnlockNode} 
+            // 추가된 Props (장비 및 스탯 관련)
+            equipmentList={data.equipmentList}
+            onEquip={data.handleEquip}
+            onUnequip={data.handleUnequip}
+            getFinalStats={data.getFinalStats}
+            addTestEquipments={data.addTestEquipments}
+            onBack={nav.goHome} 
+        />
+      )}
+
+      {nav.gameState === 'manage' ? null : null /* (참고: 위에서 처리했으므로 생략) */}
+
       {nav.gameState === 'storage' && <StorageScreen inventory={data.inventory} onBack={nav.goHome} />}
       {nav.gameState === 'guide' && <GuideBookScreen collectedKeywords={data.collectedKeywords} onBack={nav.goHome} />}
       {nav.gameState === 'gacha' && <GachaScreen roster={data.roster} setRoster={data.setRoster} inventory={data.inventory} setInventory={data.setInventory} onBack={nav.goHome} />}
@@ -125,14 +134,13 @@ export default function App() {
         />
       )}
       
-      {/* 전투 화면 */}
       {nav.gameState === 'active' && (
         <BattleScreen 
             userStats={data.userStats} 
             hpMultiplier={data.hpMultiplier} 
             initialParty={initialParty} 
             onGameEnd={onGameEnd}
-            enemyId={currentEnemyId} // 적 ID 전달
+            enemyId={currentEnemyId} 
         />
       )}
 

@@ -1,87 +1,138 @@
-import { useState, useEffect, useRef } from 'react';
-import { INITIAL_USER_STATS, ALL_CHARACTERS } from '../data/gameData';
+import { useCallback } from 'react';
+import useInventory from './gameData/useInventory';
+import useRoster from './gameData/useRoster';
+import usePlayer from './gameData/usePlayer';
 import useMining from './useMining';
+import { STAT_TYPES } from '../data/equipmentData';
 
 export default function useGameData() {
-  const [userStats, setUserStats] = useState(INITIAL_USER_STATS);
-  const [hpMultiplier, setHpMultiplier] = useState(1.0);
-
-  // 인벤토리
-  const [inventory, setInventory] = useState([
-    { id: 'chip_basic', count: 50 },
-    { id: 'core_essence', count: 5 },
-    { id: 'causality_stone', count: 0 }, 
-  ]);
-
-  const [roster, setRoster] = useState(() => 
-    ALL_CHARACTERS.map(char => ({
-      ...char,
-      unlockedNodes: [],
-      normalMult: 1.0,
-      skillMult: 2.5
-    }))
-  );
-
-  const [partyList, setPartyList] = useState(roster.slice(0, 4));
-
-  // [New] 획득한 키워드 목록 (ID 문자열 배열)
-  const [collectedKeywords, setCollectedKeywords] = useState([]);
-
-  // --- useMining 훅 연결 ---
+  // 1. 각 기능별 Hook 호출
+  const { 
+    inventory, equipmentList, setInventory, 
+    hasResource, consumeResource, 
+    addEquipment, removeEquipment, updateEquipmentStatus, addTestEquipments 
+  } = useInventory();
+  
+  const { roster, partyList, setRoster, setPartyList, enhanceCharacter, equipItem, unequipItem } = useRoster();
+  
+  const { userStats, hpMultiplier, collectedKeywords, unlockKeyword, updateOption } = usePlayer();
+  
   const { miningState, handleAssignMiner, handleRemoveMiner, handleCollectReward } = useMining(setInventory);
 
-  // --- 핸들러 ---
+  // [Core Logic] 최종 스탯 계산 함수 (기본 + 강화 + 장비)
+  const getFinalStats = useCallback((charId) => {
+    const char = roster.find(c => c.id === charId);
+    if (!char) return null;
 
-  // [New] 키워드 획득 함수
-  const handleUnlockKeyword = (keywordId) => {
-    setCollectedKeywords(prev => {
-      if (prev.includes(keywordId)) return prev; // 이미 있으면 무시
-      return [...prev, keywordId];
+    // 1. [기본 스탯] + [노드 강화 스탯] 합산 (= 순수 캐릭터 스펙)
+    // 데이터가 없으면 0으로 처리하여 NaN 방지
+    const baseStats = {
+        hp: (char.hp || 0) + (char.baseHp || 0),
+        atk: (char.atk || 0) + (char.baseAtk || 0),
+        def: (char.def || 0) + (char.baseDef || 0),
+        speed: (char.speed || 0) + (char.baseSpd || 0),
+        critRate: (char.critRate || 0), 
+        critDmg: (char.critDmg || 0)
+    };
+
+    // 2. 장착된 장비 스탯 집계
+    const items = char.equipped
+        .map(id => equipmentList.find(e => e.id === id))
+        .filter(Boolean);
+
+    let percentBonuses = { hp: 0, atk: 0, def: 0 };
+    let flatBonuses = { hp: 0, atk: 0, def: 0, speed: 0, critRate: 0, critDmg: 0 };
+
+    items.forEach(item => {
+        const allStats = [item.mainStat, ...item.subStats];
+        allStats.forEach(stat => {
+            const typeKey = stat.type;
+            const value = stat.value || 0;
+            
+            if (typeKey === 'HP_PERCENT') percentBonuses.hp += value;
+            else if (typeKey === 'HP_FLAT') flatBonuses.hp += value;
+            else if (typeKey === 'ATK_PERCENT') percentBonuses.atk += value;
+            else if (typeKey === 'ATK_FLAT') flatBonuses.atk += value;
+            else if (typeKey === 'DEF_PERCENT') percentBonuses.def += value;
+            else if (typeKey === 'DEF_FLAT') flatBonuses.def += value;
+            else if (typeKey === 'SPEED') flatBonuses.speed += value;
+            else if (typeKey === 'CRIT_RATE') flatBonuses.critRate += value;
+            else if (typeKey === 'CRIT_DMG') flatBonuses.critDmg += value;
+        });
     });
+
+    // 3. 최종 계산: (순수 스펙 * 퍼센트 보너스) + 장비 깡스탯
+    const finalStats = {
+        hp: Math.floor(baseStats.hp * (1 + percentBonuses.hp / 100) + flatBonuses.hp),
+        atk: Math.floor(baseStats.atk * (1 + percentBonuses.atk / 100) + flatBonuses.atk),
+        def: Math.floor(baseStats.def * (1 + percentBonuses.def / 100) + flatBonuses.def),
+        speed: baseStats.speed + flatBonuses.speed,
+        critRate: baseStats.critRate + flatBonuses.critRate,
+        critDmg: baseStats.critDmg + flatBonuses.critDmg
+    };
+
+    // 원본 char 객체에 계산된 finalStats를 덮어씌워서 반환 (UI 표시용)
+    return { ...char, ...finalStats };
+  }, [roster, equipmentList]);
+
+  // 장비 장착 핸들러
+  const handleEquip = (charId, slotIndex, item) => {
+    const char = roster.find(c => c.id === charId);
+    if (!char) return;
+
+    // 기존 아이템 해제 처리
+    const oldItemId = char.equipped[slotIndex];
+    if (oldItemId) {
+        handleUnequip(charId, slotIndex);
+    }
+
+    // 새 아이템 장착 상태 업데이트
+    updateEquipmentStatus(item.id, true, charId);
+    equipItem(charId, slotIndex, item.id);
   };
 
+  // 장비 해제 핸들러
+  const handleUnequip = (charId, slotIndex) => {
+    const char = roster.find(c => c.id === charId);
+    if (!char) return;
+
+    const itemId = char.equipped[slotIndex];
+    if (itemId) {
+        updateEquipmentStatus(itemId, false, null);
+        unequipItem(charId, slotIndex);
+    }
+  };
+
+  // 노드 해금 핸들러 (재화 소모 체크)
   const handleUnlockNode = (charId, nodeIndex, isMajor, nodeInfo) => {
-    // ... (기존 로직 동일) ...
     const costItem = isMajor ? 'core_essence' : 'chip_basic';
     const costAmount = isMajor ? 1 : 5; 
     
-    const hasResource = inventory.find(i => i.id === costItem && i.count >= costAmount);
-    
-    if (!hasResource) {
-      alert(`재료가 부족합니다! (${isMajor ? '비물질 데이터 보강칩' : '데이터 보강칩'} 필요)`);
+    if (!hasResource(costItem, costAmount)) {
+      alert(`재료가 부족합니다!`);
       return;
     }
 
-    setInventory(prev => prev.map(item => 
-      item.id === costItem ? { ...item, count: item.count - costAmount } : item
-    ));
-
-    setRoster(prev => prev.map(char => {
-      if (char.id !== charId) return char;
-      const currentVal = char[nodeInfo.statType] || 0;
-      const updatedVal = currentVal + nodeInfo.value;
-      return {
-        ...char,
-        [nodeInfo.statType]: updatedVal,
-        unlockedNodes: [...char.unlockedNodes, nodeIndex]
-      };
-    }));
-
-    setPartyList(prev => prev.map(p => p.id === charId ? roster.find(r => r.id === charId) : p));
-  };
-
-  const handleOptionSelected = ({ type, stat, value }) => {
-    if (type === 'hp') setHpMultiplier(value);
-    else if (type === 'stat') setUserStats(prev => ({ ...prev, [stat]: prev[stat] + value }));
+    consumeResource(costItem, costAmount);
+    enhanceCharacter(charId, nodeIndex, nodeInfo);
   };
 
   return {
-    userStats, hpMultiplier, inventory, roster, partyList, 
-    miningState, 
-    collectedKeywords, // export
+    // Data Exports
+    userStats, hpMultiplier, inventory, roster, partyList, miningState, collectedKeywords,
+    equipmentList, 
+    
+    // State Setters
     setInventory, setRoster, setPartyList,
-    handleUnlockNode, handleOptionSelected,
+    
+    // Handlers
+    handleUnlockNode, 
+    handleOptionSelected: updateOption,
     handleAssignMiner, handleRemoveMiner, handleCollectReward,
-    handleUnlockKeyword // export
+    handleUnlockKeyword: unlockKeyword, // [Fix] 매핑 확인됨
+    
+    // Equipment & Stats Handlers
+    addEquipment, removeEquipment, addTestEquipments,
+    handleEquip, handleUnequip, getFinalStats
   };
 }

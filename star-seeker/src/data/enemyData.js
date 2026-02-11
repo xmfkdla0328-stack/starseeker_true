@@ -27,8 +27,8 @@ export const ENEMIES = {
       maxHp: 50000,
       initialHp: 5000, 
   
-      baseAtk: 200, 
-      baseSpd: 30,  
+      baseAtk: 100, 
+      baseSpd: 15,  
   
       // 상태 초기값
       actionGauge: 0,
