@@ -12,7 +12,6 @@ export function handleAllyActions({
   let nextAllies = [...allies];
   let totalEnemyDamage = 0;
   
-  // [New] 컷신 발동 정보를 담을 변수 (이번 턴에 필살기 쓴 사람이 있으면 여기에 저장)
   let triggeredSkillInfo = null;
 
   for (let i = 0; i < nextAllies.length; i++) {
@@ -48,7 +47,6 @@ export function handleAllyActions({
     if (ally.actionGauge >= ACTION_THRESHOLD) {
       ally.actionGauge = 0;
 
-      // 스탯 최종 계산
       const globalAtkMult = buffs.atk.active ? (1 + buffs.atk.val) : 1;
       const selfAtkMult = 1 + ally.selfBuffs.atkUp;
       const finalAtk = ally.atk * globalAtkMult * selfAtkMult;
@@ -61,10 +59,9 @@ export function handleAllyActions({
       if (ally.ultGauge >= ally.maxUltGauge) {
         ally.ultGauge = 0;
         
-        // [New] 컷신 트리거 정보 생성!
         triggeredSkillInfo = {
             name: ally.name,
-            image: ally.image, // 캐릭터 일러스트 (없으면 BattleAllyZone의 fallback 사용됨)
+            image: ally.image, 
             skillName: ally.combatSkills.ultimate.name,
             quote: ally.combatSkills.ultimate.quote || `${ally.name}의 진정한 힘을 보여주마!`
         };
@@ -74,9 +71,16 @@ export function handleAllyActions({
         addLog(`${ally.name}: [${ally.combatSkills.ultimate.name}]! (💥 ${damageDealt})`, 'skill');
 
         totalEnemyDamage += damageDealt;
-        if (alliesToHeal.length > 0) {
-            if (typeof alliesToHeal === 'function') nextAllies = alliesToHeal(nextAllies);
+        
+        // [Fix] 힐 적용 후, 현재 ally 변수에도 최신 HP 반영
+        if (alliesToHeal && typeof alliesToHeal === 'function') {
+            nextAllies = alliesToHeal(nextAllies);
+            // 중요: 전체 리스트가 업데이트되었으므로, 현재 루프 중인 캐릭터(ally)의 HP도 동기화
+            if (nextAllies[i]) {
+                ally.hp = nextAllies[i].hp;
+            }
         }
+        
         ally.selfBuffs = newSelfBuffs;
         gainCausality(3 * eff);
       } 
@@ -88,16 +92,25 @@ export function handleAllyActions({
         addLog(`${ally.name}의 [${skillName}]! (💥 ${damageDealt})`, 'damage');
 
         totalEnemyDamage += damageDealt;
-        if (alliesToModify) {
-             if (typeof alliesToModify === 'function') nextAllies = alliesToModify(nextAllies);
+        
+        // [Fix] 상태 변경(힐 등) 후, 현재 ally 변수에도 최신 HP 반영
+        if (alliesToModify && typeof alliesToModify === 'function') {
+             nextAllies = alliesToModify(nextAllies);
+             // 중요: 전체 리스트가 업데이트되었으므로, 현재 루프 중인 캐릭터(ally)의 HP도 동기화
+             if (nextAllies[i]) {
+                 ally.hp = nextAllies[i].hp;
+             }
         }
+        
         ally.ultGauge = Math.min(ally.maxUltGauge, ally.ultGauge + 20);
         gainCausality(1 * eff);
       }
     }
+    
+    // 최종적으로 현재 ally 상태를 배열에 다시 넣음
+    // (여기서 hp가 최신화된 ally가 들어가야 힐이 씹히지 않음)
     nextAllies[i] = ally;
   }
 
-  // [New] triggeredSkillInfo도 함께 반환
   return { updatedAllies: nextAllies, damageToEnemy: totalEnemyDamage, triggeredSkillInfo };
 }
