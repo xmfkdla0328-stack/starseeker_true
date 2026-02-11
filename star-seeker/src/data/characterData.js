@@ -57,7 +57,7 @@ export const ALL_CHARACTERS = [
   },
   { 
     id: 4, name: "아다드", role: "SUSTAINER", 
-    baseHp: 650, baseAtk: 45, baseDef: 8, baseSpd: 10, 
+    baseHp: 650, baseAtk: 100, baseDef: 8, baseSpd: 10, 
     color: "from-emerald-600 to-emerald-800", desc: "풍요는 존재의 증명이 될 수 있는가?",
     efficiency: 1.0, star: 5,
     skills: ['화술', '계산', '리더쉽'],
@@ -66,7 +66,7 @@ export const ALL_CHARACTERS = [
         normal: { name: "시장 개입", desc: "공격력의 50% 위력으로 생명력이 제일 낮은 아군을 회복합니다.", mult: 0.5 },
         // [수정] mult: 0 -> 1.5 (설명: 150%)
         // [추가] dotMult: 0.3 (설명: 30% 지속 회복)
-        ultimate: { name: "우상향의 천국", desc: "공격력의 200% 위력으로 아군의 생명력을 회복하고, 공격력의 50% 위력으로 2턴간 아군의 생명력을 지속 회복합니다.", mult: 2.0, dotMult: 0.5 }
+        ultimate: { name: "우상향의 천국", desc: "공격력의 500% 위력으로 아군의 생명력을 회복하고, 공격력의 50% 위력으로 2턴간 아군의 생명력을 지속 회복합니다.", mult: 5.0, dotMult: 0.5 }
     },
     profile: { age: "30대(안테α기준)", height: "182cm", hobby: "티타임", like: "우상향", dislike: "붉은색" },
     bondStories: [
