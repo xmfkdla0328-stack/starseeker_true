@@ -1,11 +1,6 @@
 import { ACTION_THRESHOLD, TICK_RATE } from '../../data/gameData';
 import { executeUltimateSkill, executeNormalSkill } from './skillExecutor';
 
-/**
- * 모든 아군의 행동을 처리하고, 그 결과를 반환합니다.
- * @param {object} props - 필요한 상태와 함수들을 담은 객체
- * @returns {{updatedAllies: Array, damageToEnemy: number}} - 변경된 아군 배열과 적에게 가한 총 데미지
- */
 export function handleAllyActions({
   allies,
   buffs,
@@ -16,6 +11,9 @@ export function handleAllyActions({
 }) {
   let nextAllies = [...allies];
   let totalEnemyDamage = 0;
+  
+  // [New] 컷신 발동 정보를 담을 변수 (이번 턴에 필살기 쓴 사람이 있으면 여기에 저장)
+  let triggeredSkillInfo = null;
 
   for (let i = 0; i < nextAllies.length; i++) {
     let ally = { ...nextAllies[i] };
@@ -26,7 +24,7 @@ export function handleAllyActions({
       ally.selfBuffs.buffTime -= TICK_RATE;
       if (ally.selfBuffs.buffTime <= 0) {
         ally.selfBuffs = { atkUp: 0, critDmgUp: 0, buffTime: 0 };
-        addLog(`${ally.name}의 강화 효과가 종료되었습니다.`, 'system');
+        addLog(`${ally.name}의 강화 효과가 종료되었습니다.`, 'buff');
       }
     }
 
@@ -59,18 +57,40 @@ export function handleAllyActions({
       const finalCritMultiplier = isCrit ? (1.5 * (1 + ally.selfBuffs.critDmgUp)) : 1.0;
       const executorProps = { finalAtk, finalCritMultiplier, isCrit, setBuffs, addLog, currentAllies: nextAllies };
 
-      // 필살기 or 일반공격 결정 및 실행
+      // [필살기 사용 시점]
       if (ally.ultGauge >= ally.maxUltGauge) {
         ally.ultGauge = 0;
+        
+        // [New] 컷신 트리거 정보 생성!
+        triggeredSkillInfo = {
+            name: ally.name,
+            image: ally.image, // 캐릭터 일러스트 (없으면 BattleAllyZone의 fallback 사용됨)
+            skillName: ally.combatSkills.ultimate.name,
+            quote: ally.combatSkills.ultimate.quote || `${ally.name}의 진정한 힘을 보여주마!`
+        };
+
         const { damageDealt, alliesToHeal, newSelfBuffs } = executeUltimateSkill(ally, ally.combatSkills.ultimate, executorProps);
+        
+        addLog(`${ally.name}: [${ally.combatSkills.ultimate.name}]! (💥 ${damageDealt})`, 'skill');
+
         totalEnemyDamage += damageDealt;
-        if (alliesToHeal.length > 0) nextAllies = alliesToHeal(nextAllies);
+        if (alliesToHeal.length > 0) {
+            if (typeof alliesToHeal === 'function') nextAllies = alliesToHeal(nextAllies);
+        }
         ally.selfBuffs = newSelfBuffs;
         gainCausality(3 * eff);
-      } else {
+      } 
+      // [일반 공격]
+      else {
+        const skillName = ally.combatSkills?.normal?.name || "기본 공격";
         const { damageDealt, alliesToModify } = executeNormalSkill(ally, ally.combatSkills.normal, executorProps);
+        
+        addLog(`${ally.name}의 [${skillName}]! (💥 ${damageDealt})`, 'damage');
+
         totalEnemyDamage += damageDealt;
-        if (alliesToModify) nextAllies = alliesToModify(nextAllies);
+        if (alliesToModify) {
+             if (typeof alliesToModify === 'function') nextAllies = alliesToModify(nextAllies);
+        }
         ally.ultGauge = Math.min(ally.maxUltGauge, ally.ultGauge + 20);
         gainCausality(1 * eff);
       }
@@ -78,5 +98,6 @@ export function handleAllyActions({
     nextAllies[i] = ally;
   }
 
-  return { updatedAllies: nextAllies, damageToEnemy: totalEnemyDamage };
+  // [New] triggeredSkillInfo도 함께 반환
+  return { updatedAllies: nextAllies, damageToEnemy: totalEnemyDamage, triggeredSkillInfo };
 }

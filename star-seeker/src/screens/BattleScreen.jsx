@@ -6,9 +6,10 @@ import BattleAllyZone from '../components/battle/BattleAllyZone';
 import BattleEnemyZone from '../components/battle/BattleEnemyZone';
 import BattleLogZone from '../components/battle/BattleLogZone';
 import BattleControlZone from '../components/battle/BattleControlZone';
-import BattleStartOverlay from '../components/battle/BattleStartOverlay'; // 시작 버튼은 전투 전용이므로 유지
+import BattleStartOverlay from '../components/battle/BattleStartOverlay';
+import BattleEffectLayer from '../components/battle/BattleEffectLayer';
+import BattleCutIn from '../components/battle/BattleCutIn'; // [New]
 
-// [New] 공용 컴포넌트 import (경로 주의: screens 폴더에서 나가서 components로 진입)
 import GameHeader from '../components/common/GameHeader';
 import PauseMenu from '../components/common/PauseMenu';
 
@@ -54,12 +55,13 @@ const ControlArea = styled.div`
 function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, enemyId }) {
   const { 
     logs, allies, enemy, playerCausality, enemyWarning, buffs,
-    useSkill, startBattle, isBattleStarted, isPaused, togglePause 
+    useSkill, startBattle, isBattleStarted, isPaused, togglePause,
+    battleEvents, 
+    cutInInfo, // [New] 컷신 정보
+    handleCutInComplete // [New] 컷신 종료 핸들러
   } = useBattle(initialParty, userStats, hpMultiplier, onGameEnd, enemyId);
 
   const [introStep, setIntroStep] = useState(0);
-  
-  // 환경설정 상태 (실제로는 전역 상태 관리나 Context API로 빼는 것이 좋음)
   const [bgmVolume, setBgmVolume] = useState(0.5); 
   const [isMuted, setIsMuted] = useState(false);
 
@@ -85,13 +87,22 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, enemyI
 
   return (
     <BattleScreenContainer>
-      {/* 1. 상단 공용 헤더 (일시정지 버튼) */}
+      {/* 1. 이펙트 레이어 (최상단) */}
+      <BattleEffectLayer events={battleEvents} />
+      
+      {/* [New] 2. 컷신 레이어 (이펙트 바로 아래) */}
+      <BattleCutIn 
+        cutInInfo={cutInInfo} 
+        onComplete={handleCutInComplete} 
+      />
+
+      {/* 3. 상단 헤더 */}
       {isBattleStarted && !isPaused && (
         <GameHeader onPause={() => togglePause(true)} />
       )}
 
-      {/* 2. 공용 일시정지 메뉴 */}
-      {isPaused && (
+      {/* 4. 일시정지 메뉴 */}
+      {isPaused && !cutInInfo && ( // 컷신 중에는 일시정지 메뉴 안 뜨게
         <PauseMenu 
           onResume={() => togglePause(false)}
           onRetreat={handleRetreat}
@@ -129,7 +140,6 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, enemyI
         />
       </ControlArea>
 
-      {/* 시작 오버레이는 전투 고유 기능이므로 유지 */}
       {(introStep === 2 || introStep === 3) && (
           <BattleStartOverlay 
             onStart={handleStartClick} 

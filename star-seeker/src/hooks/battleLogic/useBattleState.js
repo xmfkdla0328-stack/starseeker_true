@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CAUSALITY_MAX } from '../../data/gameData';
-import { ENEMIES, ENEMY_TEMPLATE } from '../../data/enemyData'; // [수정] ENEMIES 임포트
+import { ENEMIES, ENEMY_TEMPLATE } from '../../data/enemyData'; 
 
-export default function useBattleState(initialParty, userStats, hpMultiplier, enemyId) { // [수정] enemyId 추가
+export default function useBattleState(initialParty, userStats, hpMultiplier, enemyId) { 
   const [logs, setLogs] = useState([]);
   const [allies, setAllies] = useState([]);
   const [enemy, setEnemy] = useState(null);
@@ -17,8 +17,14 @@ export default function useBattleState(initialParty, userStats, hpMultiplier, en
     regen: { active: false, timeLeft: 0, val: 0 },
   });
 
-  const addLog = useCallback((text, type = 'normal') => {
-    setLogs(prev => [...prev.slice(-49), { id: Date.now() + Math.random(), text, type }]);
+  // [수정] type 파라미터 추가 및 기본값 설정
+  const addLog = useCallback((text, type = 'damage') => {
+    setLogs(prev => [...prev.slice(-49), { 
+        id: Date.now() + Math.random(), 
+        text, 
+        type, // 타입 저장
+        timestamp: Date.now() 
+    }]);
   }, []);
 
   const gainCausality = useCallback((amount) => {
@@ -30,7 +36,7 @@ export default function useBattleState(initialParty, userStats, hpMultiplier, en
   useEffect(() => {
     if (!initialParty || initialParty.length === 0) return;
 
-    // 1. 아군 초기화 (기존 동일)
+    // 1. 아군 초기화
     const initializedAllies = initialParty.map(char => {
       const maxHp = Math.floor(char.baseHp * (1 + userStats.chr * 0.01));
       const currentHp = Math.floor(maxHp * hpMultiplier);
@@ -59,13 +65,12 @@ export default function useBattleState(initialParty, userStats, hpMultiplier, en
     });
     setAllies(initializedAllies);
 
-    // 2. [핵심] 적 초기화: ID로 데이터 조회 및 Initial HP 적용
+    // 2. 적 초기화
     const targetEnemyData = (enemyId && ENEMIES[enemyId]) ? ENEMIES[enemyId] : ENEMY_TEMPLATE;
     
     if (targetEnemyData) {
         setEnemy({
             ...targetEnemyData,
-            // [핵심] initialHp가 있으면 그것을 현재 hp로, 없으면 maxHp 사용
             hp: targetEnemyData.initialHp || targetEnemyData.maxHp, 
             actionGauge: 0,
             ultGauge: 0,
@@ -76,9 +81,10 @@ export default function useBattleState(initialParty, userStats, hpMultiplier, en
         });
     }
     
-    addLog(`⚠️ 강적 [${targetEnemyData.name}] 출현!`, "warning");
+    // [Log] 적 출현 (시스템)
+    addLog(`⚠️ 강적 [${targetEnemyData.name}] 출현!`, "system");
 
-  }, [initialParty, userStats, hpMultiplier, addLog, enemyId]); // enemyId 의존성 추가
+  }, [initialParty, userStats, hpMultiplier, addLog, enemyId]);
 
   return {
     logs, allies, setAllies, enemy, setEnemy, 

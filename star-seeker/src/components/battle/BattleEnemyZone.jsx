@@ -2,14 +2,13 @@ import React from 'react';
 import { AlertTriangle, Zap } from 'lucide-react';
 import { ENEMY_CAUSALITY_TRIGGER } from '../../data/gameData';
 
-// [수정] showStatus prop 추가 (UI 표시 여부 제어)
 export default function BattleEnemyZone({ enemy, enemyWarning, showStatus = true }) {
   if (!enemy) return null;
 
   return (
     <div className="relative flex-1 flex flex-col items-center justify-center gap-4 p-4 z-10 overflow-hidden">
       
-      {/* 1. 몹 이름 및 hp 표기 (showStatus에 따라 투명도 제어) */}
+      {/* 1. 몹 이름 및 hp 표기 */}
       <div className={`w-4/5 max-w-md z-10 transition-opacity duration-1000 ${showStatus ? 'opacity-100' : 'opacity-0'}`}>
         <div className="flex justify-between items-end border-b border-white/20 pb-1">
           <div className="flex flex-col">
@@ -23,9 +22,13 @@ export default function BattleEnemyZone({ enemy, enemyWarning, showStatus = true
         </div>
       </div>
 
-      {/* 2. 적 이미지 (항상 보임 - 부모 컨테이너가 Slide Up 할 때 같이 올라옴) */}
+      {/* 2. 적 이미지 */}
       <div className={`relative z-0 transition-all duration-500 ${enemy.hp <= 0 ? 'opacity-0 scale-95 blur-sm' : 'opacity-100 scale-100'}`}>
-         <div className="relative w-48 h-48 flex items-center justify-center">
+         <div 
+            // [New] 적 데미지 텍스트 위치 타겟 ID
+            id="enemy-target-main"
+            className="relative w-48 h-48 flex items-center justify-center"
+         >
             {/* Aura Effect */}
             <div className={`absolute inset-0 bg-rose-500/20 blur-3xl rounded-full animate-pulse ${enemyWarning ? 'bg-fuchsia-500/40' : ''}`} />
             
@@ -37,7 +40,7 @@ export default function BattleEnemyZone({ enemy, enemyWarning, showStatus = true
          </div>
       </div>
 
-      {/* 3. 게이지 바 (showStatus에 따라 투명도 제어) */}
+      {/* 3. 게이지 바 */}
       <div className={`relative z-10 w-4/5 max-w-md space-y-2 backdrop-blur-sm bg-slate-900/30 p-3 rounded-lg border border-white/5 transition-opacity duration-1000 ${showStatus ? 'opacity-100' : 'opacity-0'}`}>
         
         {/* HP Bar */}
