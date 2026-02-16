@@ -5,7 +5,7 @@ import './App.css';
 import useGameNavigation from './hooks/useGameNavigation';
 import useGameData from './hooks/useGameData';
 
-// Screens (기존 import 유지)
+// Screens
 import HomeScreen from './components/HomeScreen';
 import SelectScreen from './components/SelectScreen';
 import StorySelectScreen from './components/StorySelectScreen';
@@ -21,8 +21,6 @@ import AutoResourcesScreen from './components/AutoResourcesScreen';
 
 export default function App() {
   const nav = useGameNavigation();
-  
-  // [Mod] data 객체 전체를 받아오거나 필요한거 구조분해
   const data = useGameData(); 
 
   const [currentEnemyId, setCurrentEnemyId] = useState(null);
@@ -32,8 +30,9 @@ export default function App() {
     else if (contentType === 'mining') nav.goMiningSelect();
   };
 
+  // [Fix] 직접 채굴 시 적을 'guardian'으로 변경
   const handleDirectMining = () => {
-    setCurrentEnemyId('tutorial_boss'); 
+    setCurrentEnemyId('guardian'); // 'tutorial_boss' -> 'guardian'
     nav.goBattle();
   };
 
@@ -102,13 +101,11 @@ export default function App() {
       
       {nav.gameState === 'party' && <PartyScreen currentParty={data.partyList} onUpdateParty={data.setPartyList} onBack={nav.goHome} />}
       
-      {/* [Fix] ManagementScreen에 필요한 모든 Props 전달 */}
       {nav.gameState === 'manage' && (
         <ManagementScreen 
             roster={data.roster} 
             inventory={data.inventory} 
             onUnlockNode={data.handleUnlockNode} 
-            // 추가된 Props (장비 및 스탯 관련)
             equipmentList={data.equipmentList}
             onEquip={data.handleEquip}
             onUnequip={data.handleUnequip}
@@ -117,8 +114,6 @@ export default function App() {
             onBack={nav.goHome} 
         />
       )}
-
-      {nav.gameState === 'manage' ? null : null /* (참고: 위에서 처리했으므로 생략) */}
 
       {nav.gameState === 'storage' && <StorageScreen inventory={data.inventory} onBack={nav.goHome} />}
       {nav.gameState === 'guide' && <GuideBookScreen collectedKeywords={data.collectedKeywords} onBack={nav.goHome} />}
