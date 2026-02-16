@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { ALL_CHARACTERS } from '../../data/characterData';
 
 export default function CharacterList({ roster, selectedCharId, onSelect }) {
   // 드래그 스크롤 로직
@@ -57,21 +58,38 @@ export default function CharacterList({ roster, selectedCharId, onSelect }) {
       >
         {roster.map((char) => {
           const isSelected = char.id === selectedCharId;
+          
+          const staticData = ALL_CHARACTERS.find(c => c.id === char.id);
+          const listImage = staticData?.listImage;
+
           return (
             <button
               key={char.id}
               onClick={() => handleCharClick(char.id)}
               onDragStart={(e) => e.preventDefault()}
+              // [수정] 미선택 시 흑백(grayscale) 및 투명도(opacity-60) 제거
+              // 선택된 캐릭터의 파란색 발광 효과만 유지하고, 미선택은 기본 테두리만 남김
               className={`flex-shrink-0 w-14 h-14 rounded-full border-2 relative overflow-hidden transition-transform duration-200
                   ${isSelected
                   ? 'border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.5)] scale-110'
-                  : 'border-slate-600 opacity-60 grayscale hover:opacity-100'
+                  : 'border-slate-600' 
                 }`}
             >
+              {/* 1. 기본 배경 (Fallback) */}
               <div className={`absolute inset-0 bg-gradient-to-br ${char.color}`}></div>
               <span className="absolute inset-0 flex items-center justify-center text-lg font-bold text-white/90 drop-shadow-md">
                 {char.role.charAt(0)}
               </span>
+
+              {/* 2. 얼굴 이미지 */}
+              {listImage && (
+                <img 
+                    src={listImage} 
+                    alt={char.name}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    onError={(e) => e.target.style.display = 'none'} 
+                />
+              )}
             </button>
           );
         })}

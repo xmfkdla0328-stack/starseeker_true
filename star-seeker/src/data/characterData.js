@@ -5,8 +5,9 @@ export const ALL_CHARACTERS = [
     baseHp: 1200, baseAtk: 55, baseDef: 25, baseSpd: 8, 
     color: "from-blue-600 to-blue-800", desc: "삶의 증명을 위하여 싸우는 남겨진 자",
     efficiency: 1.1, star: 5,
-    // [New] 이미지 경로 추가
     image: "/images/characters/mainImage/sujumok_manage.png",
+    // [New] 리스트용 얼굴 아이콘
+    listImage: "/images/characters/mainImage/sujumokList.png",
     skills: ['요리', '채집', '관찰'],
     combatSkills: {
         normal: { name: "강타", desc: "방어력의 100% 위력으로 단일 적을 공격합니다.", mult: 1.0 },
@@ -105,8 +106,9 @@ export const ALL_CHARACTERS = [
     baseHp: 600, baseAtk: 130, baseDef: 5, baseSpd: 45, 
     color: "from-amber-600 to-amber-800", desc: "구세주의 귀환을 기다리는 사과 나무의 뱀",
     efficiency: 0.8, star: 5,
-    // [New] 이미지 경로 추가
     image: "/images/characters/mainImage/ekidna_manage.png",
+    // [New] 리스트용 얼굴 아이콘
+    listImage: "/images/characters/mainImage/ekidnaList.png",
     skills: ['만능', '제조', '수호'],
     combatSkills: {
         normal: { name: "코드 입력: 7AD0N", desc: "공격력의 100% 위력으로 적을 공격합니다.", mult: 1.0 },
