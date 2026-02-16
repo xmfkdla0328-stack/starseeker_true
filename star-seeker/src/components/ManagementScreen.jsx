@@ -3,23 +3,20 @@ import { ArrowLeft, RefreshCw, HardDrive, Sparkles, Hexagon } from 'lucide-react
 import CharacterList from './management/CharacterList';
 import UpgradePanel from './management/UpgradePanel';
 import StatusPanel from './management/StatusPanel';
-// import useGameData from '../hooks/useGameData'; // [Delete] 훅 임포트 제거
+// [중요] 이미지 경로 참조를 위해 데이터 직접 임포트 (roster에 image가 없는 경우 대비)
+import { ALL_CHARACTERS } from '../data/characterData';
 
 export default function ManagementScreen({ 
   roster, 
   inventory, 
   onUnlockNode, 
   onBack,
-  // [New] App.jsx에서 받아오는 Props
   equipmentList,
   onEquip,
   onUnequip,
   getFinalStats,
   addTestEquipments
 }) {
-  // const data = useGameData(); // [Delete] 내부 훅 호출 삭제 (이것이 원인이었음)
-  
-  // Props를 직접 사용
   const activeRoster = roster; 
   const activeInventory = inventory;
   
@@ -32,10 +29,24 @@ export default function ManagementScreen({
     }
   }, [activeRoster, selectedCharId]);
 
-  const selectedChar = activeRoster.find(c => c.id === selectedCharId);
+  // [수정] selectedChar를 찾을 때, roster의 정보와 ALL_CHARACTERS의 정적 정보(이미지 등)를 병합
+  const selectedChar = useMemo(() => {
+      const rosterChar = activeRoster.find(c => c.id === selectedCharId);
+      if (!rosterChar) return null;
+
+      const staticData = ALL_CHARACTERS.find(c => c.id === rosterChar.id);
+      
+      // roster의 상태값(레벨, 노드 등)을 유지하되, 정적 데이터(이미지 등)를 덮어씌움
+      return {
+          ...staticData, 
+          ...rosterChar,
+          // 만약 rosterChar에 image가 없다면 staticData의 image를 사용
+          image: rosterChar.image || staticData?.image
+      };
+  }, [activeRoster, selectedCharId]);
 
   const finalStats = useMemo(() => {
-    if (!selectedChar || !getFinalStats) return null; // getFinalStats 방어 코드
+    if (!selectedChar || !getFinalStats) return null;
     return getFinalStats(selectedChar.id);
   }, [selectedChar, equipmentList, activeRoster, getFinalStats]);
 
@@ -114,11 +125,15 @@ export default function ManagementScreen({
                     {activeTab === 'status' && (
                         <div className="min-h-[400px] animate-fade-in flex flex-col gap-4">
                             <div className="w-full max-w-sm mx-auto aspect-[3/4] rounded-xl overflow-hidden border border-white/10 shadow-2xl relative group bg-slate-900">
+                                {/* [확인] 여기서 selectedChar.image를 참조하므로 위에서 병합된 이미지 경로가 사용됨 */}
                                 <img 
                                     src={selectedChar.image} 
                                     alt={selectedChar.name} 
                                     className="w-full h-full object-cover"
-                                    onError={(e) => e.target.style.display = 'none'} 
+                                    onError={(e) => {
+                                        e.target.style.display = 'none'; // 이미지 로드 실패 시 숨김
+                                        // console.log(`Image load failed for: ${selectedChar.name}, path: ${selectedChar.image}`); 
+                                    }} 
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80"></div>
                                 <div className="absolute bottom-4 left-4">
@@ -139,7 +154,6 @@ export default function ManagementScreen({
 
                     {activeTab === 'upgrade' && (
                         <div className="animate-fade-in min-h-[500px]">
-                            {/* [Fix] 이제 onUnlockNode는 App.jsx에서 넘어온 함수를 사용하므로 State가 동기화됨 */}
                             <UpgradePanel 
                                 char={selectedChar} 
                                 onUnlockNode={onUnlockNode}
