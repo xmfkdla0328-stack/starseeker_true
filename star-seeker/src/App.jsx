@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import './App.css';
 
-// Hooks
 import useGameNavigation from './hooks/useGameNavigation';
 import useGameData from './hooks/useGameData';
 
@@ -19,20 +18,26 @@ import GachaScreen from './components/GachaScreen';
 import ResourcesScreen from './components/ResourcesScreen';
 import AutoResourcesScreen from './components/AutoResourcesScreen';
 
+// [New] 새로 만든 결과 컴포넌트 임포트
+import BattleResultOverlay from './components/battle/BattleResultOverlay';
+
 export default function App() {
   const nav = useGameNavigation();
   const data = useGameData(); 
 
   const [currentEnemyId, setCurrentEnemyId] = useState(null);
+  
+  // [New] 전투 진입 경로를 기억하기 위한 상태 ('story' | 'mining')
+  const [battleType, setBattleType] = useState('story'); 
 
   const handleContentSelect = (contentType) => {
     if (contentType === 'story') nav.goStorySelect();
     else if (contentType === 'mining') nav.goMiningSelect();
   };
 
-  // [Fix] 직접 채굴 시 적을 'guardian'으로 변경
   const handleDirectMining = () => {
-    setCurrentEnemyId('guardian'); // 'tutorial_boss' -> 'guardian'
+    setCurrentEnemyId('guardian'); 
+    setBattleType('mining'); // [New] 채굴 전투임을 명시
     nav.goBattle();
   };
 
@@ -50,11 +55,27 @@ export default function App() {
   const handleEventComplete = (nextAction) => {
     if (typeof nextAction === 'string' && nextAction.startsWith('battle:')) {
         const enemyId = nextAction.split(':')[1];
-        setCurrentEnemyId(enemyId); 
+        setCurrentEnemyId(enemyId);
+        setBattleType('story'); // [New] 스토리 전투임을 명시
         nav.goBattle(); 
     } else {
         nav.goBattle(); 
     }
+  };
+
+  // [New] 재전투 핸들러 (적 ID 유지한 채 전투 화면 리로드)
+  const handleRetryBattle = () => {
+      // 깜빡임 연출을 위해 잠시 로딩 상태를 줄 수도 있지만, 여기선 바로 재진입
+      nav.goBattle();
+  };
+
+  // [New] 나가기 핸들러
+  const handleLeaveBattle = () => {
+      if (battleType === 'mining') {
+          nav.goMiningSelect(); // 채굴이면 채굴 선택창으로
+      } else {
+          nav.goHome(); // 스토리면 홈으로 (추후 다음 스토리 연결 로직 필요 시 수정)
+      }
   };
 
   return (
@@ -129,6 +150,7 @@ export default function App() {
         />
       )}
       
+      {/* 전투 화면 */}
       {nav.gameState === 'active' && (
         <BattleScreen 
             userStats={data.userStats} 
@@ -139,15 +161,16 @@ export default function App() {
         />
       )}
 
+      {/* [Fix] 전투 결과 화면 (Win/Lose 통합 관리) */}
       {(nav.gameState === 'win' || nav.gameState === 'lose') && (
-        <div className="absolute inset-0 z-50 bg-[#0f172a]/90 backdrop-blur-xl flex flex-col items-center justify-center animate-fade-in">
-            <h2 className={`text-5xl font-thin tracking-[0.2em] mb-2 ${nav.gameState === 'win' ? 'text-amber-200' : 'text-rose-400'}`}>
-                {nav.gameState === 'win' ? 'CLEARED' : 'FAILED'}
-            </h2>
-            <button onClick={nav.goHome} className="mt-8 px-8 py-3 bg-white/5 border border-white/20 text-white rounded-sm hover:bg-white/10 transition-colors">
-                Return to Home
-            </button>
-        </div>
+        <BattleResultOverlay 
+            result={nav.gameState}
+            battleType={battleType}
+            rewards={[{ id: 'chip', name: 'Data Chip', count: 50 }]} // 임시 보상 데이터 (추후 연동 필요)
+            expGained={100} // 임시 경험치
+            onRetry={handleRetryBattle}
+            onLeave={handleLeaveBattle}
+        />
       )}
     </div>
   );
