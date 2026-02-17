@@ -18,7 +18,6 @@ import GachaScreen from './components/GachaScreen';
 import ResourcesScreen from './components/ResourcesScreen';
 import AutoResourcesScreen from './components/AutoResourcesScreen';
 
-// [New] 새로 만든 결과 컴포넌트 임포트
 import BattleResultOverlay from './components/battle/BattleResultOverlay';
 
 export default function App() {
@@ -26,9 +25,10 @@ export default function App() {
   const data = useGameData(); 
 
   const [currentEnemyId, setCurrentEnemyId] = useState(null);
-  
-  // [New] 전투 진입 경로를 기억하기 위한 상태 ('story' | 'mining')
   const [battleType, setBattleType] = useState('story'); 
+  
+  // [New] 획득한 보상 목록을 저장할 State
+  const [battleRewards, setBattleRewards] = useState([]);
 
   const handleContentSelect = (contentType) => {
     if (contentType === 'story') nav.goStorySelect();
@@ -37,7 +37,7 @@ export default function App() {
 
   const handleDirectMining = () => {
     setCurrentEnemyId('guardian'); 
-    setBattleType('mining'); // [New] 채굴 전투임을 명시
+    setBattleType('mining'); 
     nav.goBattle();
   };
 
@@ -50,31 +50,46 @@ export default function App() {
     [data.partyList, data.roster]
   );
   
-  const onGameEnd = useCallback((result) => nav.goResult(result), [nav]);
+  // [Fix] 전투 종료 시 보상 지급 로직 추가
+  const onGameEnd = useCallback((result) => {
+      if (result === 'win' && battleType === 'mining') {
+          // 1. 보상 수량 랜덤 결정 (4 ~ 5개)
+          const rewardAmount = Math.floor(Math.random() * 2) + 4; 
+          
+          // 2. 실제 인벤토리에 추가
+          data.addResource('chip_basic', rewardAmount);
+          
+          // 3. 결과창에 보여줄 데이터 설정
+          setBattleRewards([
+              { id: 'chip_basic', name: '데이터 보강칩', count: rewardAmount }
+          ]);
+      } else {
+          setBattleRewards([]); // 보상 없음 (패배 혹은 스토리 모드 등)
+      }
+      
+      nav.goResult(result);
+  }, [nav, battleType, data]);
 
   const handleEventComplete = (nextAction) => {
     if (typeof nextAction === 'string' && nextAction.startsWith('battle:')) {
         const enemyId = nextAction.split(':')[1];
         setCurrentEnemyId(enemyId);
-        setBattleType('story'); // [New] 스토리 전투임을 명시
+        setBattleType('story'); 
         nav.goBattle(); 
     } else {
         nav.goBattle(); 
     }
   };
 
-  // [New] 재전투 핸들러 (적 ID 유지한 채 전투 화면 리로드)
   const handleRetryBattle = () => {
-      // 깜빡임 연출을 위해 잠시 로딩 상태를 줄 수도 있지만, 여기선 바로 재진입
       nav.goBattle();
   };
 
-  // [New] 나가기 핸들러
   const handleLeaveBattle = () => {
       if (battleType === 'mining') {
-          nav.goMiningSelect(); // 채굴이면 채굴 선택창으로
+          nav.goMiningSelect(); 
       } else {
-          nav.goHome(); // 스토리면 홈으로 (추후 다음 스토리 연결 로직 필요 시 수정)
+          nav.goHome(); 
       }
   };
 
@@ -150,7 +165,6 @@ export default function App() {
         />
       )}
       
-      {/* 전투 화면 */}
       {nav.gameState === 'active' && (
         <BattleScreen 
             userStats={data.userStats} 
@@ -161,13 +175,12 @@ export default function App() {
         />
       )}
 
-      {/* [Fix] 전투 결과 화면 (Win/Lose 통합 관리) */}
       {(nav.gameState === 'win' || nav.gameState === 'lose') && (
         <BattleResultOverlay 
             result={nav.gameState}
             battleType={battleType}
-            rewards={[{ id: 'chip', name: 'Data Chip', count: 50 }]} // 임시 보상 데이터 (추후 연동 필요)
-            expGained={100} // 임시 경험치
+            rewards={battleRewards} // [Fix] 계산된 보상 전달
+            expGained={100} // 임시 경험치 (나중에 변수화 가능)
             onRetry={handleRetryBattle}
             onLeave={handleLeaveBattle}
         />

@@ -9,7 +9,7 @@ export default function useGameData() {
   // 1. 각 기능별 Hook 호출
   const { 
     inventory, equipmentList, setInventory, 
-    hasResource, consumeResource, 
+    hasResource, consumeResource, addResource, // [Fix] addResource 내보내기
     addEquipment, removeEquipment, updateEquipmentStatus, addTestEquipments 
   } = useInventory();
   
@@ -25,7 +25,6 @@ export default function useGameData() {
     if (!char) return null;
 
     // 1. [기본 스탯] + [노드 강화 스탯] 합산 (= 순수 캐릭터 스펙)
-    // 데이터가 없으면 0으로 처리하여 NaN 방지
     const baseStats = {
         hp: (char.hp || 0) + (char.baseHp || 0),
         atk: (char.atk || 0) + (char.baseAtk || 0),
@@ -71,7 +70,6 @@ export default function useGameData() {
         critDmg: baseStats.critDmg + flatBonuses.critDmg
     };
 
-    // 원본 char 객체에 계산된 finalStats를 덮어씌워서 반환 (UI 표시용)
     return { ...char, ...finalStats };
   }, [roster, equipmentList]);
 
@@ -80,13 +78,11 @@ export default function useGameData() {
     const char = roster.find(c => c.id === charId);
     if (!char) return;
 
-    // 기존 아이템 해제 처리
     const oldItemId = char.equipped[slotIndex];
     if (oldItemId) {
         handleUnequip(charId, slotIndex);
     }
 
-    // 새 아이템 장착 상태 업데이트
     updateEquipmentStatus(item.id, true, charId);
     equipItem(charId, slotIndex, item.id);
   };
@@ -103,7 +99,7 @@ export default function useGameData() {
     }
   };
 
-  // 노드 해금 핸들러 (재화 소모 체크)
+  // 노드 해금 핸들러
   const handleUnlockNode = (charId, nodeIndex, isMajor, nodeInfo) => {
     const costItem = isMajor ? 'core_essence' : 'chip_basic';
     const costAmount = isMajor ? 1 : 5; 
@@ -129,8 +125,11 @@ export default function useGameData() {
     handleUnlockNode, 
     handleOptionSelected: updateOption,
     handleAssignMiner, handleRemoveMiner, handleCollectReward,
-    handleUnlockKeyword: unlockKeyword, // [Fix] 매핑 확인됨
+    handleUnlockKeyword: unlockKeyword, 
     
+    // [New] 자원 추가 핸들러 노출
+    addResource,
+
     // Equipment & Stats Handlers
     addEquipment, removeEquipment, addTestEquipments,
     handleEquip, handleUnequip, getFinalStats
