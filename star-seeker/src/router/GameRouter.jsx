@@ -1,6 +1,6 @@
 import React from 'react';
 
-// Screens
+// Screens (기존 import 유지)
 import HomeScreen from '../components/HomeScreen';
 import SelectScreen from '../components/SelectScreen';
 import StorySelectScreen from '../components/StorySelectScreen';
@@ -14,6 +14,8 @@ import GachaScreen from '../components/GachaScreen';
 import ResourcesScreen from '../components/ResourcesScreen';
 import AutoResourcesScreen from '../components/AutoResourcesScreen';
 
+// [New] 새로 만든 화면 import
+import DirectMiningSelectScreen from '../components/mining/DirectMiningSelectScreen';
 import BattleResultOverlay from '../components/battle/BattleResultOverlay';
 
 export default function GameRouter({ 
@@ -25,10 +27,10 @@ export default function GameRouter({
 }) {
   const { currentEnemyId, battleType, battleRewards } = battleState;
   
-  // 핸들러 구조분해 할당 (가독성을 위해)
   const {
     handleContentSelect,
     handleDirectMining,
+    handleStartMiningBattle, // [New]
     handleAutoMiningEntry,
     onGameEnd,
     handleEventComplete,
@@ -57,6 +59,14 @@ export default function GameRouter({
             onBack={nav.goSelect} 
             onDirectMining={handleDirectMining} 
             onAutoMining={handleAutoMiningEntry} 
+        />
+      )}
+
+      {/* [New] 직접 채굴 단계 선택 화면 */}
+      {nav.gameState === 'mining_stage_select' && (
+        <DirectMiningSelectScreen 
+            onBack={nav.goMiningSelect} 
+            onSelectStage={handleStartMiningBattle} 
         />
       )}
 
@@ -101,7 +111,6 @@ export default function GameRouter({
         />
       )}
       
-      {/* 전투 화면 */}
       {nav.gameState === 'active' && (
         <BattleScreen 
             userStats={data.userStats} 
@@ -112,7 +121,6 @@ export default function GameRouter({
         />
       )}
 
-      {/* 전투 결과 화면 */}
       {(nav.gameState === 'win' || nav.gameState === 'lose') && (
         <BattleResultOverlay 
             result={nav.gameState}

@@ -1,23 +1,27 @@
 import { useState, useMemo } from 'react';
 
 export default function useGameNavigation() {
-  // gameState: 'home' | 'party' | 'manage' | 'storage' | 'guide' | 'gacha' | 'select' | 'story_select' | 'mining_select' | 'event' | 'active' | 'win' | 'lose'
-  const [gameState, setGameState] = useState('home');
+  const [gameState, setGameState] = useState('home'); 
 
-  const handlers = useMemo(() => ({
+  const actions = useMemo(() => ({
     goHome: () => setGameState('home'),
     goSelect: () => setGameState('select'),
+    goStorySelect: () => setGameState('story_select'),
+    goMiningSelect: () => setGameState('mining_select'),
+    
+    // [New] 직접 채굴 단계 선택 화면으로 이동
+    goDirectMiningSelect: () => setGameState('mining_stage_select'),
+
     goParty: () => setGameState('party'),
     goManage: () => setGameState('manage'),
     goStorage: () => setGameState('storage'),
     goGuide: () => setGameState('guide'),
     goGacha: () => setGameState('gacha'),
-    goStorySelect: () => setGameState('story_select'),
-    goMiningSelect: () => setGameState('mining_select'),
+    
     goEvent: () => setGameState('event'),
     goBattle: () => setGameState('active'),
-    goResult: (result) => setGameState(result), // 'win' or 'lose'
+    goResult: (result) => setGameState(result), 
   }), []);
 
-  return { gameState, ...handlers };
+  return { gameState, ...actions };
 }
