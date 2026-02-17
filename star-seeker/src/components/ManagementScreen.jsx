@@ -3,9 +3,66 @@ import { ArrowLeft, RefreshCw, HardDrive, Sparkles, Hexagon } from 'lucide-react
 import CharacterList from './management/CharacterList';
 import UpgradePanel from './management/UpgradePanel';
 import StatusPanel from './management/StatusPanel';
-// [중요] 이미지 경로 참조를 위해 데이터 직접 임포트 (roster에 image가 없는 경우 대비)
 import { ALL_CHARACTERS } from '../data/characterData';
 
+// ----------------------------------------------------------------------
+// [Sub Component] 상단 헤더 (타이틀 + 자원 표시 + 테스트 버튼)
+// ----------------------------------------------------------------------
+const HeaderSection = ({ onBack, chipCount, coreCount, onTest }) => (
+  <div className="flex-none flex items-center justify-between p-4 border-b border-white/10 bg-slate-950/50 z-20">
+    <div className="flex items-center gap-4">
+      <button onClick={onBack} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+        <ArrowLeft size={20} />
+      </button>
+      <h2 className="text-xl font-bold tracking-widest text-cyan-400">MANAGEMENT</h2>
+    </div>
+    
+    <div className="flex items-center gap-4">
+        <div className="flex gap-3 text-xs font-mono mr-4">
+            <div className="flex items-center gap-1 bg-slate-800/50 px-2 py-1 rounded border border-white/5">
+                <HardDrive size={12} className="text-cyan-400" />
+                <span className="text-cyan-200">{chipCount}</span>
+            </div>
+            <div className="flex items-center gap-1 bg-slate-800/50 px-2 py-1 rounded border border-white/5">
+                <Sparkles size={12} className="text-amber-400" />
+                <span className="text-amber-200">{coreCount}</span>
+            </div>
+        </div>
+        <button 
+            onClick={onTest} 
+            className="flex items-center gap-2 px-3 py-1 bg-purple-900/50 border border-purple-500/30 rounded text-xs text-purple-200 hover:bg-purple-800/50"
+        >
+            <RefreshCw size={12} /> Test
+        </button>
+    </div>
+  </div>
+);
+
+// ----------------------------------------------------------------------
+// [Sub Component] 탭 네비게이션
+// ----------------------------------------------------------------------
+const TabNavigation = ({ activeTab, onTabChange }) => (
+  <div className="flex-none flex border-b border-white/10 bg-slate-900/50">
+    <button 
+        onClick={() => onTabChange('status')}
+        className={`flex-1 py-3 text-sm font-bold tracking-wider transition-colors
+            ${activeTab === 'status' ? 'text-cyan-400 border-b-2 border-cyan-400 bg-cyan-900/20' : 'text-slate-500 hover:text-slate-300'}`}
+    >
+        STATUS & EQUIP
+    </button>
+    <button 
+        onClick={() => onTabChange('upgrade')}
+        className={`flex-1 py-3 text-sm font-bold tracking-wider transition-colors
+            ${activeTab === 'upgrade' ? 'text-amber-400 border-b-2 border-amber-400 bg-amber-900/20' : 'text-slate-500 hover:text-slate-300'}`}
+    >
+        UPGRADE
+    </button>
+  </div>
+);
+
+// ----------------------------------------------------------------------
+// [Main Component] Management Screen
+// ----------------------------------------------------------------------
 export default function ManagementScreen({ 
   roster, 
   inventory, 
@@ -23,28 +80,28 @@ export default function ManagementScreen({
   const [selectedCharId, setSelectedCharId] = useState(activeRoster[0]?.id);
   const [activeTab, setActiveTab] = useState('status');
 
+  // 첫 진입 시 선택된 캐릭터가 없으면 첫 번째 캐릭터 선택
   useEffect(() => {
     if (!selectedCharId && activeRoster.length > 0) {
         setSelectedCharId(activeRoster[0].id);
     }
   }, [activeRoster, selectedCharId]);
 
-  // [수정] selectedChar를 찾을 때, roster의 정보와 ALL_CHARACTERS의 정적 정보(이미지 등)를 병합
+  // 선택된 캐릭터 데이터 병합 (동적 상태 + 정적 데이터)
   const selectedChar = useMemo(() => {
       const rosterChar = activeRoster.find(c => c.id === selectedCharId);
       if (!rosterChar) return null;
 
       const staticData = ALL_CHARACTERS.find(c => c.id === rosterChar.id);
       
-      // roster의 상태값(레벨, 노드 등)을 유지하되, 정적 데이터(이미지 등)를 덮어씌움
       return {
           ...staticData, 
           ...rosterChar,
-          // 만약 rosterChar에 image가 없다면 staticData의 image를 사용
           image: rosterChar.image || staticData?.image
       };
   }, [activeRoster, selectedCharId]);
 
+  // 최종 스탯 계산
   const finalStats = useMemo(() => {
     if (!selectedChar || !getFinalStats) return null;
     return getFinalStats(selectedChar.id);
@@ -56,36 +113,15 @@ export default function ManagementScreen({
   return (
     <div className="flex flex-col h-full bg-[#0f172a] text-white animate-fade-in overflow-hidden">
       
-      {/* 1. 상단 헤더 */}
-      <div className="flex-none flex items-center justify-between p-4 border-b border-white/10 bg-slate-950/50 z-20">
-        <div className="flex items-center gap-4">
-          <button onClick={onBack} className="p-2 hover:bg-white/10 rounded-full transition-colors">
-            <ArrowLeft size={20} />
-          </button>
-          <h2 className="text-xl font-bold tracking-widest text-cyan-400">MANAGEMENT</h2>
-        </div>
-        
-        <div className="flex items-center gap-4">
-            <div className="flex gap-3 text-xs font-mono mr-4">
-                <div className="flex items-center gap-1 bg-slate-800/50 px-2 py-1 rounded border border-white/5">
-                    <HardDrive size={12} className="text-cyan-400" />
-                    <span className="text-cyan-200">{chipCount}</span>
-                </div>
-                <div className="flex items-center gap-1 bg-slate-800/50 px-2 py-1 rounded border border-white/5">
-                    <Sparkles size={12} className="text-amber-400" />
-                    <span className="text-amber-200">{coreCount}</span>
-                </div>
-            </div>
-            <button 
-                onClick={addTestEquipments} 
-                className="flex items-center gap-2 px-3 py-1 bg-purple-900/50 border border-purple-500/30 rounded text-xs text-purple-200 hover:bg-purple-800/50"
-            >
-                <RefreshCw size={12} /> Test
-            </button>
-        </div>
-      </div>
+      {/* 1. Header */}
+      <HeaderSection 
+        onBack={onBack} 
+        chipCount={chipCount} 
+        coreCount={coreCount} 
+        onTest={addTestEquipments} 
+      />
 
-      {/* 2. 캐릭터 리스트 */}
+      {/* 2. Character List */}
       <div className="flex-none z-10 bg-slate-900/80 backdrop-blur border-b border-white/10">
         <CharacterList 
           roster={activeRoster} 
@@ -94,46 +130,30 @@ export default function ManagementScreen({
         />
       </div>
 
-      {/* 3. 탭 버튼 */}
-      <div className="flex-none flex border-b border-white/10 bg-slate-900/50">
-        <button 
-            onClick={() => setActiveTab('status')}
-            className={`flex-1 py-3 text-sm font-bold tracking-wider transition-colors
-                ${activeTab === 'status' ? 'text-cyan-400 border-b-2 border-cyan-400 bg-cyan-900/20' : 'text-slate-500 hover:text-slate-300'}`}
-        >
-            STATUS & EQUIP
-        </button>
-        <button 
-            onClick={() => setActiveTab('upgrade')}
-            className={`flex-1 py-3 text-sm font-bold tracking-wider transition-colors
-                ${activeTab === 'upgrade' ? 'text-amber-400 border-b-2 border-amber-400 bg-amber-900/20' : 'text-slate-500 hover:text-slate-300'}`}
-        >
-            UPGRADE
-        </button>
-      </div>
+      {/* 3. Tab Buttons */}
+      <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* 4. 메인 컨텐츠 */}
+      {/* 4. Main Content Area */}
       <div className="flex-1 relative overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
         <div className="absolute inset-0 overflow-y-auto p-4 pb-20"> 
             
+            {/* Background Decoration */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-5">
                 <Hexagon size={300} className="text-white animate-spin-slow" />
             </div>
 
             {selectedChar && selectedChar.unlockedNodes && finalStats ? (
                 <div className="relative z-10">
+                    {/* (Tab 1) Status & Equip */}
                     {activeTab === 'status' && (
                         <div className="min-h-[400px] animate-fade-in flex flex-col gap-4">
+                            {/* Character Portrait Card */}
                             <div className="w-full max-w-sm mx-auto aspect-[3/4] rounded-xl overflow-hidden border border-white/10 shadow-2xl relative group bg-slate-900">
-                                {/* [확인] 여기서 selectedChar.image를 참조하므로 위에서 병합된 이미지 경로가 사용됨 */}
                                 <img 
                                     src={selectedChar.image} 
                                     alt={selectedChar.name} 
                                     className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                        e.target.style.display = 'none'; // 이미지 로드 실패 시 숨김
-                                        // console.log(`Image load failed for: ${selectedChar.name}, path: ${selectedChar.image}`); 
-                                    }} 
+                                    onError={(e) => e.target.style.display = 'none'} 
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80"></div>
                                 <div className="absolute bottom-4 left-4">
@@ -152,6 +172,7 @@ export default function ManagementScreen({
                         </div>
                     )}
 
+                    {/* (Tab 2) Upgrade */}
                     {activeTab === 'upgrade' && (
                         <div className="animate-fade-in min-h-[500px]">
                             <UpgradePanel 
