@@ -1,6 +1,6 @@
 import React from 'react';
 
-// Screens (기존 import 유지)
+// Screens
 import HomeScreen from '../components/HomeScreen';
 import SelectScreen from '../components/SelectScreen';
 import StorySelectScreen from '../components/StorySelectScreen';
@@ -13,8 +13,6 @@ import GuideBookScreen from '../components/GuideBookScreen';
 import GachaScreen from '../components/GachaScreen';
 import ResourcesScreen from '../components/ResourcesScreen';
 import AutoResourcesScreen from '../components/AutoResourcesScreen';
-
-// [New] 새로 만든 화면 import
 import DirectMiningSelectScreen from '../components/mining/DirectMiningSelectScreen';
 import BattleResultOverlay from '../components/battle/BattleResultOverlay';
 
@@ -30,7 +28,7 @@ export default function GameRouter({
   const {
     handleContentSelect,
     handleDirectMining,
-    handleStartMiningBattle, // [New]
+    handleStartMiningBattle,
     handleAutoMiningEntry,
     onGameEnd,
     handleEventComplete,
@@ -48,6 +46,8 @@ export default function GameRouter({
             onStorage={nav.goStorage}
             onRecord={nav.goGuide}
             onGacha={nav.goGacha}
+            // [New] 인벤토리 데이터 전달
+            inventory={data.inventory}
         />
       )}
 
@@ -62,7 +62,6 @@ export default function GameRouter({
         />
       )}
 
-      {/* [New] 직접 채굴 단계 선택 화면 */}
       {nav.gameState === 'mining_stage_select' && (
         <DirectMiningSelectScreen 
             onBack={nav.goMiningSelect} 
