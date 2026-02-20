@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { ChevronLeft, Sparkles, Hexagon } from 'lucide-react';
+import { ChevronLeft, Hexagon } from 'lucide-react';
 import { ALL_CHARACTERS } from '../data/characterData'; 
 import GachaMainView from './gacha/GachaMainView';
 import GachaResultView from './gacha/GachaResultView';
+import GachaIntroView from './gacha/GachaIntroView'; // [신규 추가]
 
 const DROP_RATES = {
     '5_STAR': 0.02, 
@@ -12,10 +13,27 @@ const DROP_RATES = {
 };
 const GACHA_COST = 100;
 
+// 헤더 컴포넌트
+const GachaHeader = ({ onBack, stoneCount }) => (
+    <div className="flex items-center justify-between p-4 z-20">
+        <button 
+            onClick={onBack} 
+            className="p-2 text-slate-400 hover:text-white transition-colors"
+        >
+            <ChevronLeft size={24} />
+        </button>
+        <div className="flex items-center gap-2 bg-black/40 px-4 py-2 rounded-full border border-violet-500/30 shadow-inner">
+            <Hexagon size={16} className="text-violet-400 fill-violet-400/20" />
+            <span className="text-violet-100 font-bold font-mono text-sm">{stoneCount.toLocaleString()}</span>
+        </div>
+    </div>
+);
+
+// 메인 컴포넌트
 export default function GachaScreen({ roster, setRoster, inventory, setInventory, consumeResource, onBack }) {
-  const [isAnimating, setIsAnimating] = useState(false);
+  // [핵심 변경] 화면 상태: 'main' (대기) | 'intro' (망원경 연출) | 'result' (결과창)
+  const [viewState, setViewState] = useState('main'); 
   const [results, setResults] = useState([]); 
-  const [showResult, setShowResult] = useState(false);
 
   const stoneCount = inventory.find(i => i.id === 'causality_stone')?.count || 0;
 
@@ -26,8 +44,10 @@ export default function GachaScreen({ roster, setRoster, inventory, setInventory
         return;
     }
 
+    // 1. 재화 즉시 소모
     consumeResource('causality_stone', totalCost);
 
+    // 2. 가챠 결과 즉시 계산
     const newResults = [];
     const newRoster = [...roster];
     let earnedCores = 0; 
@@ -61,6 +81,7 @@ export default function GachaScreen({ roster, setRoster, inventory, setInventory
         }
     }
 
+    // 3. 인벤토리/로스터 즉시 업데이트
     setRoster(newRoster);
     if (earnedCores > 0) {
         setInventory(prev => {
@@ -72,58 +93,53 @@ export default function GachaScreen({ roster, setRoster, inventory, setInventory
         });
     }
 
+    // 4. 결과값 저장 후 인트로 연출 화면으로 전환
     setResults(newResults);
-    setIsAnimating(true);
-    setShowResult(false);
+    setViewState('intro');
+  };
 
-    // 연출 타이머
-    setTimeout(() => {
-        setIsAnimating(false);
-        setShowResult(true);
-    }, 2000); 
+  // 연출 종료 후 처리
+  const handleIntroComplete = () => {
+      // 3단계 작업 시 여기서 'reveal' 상태로 넘어갈 예정입니다.
+      // 지금은 2단계이므로 바로 'result'로 넘깁니다.
+      setViewState('result');
   };
 
   return (
     <div className="flex-1 flex flex-col relative z-10 animate-fade-in h-full bg-[#0f172a] overflow-hidden">
       
-      {/* 1. 배경 이펙트 */}
+      {/* 배경 이펙트 */}
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 pointer-events-none"></div>
 
-      {/* 2. 상단 헤더 */}
-      <div className="flex items-center justify-between p-4 z-20">
-        <button 
-            onClick={onBack} 
-            disabled={isAnimating}
-            className={`p-2 transition-colors ${isAnimating ? 'text-slate-700 cursor-not-allowed' : 'text-slate-400 hover:text-white'}`}
-        >
-            <ChevronLeft size={24} />
-        </button>
-        <div className="flex items-center gap-2 bg-black/40 px-4 py-2 rounded-full border border-violet-500/30">
-            <Hexagon size={16} className="text-violet-400 fill-violet-400/20" />
-            <span className="text-violet-100 font-bold font-mono text-sm">{stoneCount.toLocaleString()}</span>
-        </div>
-      </div>
+      {/* 헤더 (인트로 연출 중에는 헤더를 숨겨서 몰입감을 높임) */}
+      {viewState !== 'intro' && (
+          <GachaHeader onBack={onBack} stoneCount={stoneCount} />
+      )}
 
-      {/* 3. 메인 컨텐츠 영역 */}
+      {/* 메인 컨텐츠 영역 */}
       <div className="flex-1 flex flex-col items-center justify-center p-6 relative">
-        {isAnimating ? (
-            /* (1) 연출 중 화면 */
-            <div className="text-center animate-pulse w-full">
-                <Sparkles size={64} className="text-violet-400 mx-auto mb-4 animate-spin-slow" />
-                <h2 className="text-2xl font-bold text-white tracking-widest">CONNECTING TO VOID...</h2>
-            </div>
-        ) : showResult ? (
-            /* (2) 결과 화면 (컴포넌트로 분리됨) */
+        
+        {/* 상태에 따른 화면 렌더링 */}
+        {viewState === 'intro' && (
+            <GachaIntroView 
+                onComplete={handleIntroComplete} 
+                onSkip={() => setViewState('result')} 
+            />
+        )}
+
+        {viewState === 'result' && (
             <GachaResultView 
                 results={results} 
-                onConfirm={() => setShowResult(false)} 
+                onConfirm={() => setViewState('main')} 
             />
-        ) : (
-            /* (3) 기본 대기 화면 (컴포넌트로 분리됨) */
+        )}
+
+        {viewState === 'main' && (
             <GachaMainView 
                 onGacha={handleGacha} 
             />
         )}
+        
       </div>
     </div>
   );
