@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { ChevronLeft, Shield, Sword, Heart, Zap, Save, UserPlus, X, AlertCircle } from 'lucide-react';
-import { ALL_CHARACTERS } from '../data/gameData'; // 데이터 경로 확인 필요
+import { ChevronLeft, Shield, Sword, Heart, Zap, Save, UserPlus, X, Users } from 'lucide-react'; // Users 아이콘 추가
+import { ALL_CHARACTERS } from '../data/gameData'; 
 import ParticleBackground from './common/ParticleBackground';
 
 // ----------------------------------------------------------------------
@@ -30,7 +30,7 @@ const PartySlot = ({ member, onClick, index }) => {
             <div className={`absolute inset-0 bg-gradient-to-br ${member.color} opacity-40 group-hover:opacity-50 transition-opacity`}></div>
           )}
           
-          {/* 그라데이션 오버레이 (텍스트 가독성용) */}
+          {/* 그라데이션 오버레이 */}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
 
           {/* 캐릭터 정보 */}
@@ -43,12 +43,12 @@ const PartySlot = ({ member, onClick, index }) => {
              </div>
           </div>
 
-          {/* 제거 버튼 (Hover 시 등장) */}
+          {/* 제거 버튼 */}
           <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 rounded-full p-1">
             <X size={12} className="text-rose-400" />
           </div>
 
-          {/* 슬롯 번호 (장식) */}
+          {/* 슬롯 번호 */}
           <div className="absolute top-1 left-2 text-[10px] font-mono text-white/30">
             0{index + 1}
           </div>
@@ -77,10 +77,8 @@ const RosterItem = ({ char, isSelected, onToggle }) => {
                     : 'bg-slate-900/40 border-white/5 hover:bg-slate-800/60 hover:border-white/20'
                 }`}
         >
-            {/* 선택 시 좌측 인디케이터 */}
             {isSelected && <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.8)]"></div>}
 
-            {/* 초상화/아이콘 */}
             <div className={`w-12 h-12 rounded-lg mr-4 flex-shrink-0 relative overflow-hidden bg-slate-800 border ${isSelected ? 'border-cyan-500/30' : 'border-white/10'}`}>
                 {char.image ? (
                     <img src={char.image} alt={char.name} className="w-full h-full object-cover" />
@@ -91,7 +89,6 @@ const RosterItem = ({ char, isSelected, onToggle }) => {
                 )}
             </div>
 
-            {/* 정보 영역 */}
             <div className="flex-1 text-left min-w-0">
                 <div className="flex items-center justify-between mb-1">
                     <span className={`font-bold text-sm truncate ${isSelected ? 'text-cyan-100' : 'text-slate-300'}`}>
@@ -104,7 +101,6 @@ const RosterItem = ({ char, isSelected, onToggle }) => {
                     )}
                 </div>
                 
-                {/* 스탯 그리드 */}
                 <div className="grid grid-cols-4 gap-2 text-[10px] text-slate-400 font-mono">
                     <span className="flex items-center gap-1"><Heart size={10} className="text-rose-400"/> {char.baseHp}</span>
                     <span className="flex items-center gap-1"><Sword size={10} className="text-amber-400"/> {char.baseAtk}</span>
@@ -132,13 +128,11 @@ export default function PartyScreen({ currentParty, onUpdateParty, onBack }) {
       if (currentParty.length < 4) {
         onUpdateParty([...currentParty, character]);
       } else {
-        // alert 대신 UI적인 피드백을 주는 것이 좋지만, 일단은 유지
         alert("파티 정원이 가득 찼습니다. (최대 4명)");
       }
     }
   };
 
-  // 파티 전투력 합산 (단순 예시)
   const totalCombatPower = useMemo(() => {
       return currentParty.reduce((acc, char) => acc + (char.baseAtk + char.baseDef + char.baseHp/10), 0);
   }, [currentParty]);
@@ -149,16 +143,29 @@ export default function PartyScreen({ currentParty, onUpdateParty, onBack }) {
       {/* 1. 배경 효과 적용 */}
       <ParticleBackground color="bg-cyan-500" />
 
-      {/* 2. 헤더 */}
+      {/* 2. 헤더 [수정됨: 좌측 정렬 및 아이콘 추가] */}
       <div className="relative z-20 flex items-center justify-between p-4 border-b border-white/10 bg-slate-900/30 backdrop-blur-md">
-        <button onClick={onBack} className="flex items-center gap-1 text-slate-400 hover:text-white transition-colors">
-          <ChevronLeft size={20} />
-          <span className="text-xs tracking-widest uppercase">BACK</span>
-        </button>
-        <div className="text-center">
-            <h2 className="text-lg font-bold text-cyan-100 tracking-widest drop-shadow-md">SQUAD FORMATION</h2>
-            <p className="text-[10px] text-cyan-500/80 font-mono tracking-wider">CP: {Math.floor(totalCombatPower)}</p>
+        
+        {/* 좌측 그룹: 뒤로가기 + 타이틀 */}
+        <div className="flex items-center gap-4">
+            <button 
+                onClick={onBack} 
+                className="p-1 text-slate-400 hover:text-white hover:bg-white/10 rounded-full transition-all active:scale-95"
+            >
+                <ChevronLeft size={24} />
+            </button>
+            <div className="flex flex-col">
+                <div className="flex items-center gap-2 text-cyan-100 font-bold tracking-widest text-lg drop-shadow-md">
+                    <Users size={18} />
+                    <span>SQUAD FORMATION</span>
+                </div>
+                <span className="text-[10px] text-cyan-500/80 font-mono tracking-wider pl-1">
+                    TOTAL CP: {Math.floor(totalCombatPower)}
+                </span>
+            </div>
         </div>
+
+        {/* 우측 그룹: 인원 수 */}
         <div className="flex items-center gap-1 text-xs font-mono">
             <span className={`text-lg font-bold ${currentParty.length === 4 ? 'text-rose-400' : 'text-cyan-400'}`}>
                 {currentParty.length}
@@ -181,7 +188,7 @@ export default function PartyScreen({ currentParty, onUpdateParty, onBack }) {
         </div>
       </div>
 
-      {/* 4. 하단: 로스터 리스트 영역 (유리 패널 컨테이너) */}
+      {/* 4. 하단: 로스터 리스트 영역 */}
       <div className="flex-1 relative z-10 flex flex-col min-h-0 bg-slate-950/40 backdrop-blur-md border-t border-white/10 rounded-t-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
         
         {/* 리스트 헤더 */}
@@ -203,7 +210,7 @@ export default function PartyScreen({ currentParty, onUpdateParty, onBack }) {
             ))}
         </div>
 
-        {/* 하단 확정 버튼 (Floating) */}
+        {/* 하단 확정 버튼 */}
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-slate-950 via-slate-950/90 to-transparent">
             <button 
                 onClick={onBack}

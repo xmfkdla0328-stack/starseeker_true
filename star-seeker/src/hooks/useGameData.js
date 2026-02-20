@@ -3,13 +3,12 @@ import useInventory from './gameData/useInventory';
 import useRoster from './gameData/useRoster';
 import usePlayer from './gameData/usePlayer';
 import useMining from './useMining';
-import { STAT_TYPES } from '../data/equipmentData';
 
 export default function useGameData() {
   // 1. 각 기능별 Hook 호출
   const { 
     inventory, equipmentList, setInventory, 
-    hasResource, consumeResource, addResource, // [Fix] addResource 내보내기
+    hasResource, consumeResource, addResource, // consumeResource 가져오기
     addEquipment, removeEquipment, updateEquipmentStatus, addTestEquipments 
   } = useInventory();
   
@@ -127,8 +126,9 @@ export default function useGameData() {
     handleAssignMiner, handleRemoveMiner, handleCollectReward,
     handleUnlockKeyword: unlockKeyword, 
     
-    // [New] 자원 추가 핸들러 노출
+    // [Fix] 자원 관련 핸들러 밖으로 내보내기 (가챠에서 사용하기 위함)
     addResource,
+    consumeResource, // <-- 이 부분이 누락되어 에러가 발생했었습니다!
 
     // Equipment & Stats Handlers
     addEquipment, removeEquipment, addTestEquipments,

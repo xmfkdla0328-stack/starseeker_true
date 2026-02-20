@@ -2,17 +2,17 @@ import { useState, useCallback } from 'react';
 import { generateEquipment, EQUIP_SLOTS } from '../../data/equipmentData';
 
 export default function useInventory() {
-  // 1. 재료 인벤토리 (기존 유지)
+  // 1. 재료 인벤토리 (초기 인과석 1000개로 수정)
   const [inventory, setInventory] = useState([
     { id: 'chip_basic', count: 50 },
     { id: 'core_essence', count: 5 },
-    { id: 'causality_stone', count: 0 }, 
+    { id: 'causality_stone', count: 1000 }, 
   ]);
 
-  // 2. [New] 장비 인벤토리 (고유 객체 리스트)
+  // 2. 장비 인벤토리 (고유 객체 리스트)
   const [equipmentList, setEquipmentList] = useState([]);
 
-  // --- 재료 관련 헬퍼 (기존) ---
+  // --- 재료 관련 헬퍼 ---
   const hasResource = useCallback((id, amount) => {
     const item = inventory.find(i => i.id === id);
     return item && item.count >= amount;
@@ -34,7 +34,7 @@ export default function useInventory() {
     });
   }, []);
 
-  // --- [New] 장비 관련 헬퍼 ---
+  // --- 장비 관련 헬퍼 ---
   
   // 장비 획득 (생성하여 추가)
   const addEquipment = useCallback((slotType) => {
@@ -57,7 +57,7 @@ export default function useInventory() {
     ));
   }, []);
 
-  // [Test] 테스트용: 초기 장비 지급 함수 (콘솔이나 버튼으로 호출 가능)
+  // 테스트용: 초기 장비 지급 함수
   const addTestEquipments = useCallback(() => {
     const newItems = [
       generateEquipment(EQUIP_SLOTS.SLOT_1),
@@ -72,16 +72,16 @@ export default function useInventory() {
   return { 
     inventory, 
     setInventory, 
-    equipmentList,      // [New]
-    setEquipmentList,   // [New]
+    equipmentList, 
+    setEquipmentList, 
     
     hasResource, 
     consumeResource,
     addResource,
     
-    addEquipment,          // [New]
-    removeEquipment,       // [New]
-    updateEquipmentStatus, // [New]
-    addTestEquipments      // [New]
+    addEquipment, 
+    removeEquipment, 
+    updateEquipmentStatus, 
+    addTestEquipments 
   };
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Hammer } from 'lucide-react';
+import { Hammer, Info } from 'lucide-react';
 import UpgradeNodeGraph from './UpgradeNodeGraph';
 import UpgradeConfirmationModal from './UpgradeConfirmationModal';
 
@@ -8,7 +8,7 @@ export default function UpgradePanel({ char, onUnlockNode, chipCount, coreCount 
   const [previewNodeInfo, setPreviewNodeInfo] = useState(null);
 
   const handleNodeClick = (node) => {
-    if (char.unlockedNodes?.includes(node.index)) return; // 이미 해금된 노드는 클릭 무시
+    if (char.unlockedNodes?.includes(node.index)) return; 
     setSelectedNodeInfo(node);
   };
 
@@ -16,7 +16,6 @@ export default function UpgradePanel({ char, onUnlockNode, chipCount, coreCount 
     if (!selectedNodeInfo) return;
     const node = selectedNodeInfo;
 
-    // 재료 부족 체크 로직
     if (node.isMajor) {
       if (coreCount >= 1) {
         onUnlockNode(char.id, node.index, true, { statType: node.statType, value: node.value });
@@ -35,9 +34,9 @@ export default function UpgradePanel({ char, onUnlockNode, chipCount, coreCount 
   };
 
   return (
-    <div className="flex flex-col items-center justify-center py-10 animate-fade-in relative h-full">
+    <div className="flex flex-col items-center justify-center py-6 animate-fade-in relative h-full">
       
-      {/* 1. 강화 확인 모달 (조건부 렌더링) */}
+      {/* 1. 강화 확인 모달 */}
       {selectedNodeInfo && (
         <UpgradeConfirmationModal 
           nodeInfo={selectedNodeInfo}
@@ -46,31 +45,42 @@ export default function UpgradePanel({ char, onUnlockNode, chipCount, coreCount 
         />
       )}
 
-      {/* 2. 노드 그래프 (Visual) */}
-      <UpgradeNodeGraph 
-        char={char} 
-        onNodeClick={handleNodeClick} 
-        onNodeHover={setPreviewNodeInfo} 
-      />
+      {/* 2. 노드 그래프 (배경 없이 띄움) */}
+      {/* UpgradeNodeGraph 내부에서도 배경색이 있다면 제거 필요 (투명 배경 권장) */}
+      <div className="flex-1 flex items-center justify-center w-full min-h-[300px]">
+        <UpgradeNodeGraph 
+            char={char} 
+            onNodeClick={handleNodeClick} 
+            onNodeHover={setPreviewNodeInfo} 
+        />
+      </div>
 
-      {/* 3. 하단 설명 패널 (미리보기) */}
-      <div className="mt-8 w-full p-4 bg-black/40 border border-white/5 rounded-xl text-center min-h-[80px] flex flex-col justify-center">
+      {/* 3. 하단 설명 패널 (유리 패널 스타일) */}
+      <div className="mt-4 w-full p-5 bg-slate-900/60 backdrop-blur-md border border-white/10 rounded-2xl text-center min-h-[100px] flex flex-col justify-center shadow-lg relative overflow-hidden">
+        {/* 장식용 빛 효과 */}
+        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
+
         {previewNodeInfo ? (
           <div className="animate-fade-in">
-            <h4 className="text-cyan-400 text-sm font-bold mb-1">
-              {previewNodeInfo.label} <span className="text-white">{previewNodeInfo.subLabel}</span>
+            <h4 className="text-cyan-400 text-sm font-bold mb-1 tracking-wider">
+              {previewNodeInfo.label} <span className="text-white ml-1">{previewNodeInfo.subLabel}</span>
             </h4>
-            <p className="text-xs text-slate-500 font-mono">
-              {previewNodeInfo.isMajor ? '특수 강화 노드 (비물질 칩 필요)' : '기초 스탯 강화 노드 (보강칩 필요)'}
-            </p>
+            <div className="flex items-center justify-center gap-2 mt-2">
+                <span className={`px-2 py-0.5 text-[10px] rounded border ${previewNodeInfo.isMajor ? 'bg-amber-900/30 border-amber-500/30 text-amber-200' : 'bg-cyan-900/30 border-cyan-500/30 text-cyan-200'}`}>
+                    {previewNodeInfo.isMajor ? 'MAJOR NODE' : 'MINOR NODE'}
+                </span>
+                <p className="text-xs text-slate-400 font-mono">
+                {previewNodeInfo.isMajor ? '(Require Core Essence)' : '(Require Data Chip)'}
+                </p>
+            </div>
           </div>
         ) : (
-          <div>
-            <h4 className="text-slate-500 text-sm font-bold mb-1 flex items-center justify-center gap-2">
-              <Hammer size={14} /> 강화 대기중
+          <div className="flex flex-col items-center gap-1 opacity-70">
+            <h4 className="text-slate-400 text-sm font-bold flex items-center gap-2">
+              <Info size={16} /> AWAITING INPUT
             </h4>
-            <p className="text-xs text-slate-600">
-              노드에 마우스를 올리거나 선택하여 정보를 확인하세요.
+            <p className="text-[10px] text-slate-500 tracking-wider">
+              SELECT A NODE TO VIEW DETAILS
             </p>
           </div>
         )}

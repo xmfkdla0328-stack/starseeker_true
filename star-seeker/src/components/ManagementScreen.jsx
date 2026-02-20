@@ -1,39 +1,50 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { ArrowLeft, RefreshCw, HardDrive, Sparkles, Hexagon } from 'lucide-react';
+import { ArrowLeft, HardDrive, Sparkles, Hexagon, Cpu } from 'lucide-react';
 import CharacterList from './management/CharacterList';
 import UpgradePanel from './management/UpgradePanel';
 import StatusPanel from './management/StatusPanel';
 import { ALL_CHARACTERS } from '../data/characterData';
+import ParticleBackground from './common/ParticleBackground'; 
 
 // ----------------------------------------------------------------------
-// [Sub Component] 상단 헤더 (타이틀 + 자원 표시 + 테스트 버튼)
+// [Sub Component] 상단 헤더 (유리 패널 스타일)
 // ----------------------------------------------------------------------
-const HeaderSection = ({ onBack, chipCount, coreCount, onTest }) => (
-  <div className="flex-none flex items-center justify-between p-4 border-b border-white/10 bg-slate-950/50 z-20">
+const HeaderSection = ({ onBack, chipCount, coreCount }) => (
+  <div className="flex-none flex items-center justify-between p-4 border-b border-white/10 bg-slate-950/30 backdrop-blur-md z-30 shadow-lg relative">
+    
+    {/* 좌측: 뒤로가기 + 타이틀 (창고 화면 스타일 적용) */}
     <div className="flex items-center gap-4">
-      <button onClick={onBack} className="p-2 hover:bg-white/10 rounded-full transition-colors">
-        <ArrowLeft size={20} />
+      <button 
+        onClick={onBack} 
+        className="p-1 text-slate-400 hover:text-white hover:bg-white/10 rounded-full transition-all active:scale-95"
+      >
+        <ArrowLeft size={24} />
       </button>
-      <h2 className="text-xl font-bold tracking-widest text-cyan-400">MANAGEMENT</h2>
+      <div className="flex flex-col">
+        {/* 아이콘 + 메인 타이틀 */}
+        <div className="flex items-center gap-2 text-cyan-400 font-bold tracking-widest text-lg drop-shadow-md">
+            <Cpu size={18} />
+            <span>MANAGEMENT</span>
+        </div>
+        {/* 서브 타이틀 */}
+        <span className="text-[10px] text-cyan-600/80 font-mono tracking-wider pl-1">
+            UNIT ADJUSTMENT
+        </span>
+      </div>
     </div>
     
-    <div className="flex items-center gap-4">
-        <div className="flex gap-3 text-xs font-mono mr-4">
-            <div className="flex items-center gap-1 bg-slate-800/50 px-2 py-1 rounded border border-white/5">
+    <div className="flex items-center gap-3">
+        {/* 자원 표시줄 */}
+        <div className="flex gap-2 text-xs font-mono">
+            <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-full border border-white/5 shadow-inner">
                 <HardDrive size={12} className="text-cyan-400" />
-                <span className="text-cyan-200">{chipCount}</span>
+                <span className="text-cyan-100 font-bold">{chipCount}</span>
             </div>
-            <div className="flex items-center gap-1 bg-slate-800/50 px-2 py-1 rounded border border-white/5">
+            <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-full border border-white/5 shadow-inner">
                 <Sparkles size={12} className="text-amber-400" />
-                <span className="text-amber-200">{coreCount}</span>
+                <span className="text-amber-100 font-bold">{coreCount}</span>
             </div>
         </div>
-        <button 
-            onClick={onTest} 
-            className="flex items-center gap-2 px-3 py-1 bg-purple-900/50 border border-purple-500/30 rounded text-xs text-purple-200 hover:bg-purple-800/50"
-        >
-            <RefreshCw size={12} /> Test
-        </button>
     </div>
   </div>
 );
@@ -42,23 +53,37 @@ const HeaderSection = ({ onBack, chipCount, coreCount, onTest }) => (
 // [Sub Component] 탭 네비게이션
 // ----------------------------------------------------------------------
 const TabNavigation = ({ activeTab, onTabChange }) => (
-  <div className="flex-none flex border-b border-white/10 bg-slate-900/50">
-    <button 
+  <div className="flex-none flex border-b border-white/10 bg-slate-900/40 backdrop-blur-sm z-20">
+    <TabButton 
+        isActive={activeTab === 'status'} 
         onClick={() => onTabChange('status')}
-        className={`flex-1 py-3 text-sm font-bold tracking-wider transition-colors
-            ${activeTab === 'status' ? 'text-cyan-400 border-b-2 border-cyan-400 bg-cyan-900/20' : 'text-slate-500 hover:text-slate-300'}`}
-    >
-        STATUS & EQUIP
-    </button>
-    <button 
+        label="STATUS & EQUIP"
+        colorClass="cyan"
+    />
+    <TabButton 
+        isActive={activeTab === 'upgrade'} 
         onClick={() => onTabChange('upgrade')}
-        className={`flex-1 py-3 text-sm font-bold tracking-wider transition-colors
-            ${activeTab === 'upgrade' ? 'text-amber-400 border-b-2 border-amber-400 bg-amber-900/20' : 'text-slate-500 hover:text-slate-300'}`}
-    >
-        UPGRADE
-    </button>
+        label="NEURAL UPGRADE"
+        colorClass="amber"
+    />
   </div>
 );
+
+const TabButton = ({ isActive, onClick, label, colorClass }) => {
+    const activeStyles = colorClass === 'cyan' 
+        ? 'text-cyan-400 border-b-2 border-cyan-400 bg-cyan-950/30' 
+        : 'text-amber-400 border-b-2 border-amber-400 bg-amber-950/30';
+    
+    return (
+        <button 
+            onClick={onClick}
+            className={`flex-1 py-4 text-xs font-bold tracking-[0.15em] transition-all duration-300
+                ${isActive ? activeStyles : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'}`}
+        >
+            {label}
+        </button>
+    );
+}
 
 // ----------------------------------------------------------------------
 // [Main Component] Management Screen
@@ -72,7 +97,6 @@ export default function ManagementScreen({
   onEquip,
   onUnequip,
   getFinalStats,
-  addTestEquipments
 }) {
   const activeRoster = roster; 
   const activeInventory = inventory;
@@ -80,20 +104,16 @@ export default function ManagementScreen({
   const [selectedCharId, setSelectedCharId] = useState(activeRoster[0]?.id);
   const [activeTab, setActiveTab] = useState('status');
 
-  // 첫 진입 시 선택된 캐릭터가 없으면 첫 번째 캐릭터 선택
   useEffect(() => {
     if (!selectedCharId && activeRoster.length > 0) {
         setSelectedCharId(activeRoster[0].id);
     }
   }, [activeRoster, selectedCharId]);
 
-  // 선택된 캐릭터 데이터 병합 (동적 상태 + 정적 데이터)
   const selectedChar = useMemo(() => {
       const rosterChar = activeRoster.find(c => c.id === selectedCharId);
       if (!rosterChar) return null;
-
       const staticData = ALL_CHARACTERS.find(c => c.id === rosterChar.id);
-      
       return {
           ...staticData, 
           ...rosterChar,
@@ -101,7 +121,6 @@ export default function ManagementScreen({
       };
   }, [activeRoster, selectedCharId]);
 
-  // 최종 스탯 계산
   const finalStats = useMemo(() => {
     if (!selectedChar || !getFinalStats) return null;
     return getFinalStats(selectedChar.id);
@@ -111,18 +130,20 @@ export default function ManagementScreen({
   const coreCount = activeInventory.find(i => i.id === 'core_essence')?.count || 0;
 
   return (
-    <div className="flex flex-col h-full bg-[#0f172a] text-white animate-fade-in overflow-hidden">
+    <div className="flex flex-col h-full bg-[#0f172a] text-white animate-fade-in overflow-hidden relative">
       
-      {/* 1. Header */}
+      {/* 1. 공통 배경 효과 */}
+      <ParticleBackground color="bg-cyan-600" />
+
+      {/* 2. Header */}
       <HeaderSection 
         onBack={onBack} 
         chipCount={chipCount} 
         coreCount={coreCount} 
-        onTest={addTestEquipments} 
       />
 
-      {/* 2. Character List */}
-      <div className="flex-none z-10 bg-slate-900/80 backdrop-blur border-b border-white/10">
+      {/* 3. Character List (유리 패널 컨테이너) */}
+      <div className="flex-none z-20 bg-slate-900/60 backdrop-blur border-b border-white/10">
         <CharacterList 
           roster={activeRoster} 
           selectedCharId={selectedCharId} 
@@ -130,38 +151,51 @@ export default function ManagementScreen({
         />
       </div>
 
-      {/* 3. Tab Buttons */}
+      {/* 4. Tab Buttons */}
       <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* 4. Main Content Area */}
-      <div className="flex-1 relative overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
-        <div className="absolute inset-0 overflow-y-auto p-4 pb-20"> 
+      {/* 5. Main Content Area */}
+      <div className="flex-1 relative overflow-y-auto overflow-x-hidden scrollbar-hide z-10">
+        <div className="p-4 pb-20 min-h-full"> 
             
-            {/* Background Decoration */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-5">
-                <Hexagon size={300} className="text-white animate-spin-slow" />
-            </div>
-
             {selectedChar && selectedChar.unlockedNodes && finalStats ? (
-                <div className="relative z-10">
+                <div className="flex flex-col gap-6 animate-slide-up-fade">
+                    
                     {/* (Tab 1) Status & Equip */}
                     {activeTab === 'status' && (
-                        <div className="min-h-[400px] animate-fade-in flex flex-col gap-4">
-                            {/* Character Portrait Card */}
-                            <div className="w-full max-w-sm mx-auto aspect-[3/4] rounded-xl overflow-hidden border border-white/10 shadow-2xl relative group bg-slate-900">
+                        <>
+                            {/* Portrait Card */}
+                            <div className="w-full max-w-sm mx-auto aspect-[3/4] rounded-2xl overflow-hidden border border-white/20 shadow-[0_0_30px_rgba(0,0,0,0.5)] relative group bg-slate-900/80">
+                                {/* 캐릭터 이미지 */}
                                 <img 
                                     src={selectedChar.image} 
                                     alt={selectedChar.name} 
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                     onError={(e) => e.target.style.display = 'none'} 
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80"></div>
-                                <div className="absolute bottom-4 left-4">
-                                    <div className="text-2xl font-black italic text-white">{selectedChar.name}</div>
-                                    <div className="text-xs text-cyan-400 font-mono">{selectedChar.role} / {selectedChar.element}</div>
+                                {/* 하단 그라데이션 및 정보 */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-90"></div>
+                                <div className="absolute bottom-0 left-0 right-0 p-5">
+                                    <div className="flex items-end justify-between">
+                                        <div>
+                                            <div className="text-3xl font-black italic text-white tracking-tighter drop-shadow-xl">{selectedChar.name}</div>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <span className="px-2 py-0.5 rounded bg-cyan-900/60 border border-cyan-500/30 text-[10px] text-cyan-300 font-bold">
+                                                    {selectedChar.role}
+                                                </span>
+                                                <span className="text-xs text-slate-400 font-mono">
+                                                    Lv.{selectedChar.level}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="text-amber-400">
+                                            {'★'.repeat(selectedChar.star)}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
+                            {/* Status & Equipment Panel */}
                             <StatusPanel 
                                 character={selectedChar} 
                                 finalStats={finalStats}
@@ -169,12 +203,12 @@ export default function ManagementScreen({
                                 onEquip={onEquip}
                                 onUnequip={onUnequip}
                             />
-                        </div>
+                        </>
                     )}
 
                     {/* (Tab 2) Upgrade */}
                     {activeTab === 'upgrade' && (
-                        <div className="animate-fade-in min-h-[500px]">
+                        <div className="animate-fade-in">
                             <UpgradePanel 
                                 char={selectedChar} 
                                 onUnlockNode={onUnlockNode}
@@ -185,8 +219,9 @@ export default function ManagementScreen({
                     )}
                 </div>
             ) : (
-                <div className="flex h-full items-center justify-center text-slate-500">
-                    Loading data...
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-500 gap-4">
+                    <Hexagon size={48} className="animate-spin text-slate-700" />
+                    <span className="text-xs tracking-widest animate-pulse">LOADING DATA...</span>
                 </div>
             )}
         </div>

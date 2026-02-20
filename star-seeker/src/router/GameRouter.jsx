@@ -46,7 +46,6 @@ export default function GameRouter({
             onStorage={nav.goStorage}
             onRecord={nav.goGuide}
             onGacha={nav.goGacha}
-            // [New] 인벤토리 데이터 전달
             inventory={data.inventory}
         />
       )}
@@ -91,14 +90,24 @@ export default function GameRouter({
             onEquip={data.handleEquip}
             onUnequip={data.handleUnequip}
             getFinalStats={data.getFinalStats}
-            addTestEquipments={data.addTestEquipments}
             onBack={nav.goHome} 
         />
       )}
 
       {nav.gameState === 'storage' && <StorageScreen inventory={data.inventory} onBack={nav.goHome} />}
       {nav.gameState === 'guide' && <GuideBookScreen collectedKeywords={data.collectedKeywords} onBack={nav.goHome} />}
-      {nav.gameState === 'gacha' && <GachaScreen roster={data.roster} setRoster={data.setRoster} inventory={data.inventory} setInventory={data.setInventory} onBack={nav.goHome} />}
+      
+      {/* 가챠 화면 - consumeResource 속성 전달 */}
+      {nav.gameState === 'gacha' && (
+        <GachaScreen 
+            roster={data.roster} 
+            setRoster={data.setRoster} 
+            inventory={data.inventory} 
+            setInventory={data.setInventory} 
+            consumeResource={data.consumeResource} 
+            onBack={nav.goHome} 
+        />
+      )}
       
       {nav.gameState === 'event' && (
         <EventScreen 
