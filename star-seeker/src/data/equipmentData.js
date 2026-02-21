@@ -3,8 +3,8 @@ import { nanoid } from 'nanoid';
 // --- 상수 정의 ---
 export const EQUIP_SLOTS = {
   SLOT_1: 'slot_1', // 신경계 활성화 칩 (공격적)
-  SLOT_2: 'slot_2', // 대뇌 피질 칩 (방어/생존) - 이름 임의 지정
-  SLOT_3: 'slot_3', // (미정)
+  SLOT_2: 'slot_2', // 대뇌 피질 칩 (방어/생존)
+  SLOT_3: 'slot_3', // 기억 세공 (보조/스토리 스킬)
 };
 
 export const STAT_TYPES = {
@@ -19,6 +19,33 @@ export const STAT_TYPES = {
   SPEED: { label: '속도', isPercent: false },
 };
 
+// --- [NEW] 기억 세공(3번 슬롯) 전용 데이터 풀 ---
+export const MEMORY_SKILL_POOL = [
+  '요리', '채집', '관찰', '카리스마', '직감', '계산', 
+  '화술', '리더쉽', '유혹', '괴력', '만능', '제조', '수호'
+];
+
+export const MEMORY_EFFECT_POOL = [
+  { 
+    id: 'DMG_UP', 
+    label: '공격 출력 증폭', 
+    desc: '가하는 공격 대미지 10% 증가', 
+    value: 0.1 
+  },
+  { 
+    id: 'DMG_REDUCE', 
+    label: '피격 저항 활성화', 
+    desc: '받는 대미지 10% 감소', 
+    value: 0.1 
+  },
+  { 
+    id: 'HEAL_UP', 
+    label: '치료 효율 개선', 
+    desc: '아군에의 치료 스킬 효과 10% 증가', 
+    value: 0.1 
+  }
+];
+
 // --- 설정: 슬롯별 주 옵션 등장 목록 및 범위 ---
 const MAIN_OPTION_CONFIG = {
   [EQUIP_SLOTS.SLOT_1]: [
@@ -27,13 +54,10 @@ const MAIN_OPTION_CONFIG = {
     { type: 'CRIT_DMG', min: 5, max: 25 },
   ],
   [EQUIP_SLOTS.SLOT_2]: [
-    { type: 'HP_PERCENT', min: 5, max: 20 }, // % 수치 예시 (기획에 맞게 조정 필요)
+    { type: 'HP_PERCENT', min: 5, max: 20 }, 
     { type: 'DEF_PERCENT', min: 5, max: 20 },
   ],
-  [EQUIP_SLOTS.SLOT_3]: [
-    // 3번 슬롯 예비 (일단 랜덤)
-    { type: 'HP_FLAT', min: 100, max: 300 },
-  ],
+  // 3번 슬롯은 전용 로직을 타므로 설정 불필요
 };
 
 // --- 설정: 부 옵션 등장 목록 및 범위 (주 옵션보다 낮음) ---
@@ -55,6 +79,27 @@ const getRandomFloat = (min, max) => parseFloat((Math.random() * (max - min) + m
 
 // --- 핵심: 장비 생성 함수 ---
 export const generateEquipment = (slotType) => {
+  
+  // [NEW] 3번 슬롯 (기억 세공) 전용 예외 처리 로직
+  if (slotType === EQUIP_SLOTS.SLOT_3) {
+    const randomSkill = MEMORY_SKILL_POOL[getRandomInt(0, MEMORY_SKILL_POOL.length - 1)];
+    const randomEffect = MEMORY_EFFECT_POOL[getRandomInt(0, MEMORY_EFFECT_POOL.length - 1)];
+
+    return {
+      id: `equip_${nanoid(8)}`,
+      name: "기억 세공",
+      slot: slotType,
+      memorySkill: randomSkill,    // 부여된 스토리 스킬
+      memoryEffect: randomEffect,  // 부여된 전투 버프 객체
+      isEquipped: false,
+      equippedBy: null,
+    };
+  }
+
+  // ==========================================
+  // 아래는 기존의 1, 2번 칩 전용 로직
+  // ==========================================
+  
   // 1. 주 옵션 결정
   const mainConfigs = MAIN_OPTION_CONFIG[slotType];
   const mainConfig = mainConfigs[getRandomInt(0, mainConfigs.length - 1)];
@@ -74,8 +119,6 @@ export const generateEquipment = (slotType) => {
   while (subStats.length < subCount) {
     const subConfig = SUB_OPTION_POOL[getRandomInt(0, SUB_OPTION_POOL.length - 1)];
     
-    // 중복 체크 (단순 타입명이 아니라, '공격력'이라는 속성 자체를 막을지, 'ATK_FLAT'과 'ATK_PERCENT'를 구분할지 결정 필요)
-    // 기획 의도: "주 옵션이 치명타 확률이면 부 옵션에서 치명타 확률 관련 안 뜸" -> label 기준 비교
     const mainLabel = STAT_TYPES[mainStat.type].label;
     const subLabel = STAT_TYPES[subConfig.type].label;
 
@@ -94,16 +137,15 @@ export const generateEquipment = (slotType) => {
   // 3. 아이템 객체 반환
   let name = "Unknown Chip";
   if (slotType === EQUIP_SLOTS.SLOT_1) name = "신경계 활성화 칩";
-  else if (slotType === EQUIP_SLOTS.SLOT_2) name = "대뇌 피질 칩"; // 가명
-  else name = "보조 연산 칩";
+  else if (slotType === EQUIP_SLOTS.SLOT_2) name = "대뇌 피질 칩"; 
 
   return {
-    id: `equip_${nanoid(8)}`, // 고유 ID
+    id: `equip_${nanoid(8)}`, 
     name: name,
     slot: slotType,
     mainStat,
     subStats,
-    isEquipped: false, // 장착 여부
-    equippedBy: null,  // 누가 꼈는지
+    isEquipped: false, 
+    equippedBy: null,  
   };
 };

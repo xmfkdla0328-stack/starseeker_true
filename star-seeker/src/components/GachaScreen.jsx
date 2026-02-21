@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { ChevronLeft, Hexagon } from 'lucide-react';
 import { ALL_CHARACTERS } from '../data/characterData'; 
 import GachaMainView from './gacha/GachaMainView';
+import GachaIntroView from './gacha/GachaIntroView';
+import GachaRevealView from './gacha/GachaRevealView'; // [신규 추가]
 import GachaResultView from './gacha/GachaResultView';
-import GachaIntroView from './gacha/GachaIntroView'; // [신규 추가]
 
 const DROP_RATES = {
     '5_STAR': 0.02, 
@@ -13,7 +14,6 @@ const DROP_RATES = {
 };
 const GACHA_COST = 100;
 
-// 헤더 컴포넌트
 const GachaHeader = ({ onBack, stoneCount }) => (
     <div className="flex items-center justify-between p-4 z-20">
         <button 
@@ -29,9 +29,8 @@ const GachaHeader = ({ onBack, stoneCount }) => (
     </div>
 );
 
-// 메인 컴포넌트
 export default function GachaScreen({ roster, setRoster, inventory, setInventory, consumeResource, onBack }) {
-  // [핵심 변경] 화면 상태: 'main' (대기) | 'intro' (망원경 연출) | 'result' (결과창)
+  // [흐름 변경] 'main' -> 'intro' -> 'reveal' -> 'result'
   const [viewState, setViewState] = useState('main'); 
   const [results, setResults] = useState([]); 
 
@@ -44,10 +43,8 @@ export default function GachaScreen({ roster, setRoster, inventory, setInventory
         return;
     }
 
-    // 1. 재화 즉시 소모
     consumeResource('causality_stone', totalCost);
 
-    // 2. 가챠 결과 즉시 계산
     const newResults = [];
     const newRoster = [...roster];
     let earnedCores = 0; 
@@ -81,7 +78,6 @@ export default function GachaScreen({ roster, setRoster, inventory, setInventory
         }
     }
 
-    // 3. 인벤토리/로스터 즉시 업데이트
     setRoster(newRoster);
     if (earnedCores > 0) {
         setInventory(prev => {
@@ -93,16 +89,8 @@ export default function GachaScreen({ roster, setRoster, inventory, setInventory
         });
     }
 
-    // 4. 결과값 저장 후 인트로 연출 화면으로 전환
     setResults(newResults);
-    setViewState('intro');
-  };
-
-  // 연출 종료 후 처리
-  const handleIntroComplete = () => {
-      // 3단계 작업 시 여기서 'reveal' 상태로 넘어갈 예정입니다.
-      // 지금은 2단계이므로 바로 'result'로 넘깁니다.
-      setViewState('result');
+    setViewState('intro'); // 인트로 연출 시작
   };
 
   return (
@@ -111,19 +99,27 @@ export default function GachaScreen({ roster, setRoster, inventory, setInventory
       {/* 배경 이펙트 */}
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 pointer-events-none"></div>
 
-      {/* 헤더 (인트로 연출 중에는 헤더를 숨겨서 몰입감을 높임) */}
-      {viewState !== 'intro' && (
+      {/* 헤더 (인트로, 리빌 중에는 숨김) */}
+      {(viewState === 'main' || viewState === 'result') && (
           <GachaHeader onBack={onBack} stoneCount={stoneCount} />
       )}
 
       {/* 메인 컨텐츠 영역 */}
-      <div className="flex-1 flex flex-col items-center justify-center p-6 relative">
+      <div className="flex-1 flex flex-col items-center justify-center relative">
         
-        {/* 상태에 따른 화면 렌더링 */}
         {viewState === 'intro' && (
             <GachaIntroView 
-                onComplete={handleIntroComplete} 
-                onSkip={() => setViewState('result')} 
+                // 인트로가 끝나거나 스킵하면 바로 하나씩 까보기(reveal) 화면으로
+                onComplete={() => setViewState('reveal')} 
+                onSkip={() => setViewState('reveal')} 
+            />
+        )}
+
+        {viewState === 'reveal' && (
+            <GachaRevealView 
+                results={results}
+                // 다 까보면 결과창(result)으로
+                onComplete={() => setViewState('result')} 
             />
         )}
 
