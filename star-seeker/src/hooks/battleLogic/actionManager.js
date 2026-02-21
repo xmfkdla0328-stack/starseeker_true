@@ -53,7 +53,16 @@ export function handleAllyActions({
       const eff = ally.efficiency || 1.0;
       const isCrit = Math.random() < 0.1;
       const finalCritMultiplier = isCrit ? (1.5 * (1 + ally.selfBuffs.critDmgUp)) : 1.0;
-      const executorProps = { finalAtk, finalCritMultiplier, isCrit, setBuffs, addLog, currentAllies: nextAllies };
+      
+      // [NEW] 기억 세공 효과 체크
+      const hasDmgUp = ally.memoryEffects && ally.memoryEffects.some(e => e.id === 'DMG_UP');
+      const hasHealUp = ally.memoryEffects && ally.memoryEffects.some(e => e.id === 'HEAL_UP');
+
+      // [NEW] executorProps에 hasHealUp 정보 추가 전달 (skillExecutor에서 읽어서 힐량 증폭에 사용)
+      const executorProps = { 
+          finalAtk, finalCritMultiplier, isCrit, setBuffs, addLog, currentAllies: nextAllies,
+          hasHealUp 
+      };
 
       // [필살기 사용 시점]
       if (ally.ultGauge >= ally.maxUltGauge) {
@@ -66,16 +75,20 @@ export function handleAllyActions({
             quote: ally.combatSkills.ultimate.quote || `${ally.name}의 진정한 힘을 보여주마!`
         };
 
-        const { damageDealt, alliesToHeal, newSelfBuffs } = executeUltimateSkill(ally, ally.combatSkills.ultimate, executorProps);
+        let { damageDealt, alliesToHeal, newSelfBuffs } = executeUltimateSkill(ally, ally.combatSkills.ultimate, executorProps);
         
+        // [NEW] 기억 세공 효과: 공격 출력 증폭 (가하는 대미지 10% 증가)
+        if (hasDmgUp && damageDealt > 0) {
+            damageDealt = Math.floor(damageDealt * 1.1);
+        }
+
         addLog(`${ally.name}: [${ally.combatSkills.ultimate.name}]! (💥 ${damageDealt})`, 'skill');
 
         totalEnemyDamage += damageDealt;
         
-        // [Fix] 힐 적용 후, 현재 ally 변수에도 최신 HP 반영
+        // 힐 적용 후, 현재 ally 변수에도 최신 HP 반영
         if (alliesToHeal && typeof alliesToHeal === 'function') {
             nextAllies = alliesToHeal(nextAllies);
-            // 중요: 전체 리스트가 업데이트되었으므로, 현재 루프 중인 캐릭터(ally)의 HP도 동기화
             if (nextAllies[i]) {
                 ally.hp = nextAllies[i].hp;
             }
@@ -87,16 +100,20 @@ export function handleAllyActions({
       // [일반 공격]
       else {
         const skillName = ally.combatSkills?.normal?.name || "기본 공격";
-        const { damageDealt, alliesToModify } = executeNormalSkill(ally, ally.combatSkills.normal, executorProps);
+        let { damageDealt, alliesToModify } = executeNormalSkill(ally, ally.combatSkills.normal, executorProps);
         
+        // [NEW] 기억 세공 효과: 공격 출력 증폭 (가하는 대미지 10% 증가)
+        if (hasDmgUp && damageDealt > 0) {
+            damageDealt = Math.floor(damageDealt * 1.1);
+        }
+
         addLog(`${ally.name}의 [${skillName}]! (💥 ${damageDealt})`, 'damage');
 
         totalEnemyDamage += damageDealt;
         
-        // [Fix] 상태 변경(힐 등) 후, 현재 ally 변수에도 최신 HP 반영
+        // 상태 변경(힐 등) 후, 현재 ally 변수에도 최신 HP 반영
         if (alliesToModify && typeof alliesToModify === 'function') {
              nextAllies = alliesToModify(nextAllies);
-             // 중요: 전체 리스트가 업데이트되었으므로, 현재 루프 중인 캐릭터(ally)의 HP도 동기화
              if (nextAllies[i]) {
                  ally.hp = nextAllies[i].hp;
              }
@@ -108,7 +125,6 @@ export function handleAllyActions({
     }
     
     // 최종적으로 현재 ally 상태를 배열에 다시 넣음
-    // (여기서 hp가 최신화된 ally가 들어가야 힐이 씹히지 않음)
     nextAllies[i] = ally;
   }
 

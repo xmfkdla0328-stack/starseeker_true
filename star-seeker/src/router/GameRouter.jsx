@@ -97,7 +97,7 @@ export default function GameRouter({
       {nav.gameState === 'storage' && <StorageScreen inventory={data.inventory} onBack={nav.goHome} />}
       {nav.gameState === 'guide' && <GuideBookScreen collectedKeywords={data.collectedKeywords} onBack={nav.goHome} />}
       
-      {/* 가챠 화면 - consumeResource 속성 전달 */}
+      {/* 가챠 화면 - consumeResource 및 addEquipment 속성 전달 */}
       {nav.gameState === 'gacha' && (
         <GachaScreen 
             roster={data.roster} 
@@ -105,6 +105,7 @@ export default function GameRouter({
             inventory={data.inventory} 
             setInventory={data.setInventory} 
             consumeResource={data.consumeResource} 
+            addEquipment={data.addEquipment} // [NEW] 장비 추가 핸들러 연결
             onBack={nav.goHome} 
         />
       )}

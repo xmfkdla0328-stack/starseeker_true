@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { FastForward, Star } from 'lucide-react';
+import { FastForward, Star, Hexagon } from 'lucide-react';
 
 export default function GachaRevealView({ results, onComplete }) {
-    // 현재 보여주고 있는 캐릭터의 인덱스 (0 ~ results.length - 1)
     const [currentIndex, setCurrentIndex] = useState(0);
-    // 애니메이션 재시작을 위한 키
     const [animKey, setAnimKey] = useState(0); 
 
     const currentChar = results[currentIndex];
@@ -21,12 +19,12 @@ export default function GachaRevealView({ results, onComplete }) {
 
     // 스킵 버튼 클릭 시: 다음 5성이나 NEW 캐릭터를 찾아 점프
     const handleSkip = (e) => {
-        e.stopPropagation(); // 배경 클릭(handleNext)과 겹치지 않게 방지
+        e.stopPropagation(); 
         
-        let targetIndex = results.length; // 기본값은 끝으로 설정
+        let targetIndex = results.length; 
         for (let i = currentIndex + 1; i < results.length; i++) {
-            // 다음 5성이거나, 중복이 아닌(NEW) 캐릭터를 찾으면 스톱!
-            if (results[i].star === 5 || !results[i].isDupe) {
+            // [Mod] 아이템(파편)이 아니면서, 5성이거나 중복이 아닌(NEW) 캐릭터일 때 스톱
+            if (!results[i].isItem && (results[i].star === 5 || !results[i].isDupe)) {
                 targetIndex = i;
                 break;
             }
@@ -36,12 +34,13 @@ export default function GachaRevealView({ results, onComplete }) {
             setCurrentIndex(targetIndex);
             setAnimKey(prev => prev + 1);
         } else {
-            onComplete(); // 찾은 게 없으면 바로 결과창으로
+            onComplete(); 
         }
     };
 
     const isHighRank = currentChar.star >= 4;
     const isTopRank = currentChar.star === 5;
+    const isItem = currentChar.isItem; // 파편 여부 확인
 
     return (
         <div 
@@ -49,61 +48,94 @@ export default function GachaRevealView({ results, onComplete }) {
             onClick={handleNext}
         >
             {/* 등급별 배경 오라(Aura) 효과 */}
-            <div className={`absolute inset-0 opacity-30 transition-colors duration-500
+            <div className={`absolute inset-0 opacity-30 transition-colors duration-300
                 ${isTopRank ? 'bg-[radial-gradient(circle,rgba(251,191,36,0.3)_0%,transparent_70%)]' : 
-                  isHighRank ? 'bg-[radial-gradient(circle,rgba(167,139,250,0.3)_0%,transparent_70%)]' : 
+                  isHighRank && !isItem ? 'bg-[radial-gradient(circle,rgba(167,139,250,0.3)_0%,transparent_70%)]' : 
                   'bg-[radial-gradient(circle,rgba(56,189,248,0.15)_0%,transparent_70%)]'}`} 
             />
+
+            {/* 빛이 정교하게 퍼져나가는 (Light spreading out) 등장 이펙트 */}
+            <div key={`burst-${animKey}`} className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+                <div className="w-1 h-1 bg-white rounded-full shadow-[0_0_150px_80px_rgba(255,255,255,0.8)] animate-[ping_0.5s_ease-out_forwards] opacity-0"></div>
+            </div>
 
             {/* 카드 및 정보 표시 영역 */}
             <div key={animKey} className="relative z-10 flex flex-col items-center animate-fade-in-up">
                 
                 {/* 5성 전용 뒤쪽 후광 효과 */}
-                {isTopRank && (
-                    <div className="absolute inset-0 bg-amber-400 blur-[80px] opacity-20 animate-pulse-slow pointer-events-none"></div>
+                {isTopRank && !isItem && (
+                    <div className="absolute inset-0 bg-amber-400 blur-[80px] opacity-20 animate-pulse pointer-events-none"></div>
                 )}
 
-                {/* 캐릭터 카드 (크고 아름답게) */}
-                <div className={`w-48 h-64 sm:w-64 sm:h-80 rounded-2xl overflow-hidden border shadow-2xl bg-gradient-to-br from-slate-800 to-black flex items-center justify-center relative
+                {/* 카드 컨테이너 */}
+                <div className={`w-48 h-64 sm:w-64 sm:h-80 rounded-2xl overflow-hidden border shadow-2xl bg-gradient-to-br from-slate-800 to-black flex items-center justify-center relative transition-transform duration-300
                     ${isTopRank ? 'border-amber-400 shadow-[0_0_40px_rgba(251,191,36,0.6)] scale-105' : 
-                      isHighRank ? 'border-violet-400/80 shadow-[0_0_30px_rgba(167,139,250,0.3)]' : 
+                      isHighRank && !isItem ? 'border-violet-400/80 shadow-[0_0_30px_rgba(167,139,250,0.3)]' : 
+                      isItem ? 'border-cyan-500/50 shadow-[0_0_20px_rgba(6,182,212,0.2)]' :
                       'border-slate-600 shadow-lg'}`}>
                     
-                    {currentChar.image ? (
-                        <img src={currentChar.image} alt={currentChar.name} className="w-full h-full object-cover opacity-90" />
+                    {/* [Branch] 파편 렌더링 vs 캐릭터 렌더링 */}
+                    {isItem ? (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/80 relative">
+                            {/* 파편 아이콘 애니메이션 */}
+                            <Hexagon size={64} className="text-cyan-400 drop-shadow-[0_0_20px_rgba(34,211,238,0.8)] animate-[spin_10s_linear_infinite]" />
+                            <Hexagon size={32} className="text-cyan-200 absolute rotate-90" />
+                            <span className="text-cyan-300/80 mt-6 text-xs font-mono tracking-widest text-center px-4 leading-relaxed">
+                                {currentChar.desc}
+                            </span>
+                            <div className="absolute top-3 right-3 bg-black/80 text-cyan-400 px-3 py-1 rounded-full border border-cyan-500/50 text-xs font-bold font-mono shadow-md">
+                                ITEM
+                            </div>
+                        </div>
                     ) : (
-                        <span className={`text-6xl font-bold ${isTopRank ? 'text-amber-400' : isHighRank ? 'text-violet-400' : 'text-slate-400'}`}>
-                            {currentChar.role.charAt(0)}
-                        </span>
-                    )}
+                        <>
+                            {/* 기존 캐릭터 이미지 렌더링 */}
+                            {currentChar.image ? (
+                                <img src={currentChar.image} alt={currentChar.name} className="w-full h-full object-cover opacity-90" />
+                            ) : (
+                                <span className={`text-6xl font-bold ${isTopRank ? 'text-amber-400' : isHighRank ? 'text-violet-400' : 'text-slate-400'}`}>
+                                    {currentChar.role.charAt(0)}
+                                </span>
+                            )}
 
-                    {/* 뉴 / 코어 뱃지 */}
-                    {currentChar.isDupe ? (
-                        <div className="absolute top-3 right-3 bg-black/80 text-amber-400 px-3 py-1 rounded-full border border-amber-500/50 text-xs font-bold font-mono shadow-md">
-                            +{currentChar.coreReward} CORE
-                        </div>
-                    ) : (
-                        <div className="absolute top-3 right-3 bg-red-600 text-white px-3 py-1 rounded-full border border-red-400/50 text-xs font-bold shadow-[0_0_15px_rgba(220,38,38,0.8)]">
-                            NEW
-                        </div>
+                            {/* 뉴 / 코어 뱃지 */}
+                            {currentChar.isDupe ? (
+                                <div className="absolute top-3 right-3 bg-black/80 text-amber-400 px-3 py-1 rounded-full border border-amber-500/50 text-xs font-bold font-mono shadow-md">
+                                    +{currentChar.coreReward} CORE
+                                </div>
+                            ) : (
+                                <div className="absolute top-3 right-3 bg-red-600 text-white px-3 py-1 rounded-full border border-red-400/50 text-xs font-bold shadow-[0_0_15px_rgba(220,38,38,0.8)]">
+                                    NEW
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
 
-                {/* 캐릭터 이름 및 별 */}
+                {/* 하단 이름 및 별 렌더링 */}
                 <div className="mt-8 text-center relative z-10">
-                    <h2 className="text-3xl font-bold text-white tracking-wider mb-2 drop-shadow-lg">
+                    <h2 className={`text-3xl font-bold tracking-wider mb-2 drop-shadow-lg
+                        ${isItem ? 'text-cyan-100' : 'text-white'}`}>
                         {currentChar.name}
                     </h2>
-                    <div className="flex justify-center gap-1">
-                        {Array.from({ length: currentChar.star }).map((_, i) => (
-                            <Star 
-                                key={i} 
-                                size={24} 
-                                className={`${isTopRank ? 'text-amber-300 fill-amber-300 animate-pulse' : 'text-amber-500 fill-amber-500'}`} 
-                                style={{ animationDelay: `${i * 100}ms` }} 
-                            />
-                        ))}
-                    </div>
+                    
+                    {/* 파편은 별 대신 부가 설명 텍스트, 캐릭터는 기존처럼 별 표시 */}
+                    {isItem ? (
+                        <div className="text-cyan-400/60 font-mono text-sm tracking-[0.2em]">
+                            MATERIAL
+                        </div>
+                    ) : (
+                        <div className="flex justify-center gap-1">
+                            {Array.from({ length: currentChar.star }).map((_, i) => (
+                                <Star 
+                                    key={i} 
+                                    size={24} 
+                                    className={`${isTopRank ? 'text-amber-300 fill-amber-300 animate-pulse' : 'text-amber-500 fill-amber-500'}`} 
+                                    style={{ animationDelay: `${i * 100}ms` }} 
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 

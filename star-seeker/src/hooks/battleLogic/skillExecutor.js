@@ -4,11 +4,14 @@
  */
 
 // --- 필살기 실행기 ---
-export function executeUltimateSkill(ally, skill, { finalAtk, finalCritMultiplier, isCrit, setBuffs, addLog, currentAllies }) {
+export function executeUltimateSkill(ally, skill, { finalAtk, finalCritMultiplier, isCrit, setBuffs, addLog, currentAllies, hasHealUp }) {
   let damageDealt = 0;
   let newSelfBuffs = { ...ally.selfBuffs };
   let alliesToHeal = []; 
   let logSuffix = isCrit ? ' (CRIT!)' : '';
+
+  // [NEW] 기억 세공: 치료 효율 개선 10% 증가 계수
+  const healMultiplier = hasHealUp ? 1.1 : 1.0;
 
   // [서주목] 방어력 계수 + 받피감(20%)
   if (ally.id === 1) {
@@ -27,7 +30,8 @@ export function executeUltimateSkill(ally, skill, { finalAtk, finalCritMultiplie
   }
   // [아다드] 전체 회복 + 도트힐
   else if (ally.id === 4) {
-    const healAmount = Math.floor(finalAtk * skill.mult * finalCritMultiplier);
+    // [Mod] 힐량 계수 적용
+    const healAmount = Math.floor(finalAtk * skill.mult * finalCritMultiplier * healMultiplier);
     alliesToHeal = (list) => list.map(a => ({ ...a, hp: Math.min(a.maxHp, a.hp + healAmount) }));
     setBuffs(b => ({ ...b, regen: { active: true, val: skill.dotMult || 0.3, timeLeft: 10000 } }));
     addLog(`✨ [${ally.name}] ${skill.name}! (전체 치유: ${healAmount})`, 'ally_ult');
@@ -35,7 +39,8 @@ export function executeUltimateSkill(ally, skill, { finalAtk, finalCritMultiplie
   // [람만] 전체 공격 + 전체 회복
   else if (ally.id === 5) {
     damageDealt = Math.floor(finalAtk * skill.mult * finalCritMultiplier);
-    const healAmount = Math.floor(finalAtk * (skill.healMult || 2.0));
+    // [Mod] 힐량 계수 적용
+    const healAmount = Math.floor(finalAtk * (skill.healMult || 2.0) * healMultiplier);
     alliesToHeal = (list) => list.map(a => ({ ...a, hp: Math.min(a.maxHp, a.hp + healAmount) }));
     addLog(`✨ [${ally.name}] ${skill.name}! (공격 ${damageDealt} + 치유 ${healAmount})`, 'ally_ult');
   }
@@ -61,10 +66,13 @@ export function executeUltimateSkill(ally, skill, { finalAtk, finalCritMultiplie
 }
 
 // --- 일반 스킬 실행기 ---
-export function executeNormalSkill(ally, skill, { finalAtk, finalCritMultiplier, isCrit, addLog, currentAllies }) {
+export function executeNormalSkill(ally, skill, { finalAtk, finalCritMultiplier, isCrit, addLog, currentAllies, hasHealUp }) {
   let damageDealt = 0;
   let alliesToModify = null; 
   let logSuffix = isCrit ? ' (CRIT!)' : '';
+
+  // [NEW] 기억 세공: 치료 효율 개선 10% 증가 계수
+  const healMultiplier = hasHealUp ? 1.1 : 1.0;
 
   // [아다드] 평타: 생명력이 제일 낮은 아군 회복
   if (ally.id === 4) {
@@ -79,7 +87,8 @@ export function executeNormalSkill(ally, skill, { finalAtk, finalCritMultiplier,
     });
     if (targetIdx === -1) targetIdx = currentAllies.findIndex(a => a.id === ally.id); 
 
-    const healAmount = Math.floor(finalAtk * skill.mult * (isCrit ? 1.5 : 1.0));
+    // [Mod] 힐량 계수 적용
+    const healAmount = Math.floor(finalAtk * skill.mult * (isCrit ? 1.5 : 1.0) * healMultiplier);
     
     alliesToModify = (allies) => allies.map((a, idx) => {
         if(idx === targetIdx) {

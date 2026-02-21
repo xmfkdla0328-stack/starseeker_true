@@ -9,6 +9,11 @@ export const calculateDamage = (attacker, defender, rawDamage, buffs) => {
         finalDamage = Math.floor(finalDamage * (1 - reductionRate));
     }
 
+    // [NEW] 2-5. 기억 세공 효과: 피격 저항 활성화 (받는 대미지 10% 감소)
+    if (defender.memoryEffects && defender.memoryEffects.some(e => e.id === 'DMG_REDUCE')) {
+        finalDamage = Math.floor(finalDamage * 0.9);
+    }
+
     // 3. 쉴드 계산
     let remainingShield = defender.shield || 0;
     let damageToShield = 0; // 쉴드가 흡수한 데미지
