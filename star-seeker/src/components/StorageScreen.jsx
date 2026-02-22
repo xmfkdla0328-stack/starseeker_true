@@ -62,7 +62,7 @@ export default function StorageScreen({ inventory, onBack }) {
             <div className="flex flex-col">
                 <div className="flex items-center gap-2 text-amber-400 font-bold tracking-widest text-lg drop-shadow-md">
                     <Archive size={18} />
-                    <span>STORAGE</span>
+                    <span>창고</span>
                 </div>
                 <span className="text-[10px] text-amber-600/80 font-mono tracking-wider pl-1">
                     CAPACITY: {userItems.length} / ∞

@@ -17,7 +17,7 @@ export default function GuideBookScreen({ onBack, visitedNodes = [], collectedKe
                 <ChevronLeft size={24} />
             </button>
             <h2 className="text-lg font-bold text-emerald-300 tracking-widest flex items-center gap-2">
-                <BookOpen size={20} /> ARCHIVES
+                <BookOpen size={20} /> 아카이브
             </h2>
         </div>
         
