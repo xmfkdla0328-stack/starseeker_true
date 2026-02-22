@@ -39,5 +39,13 @@ export const ALL_ITEMS = {
     rarity: 'legendary',
     desc: '인과율의 흐름을 고정시켜 새로운 가능성(캐릭터)을 관측할 때 사용합니다.',
     iconType: 'stone'
+  },
+  'memory_fragment': {
+    id: 'memory_fragment',
+    name: '기억 파편',
+    type: 'material',
+    rarity: 'rare',
+    desc: '기억으로부터 추출하여 얻은 데이터 파편. 기억 세공품 제작에 사용됩니다.',
+    iconType: 'file'
   }
 };
