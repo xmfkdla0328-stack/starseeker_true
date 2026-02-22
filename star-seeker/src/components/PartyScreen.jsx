@@ -157,7 +157,7 @@ export default function PartyScreen({ currentParty, onUpdateParty, onBack }) {
             <div className="flex flex-col">
                 <div className="flex items-center gap-2 text-cyan-100 font-bold tracking-widest text-lg drop-shadow-md">
                     <Users size={18} />
-                    <span>SQUAD FORMATION</span>
+                    <span>파티 편성</span>
                 </div>
                 <span className="text-[10px] text-cyan-500/80 font-mono tracking-wider pl-1">
                     TOTAL CP: {Math.floor(totalCombatPower)}

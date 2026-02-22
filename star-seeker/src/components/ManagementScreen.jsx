@@ -24,7 +24,7 @@ const HeaderSection = ({ onBack, chipCount, coreCount }) => (
         {/* 아이콘 + 메인 타이틀 */}
         <div className="flex items-center gap-2 text-cyan-400 font-bold tracking-widest text-lg drop-shadow-md">
             <Cpu size={18} />
-            <span>MANAGEMENT</span>
+            <span>관리</span>
         </div>
         {/* 서브 타이틀 */}
         <span className="text-[10px] text-cyan-600/80 font-mono tracking-wider pl-1">
