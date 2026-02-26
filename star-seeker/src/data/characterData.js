@@ -41,6 +41,8 @@ export const ALL_CHARACTERS = [
     baseHp: 700, baseAtk: 140, baseDef: 8, baseSpd: 12, 
     color: "from-violet-600 to-violet-800", desc: "바라보는 것은 동경의 뒷면",
     efficiency: 1.5, star: 4,
+    image: "/images/characters/mainImage/sungsiha_manage.png",
+    listimage: "/images/characters/mainImage/sungsiha_manage.png",
     skills: ['관찰', '계산'],
     combatSkills: {
         normal: { name: "연타", desc: "공격력의 80% 위력으로 단일 적을 공격합니다.", mult: 0.8 },

@@ -216,4 +216,111 @@
   }
 
   
+  /* --- [신규] 스토리 연출용 특수 이펙트 --- */
+
+/* 1. 화면 흔들림 (지진, 충격) */
+@keyframes shakeEffect {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    30% { transform: translate(3px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(3px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(1px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
+  }
   
+  .animate-shake {
+    animation: shakeEffect 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  }
+  
+  /* 2. 붉은 섬광 + 흔들림 (치명적인 타격, 각성) */
+  @keyframes flashRed {
+    0% { background-color: rgba(220, 38, 38, 0); }
+    10% { background-color: rgba(220, 38, 38, 0.8); }
+    50% { background-color: rgba(220, 38, 38, 0.2); }
+    100% { background-color: rgba(220, 38, 38, 0); }
+  }
+  
+  .animate-flash-red {
+    animation: flashRed 0.8s ease-out forwards;
+  }
+  
+  /* 3. 시각 노이즈 / 글리치 (신경망 손상, 데이터 오류) */
+  @keyframes glitchEffect {
+    0% { filter: hue-rotate(0deg) contrast(100%) blur(0px); opacity: 1; transform: translate(0); }
+    20% { filter: hue-rotate(90deg) contrast(150%) blur(2px); opacity: 0.8; transform: translate(-2px, 2px); }
+    40% { filter: hue-rotate(-90deg) contrast(120%) blur(1px); opacity: 0.9; transform: translate(2px, -2px); }
+    60% { filter: hue-rotate(45deg) contrast(180%) blur(4px); opacity: 0.6; transform: translate(-4px, 0); }
+    80% { filter: hue-rotate(-45deg) contrast(110%) blur(1px); opacity: 0.9; transform: translate(4px, 2px); }
+    100% { filter: hue-rotate(0deg) contrast(100%) blur(0px); opacity: 1; transform: translate(0); }
+  }
+  
+  .animate-glitch {
+    animation: glitchEffect 0.3s cubic-bezier(.25,.46,.45,.94) both;
+    animation-iteration-count: 2; /* 두 번 지지직 거림 */
+  }
+  
+  /* 4. 빠른 심장 박동 (긴장감 고조) */
+  @keyframes heartbeatFast {
+    0% { transform: scale(1); opacity: 0.3; }
+    15% { transform: scale(1.1); opacity: 0.8; }
+    30% { transform: scale(1); opacity: 0.3; }
+    45% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 0.3; }
+  }
+  
+  .animate-heartbeat-fast {
+    animation: heartbeatFast 1s ease-in-out infinite;
+  }
+
+
+  /* --- [신규] 인과력 발현 (Causality Manifest) 연출 --- */
+
+/* 1. 중앙의 검은 핵(Core)이 불길하게 고동치는 애니메이션 */
+@keyframes causalityPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,1); }
+    50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(0,0,0,0.9), inset 0 0 30px rgba(20,0,0,1); /* 살짝 붉은/검은 기운 */ }
+}
+
+/* 2. 검은 아우라가 퍼져나가는 애니메이션 */
+@keyframes causalityRipple {
+    0% { transform: scale(1); opacity: 0.8; border-width: 2px; }
+    100% { transform: scale(4); opacity: 0; border-width: 20px; }
+}
+
+/* 중앙의 검은 구체 스타일 */
+.causality-core {
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, #000000 30%, #1a1a1a 100%);
+    border-radius: 50%;
+    animation: causalityPulse 3s ease-in-out infinite;
+    position: relative;
+    z-index: 10;
+}
+
+/* 퍼져나가는 아우라 물결 스타일 */
+.causality-ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120px;
+    height: 120px;
+    margin-top: -60px; /* 중앙 정렬 보정 */
+    margin-left: -60px;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 0, 0, 0.8); /* 테두리만 있는 원 */
+    background: transparent;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.5);
+    animation: causalityRipple 4s linear infinite;
+    pointer-events: none;
+}
+
+/* 물결 여러 개를 시간차로 실행 */
+.ripple-delay-1 { animation-delay: 0s; }
+.ripple-delay-2 { animation-delay: 1.3s; }
+.ripple-delay-3 { animation-delay: 2.6s; }

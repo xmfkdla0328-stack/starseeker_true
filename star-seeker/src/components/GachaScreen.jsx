@@ -15,8 +15,8 @@ const DROP_RATES = {
     'FRAGMENT': 0.92 // 기억 파편 92%
 };
 
-const GACHA_COST = 100; // [Fix] 누락되었던 캐릭터 가챠 비용 상수 추가
-const EQUIP_GACHA_COST = 10; // 기억 세공 1뽑당 파편 비용
+const GACHA_COST = 100; 
+const EQUIP_GACHA_COST = 10; 
 
 // --- 헤더 컴포넌트 ---
 const GachaHeader = ({ onBack, stoneCount, fragmentCount }) => (
@@ -28,12 +28,10 @@ const GachaHeader = ({ onBack, stoneCount, fragmentCount }) => (
             <ChevronLeft size={24} />
         </button>
         <div className="flex items-center gap-3">
-            {/* 기억 파편 (하늘색) */}
             <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-full border border-cyan-500/30 shadow-inner">
                 <Hexagon size={14} className="text-cyan-400 fill-cyan-400/20" />
                 <span className="text-cyan-100 font-bold font-mono text-xs">{fragmentCount.toLocaleString()}</span>
             </div>
-            {/* 인과석 (보라색) */}
             <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-full border border-violet-500/30 shadow-inner">
                 <Hexagon size={14} className="text-violet-400 fill-violet-400/20" />
                 <span className="text-violet-100 font-bold font-mono text-xs">{stoneCount.toLocaleString()}</span>
@@ -83,9 +81,9 @@ export default function GachaScreen({ roster, setRoster, inventory, setInventory
     }
 
     // ==========================================
-    // 2. [캐릭터] 가챠 로직
+    // 2. [캐릭터] 가챠 로직 (10연차 확정 보정 포함)
     // ==========================================
-    const totalCost = count * GACHA_COST; // 이제 여기서 에러가 나지 않습니다.
+    const totalCost = count * GACHA_COST; 
     if (stoneCount < totalCost) {
         alert(`인과석이 부족합니다! (필요: ${totalCost}, 보유: ${stoneCount})`);
         return;
@@ -99,11 +97,29 @@ export default function GachaScreen({ roster, setRoster, inventory, setInventory
     let earnedCores = 0; 
     let earnedFragments = 0; 
 
+    // [NEW] 4성 이상 획득 여부를 추적하는 변수
+    let hasHighRank = false; 
+
     for (let i = 0; i < count; i++) {
         const rand = Math.random();
         
-        if (rand < DROP_RATES['5_STAR'] + DROP_RATES['4_STAR']) {
-            const rank = rand < DROP_RATES['5_STAR'] ? 5 : 4;
+        // [NEW] 10연차 보정 발동 조건: 10뽑 이상 진행 중 && 마지막 뽑기 && 지금까지 4성 이상이 한 번도 안 나옴
+        const isGuaranteed = (count >= 10 && i === count - 1 && !hasHighRank);
+        
+        // 캐릭터 당첨 (원래 확률로 당첨되었거나, 확정 보정이 발동했거나)
+        if (isGuaranteed || rand < DROP_RATES['5_STAR'] + DROP_RATES['4_STAR']) {
+            
+            hasHighRank = true; // 4성 이상 획득 마킹!
+
+            let rank = 4;
+            if (isGuaranteed) {
+                // 10연차 확정 슬롯에서도 5성이 뜰 확률 3%는 유지 (나머지 97%는 4성)
+                rank = Math.random() < DROP_RATES['5_STAR'] ? 5 : 4;
+            } else {
+                // 일반 당첨 슬롯
+                rank = rand < DROP_RATES['5_STAR'] ? 5 : 4;
+            }
+
             let pool = ALL_CHARACTERS.filter(c => c.star === rank);
             if (!pool || pool.length === 0) pool = ALL_CHARACTERS; 
 
@@ -119,6 +135,7 @@ export default function GachaScreen({ roster, setRoster, inventory, setInventory
                 newResults.push({ ...pickedChar, isDupe: false, isNew: true });
             }
         } else {
+            // 파편 당첨 (꽝)
             earnedFragments += 1;
             newResults.push({ 
                 id: `fragment_${Date.now()}_${i}`, 

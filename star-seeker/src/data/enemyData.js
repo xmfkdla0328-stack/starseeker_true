@@ -24,11 +24,11 @@ export const ENEMIES = {
       level: 99, 
       
       // [핵심] 약화된 상태 설정: 최대 체력은 높지만 시작 체력은 낮음
-      maxHp: 50000,
-      initialHp: 5000, 
+      maxHp: 99999,
+      initialHp: 3000, 
   
-      baseAtk: 100, 
-      baseSpd: 15,  
+      baseAtk: 70, 
+      baseSpd: 10,  
   
       // 상태 초기값
       actionGauge: 0,

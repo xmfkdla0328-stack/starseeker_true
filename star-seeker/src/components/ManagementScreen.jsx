@@ -12,7 +12,6 @@ import ParticleBackground from './common/ParticleBackground';
 const HeaderSection = ({ onBack, chipCount, coreCount }) => (
   <div className="flex-none flex items-center justify-between p-4 border-b border-white/10 bg-slate-950/30 backdrop-blur-md z-30 shadow-lg relative">
     
-    {/* 좌측: 뒤로가기 + 타이틀 (창고 화면 스타일 적용) */}
     <div className="flex items-center gap-4">
       <button 
         onClick={onBack} 
@@ -21,12 +20,10 @@ const HeaderSection = ({ onBack, chipCount, coreCount }) => (
         <ArrowLeft size={24} />
       </button>
       <div className="flex flex-col">
-        {/* 아이콘 + 메인 타이틀 */}
         <div className="flex items-center gap-2 text-cyan-400 font-bold tracking-widest text-lg drop-shadow-md">
             <Cpu size={18} />
             <span>관리</span>
         </div>
-        {/* 서브 타이틀 */}
         <span className="text-[10px] text-cyan-600/80 font-mono tracking-wider pl-1">
             UNIT ADJUSTMENT
         </span>
@@ -34,7 +31,6 @@ const HeaderSection = ({ onBack, chipCount, coreCount }) => (
     </div>
     
     <div className="flex items-center gap-3">
-        {/* 자원 표시줄 */}
         <div className="flex gap-2 text-xs font-mono">
             <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-full border border-white/5 shadow-inner">
                 <HardDrive size={12} className="text-cyan-400" />
@@ -57,13 +53,13 @@ const TabNavigation = ({ activeTab, onTabChange }) => (
     <TabButton 
         isActive={activeTab === 'status'} 
         onClick={() => onTabChange('status')}
-        label="STATUS & EQUIP"
+        label="상태 & 장비"
         colorClass="cyan"
     />
     <TabButton 
         isActive={activeTab === 'upgrade'} 
         onClick={() => onTabChange('upgrade')}
-        label="NEURAL UPGRADE"
+        label="강화"
         colorClass="amber"
     />
   </div>
@@ -183,9 +179,7 @@ export default function ManagementScreen({
                                                 <span className="px-2 py-0.5 rounded bg-cyan-900/60 border border-cyan-500/30 text-[10px] text-cyan-300 font-bold">
                                                     {selectedChar.role}
                                                 </span>
-                                                <span className="text-xs text-slate-400 font-mono">
-                                                    Lv.{selectedChar.level}
-                                                </span>
+                                                {/* [Fix] 레벨(Lv) 표시 삭제 완료 */}
                                             </div>
                                         </div>
                                         <div className="text-amber-400">
