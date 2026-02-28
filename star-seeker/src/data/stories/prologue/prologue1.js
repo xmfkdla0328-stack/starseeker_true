@@ -4,13 +4,13 @@ export const prologue_event = {
   type: 'story', 
   scenes: [
     { 
-      // [1] 암전 화면 (3초 자동 대기) - 무거운 침묵으로 시작
+      // [1] 암전 화면 (2초 자동 대기) - 무거운 침묵으로 시작
       id: 1, 
       type: 'script', 
       bg: "black",
       hideUI: true, 
       text: "",     
-      duration: 3000, 
+      duration: 2000, 
     },
     { 
       // [2] 심리 묘사
@@ -229,7 +229,7 @@ export const prologue_event = {
       effect: "warp_white", 
       duration: 2000, 
       isEnd: true, 
-      nextAction: 'battle:tutorial_boss' 
+      nextAction: 'battle:tutorial_boss:evt_prologue_2'
     }
   ]
 };

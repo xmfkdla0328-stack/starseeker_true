@@ -13,6 +13,9 @@ export default function App() {
   const [currentEnemyId, setCurrentEnemyId] = useState(null);
   const [battleType, setBattleType] = useState('story'); 
   const [battleRewards, setBattleRewards] = useState([]);
+  
+  // [NEW] 스토리 체인을 위해, 전투 후 넘어갈 다음 이벤트 ID를 기억합니다.
+  const [nextEventId, setNextEventId] = useState(null);
 
   const handleContentSelect = (contentType) => {
     if (contentType === 'story') nav.goStorySelect();
@@ -28,11 +31,11 @@ export default function App() {
       
       let newBattleType = 'mining_chip';
       if (type === 'stone') newBattleType = 'mining_stone';
-      // [Fix 1] UI에서 'core'나 'gear' 등 어떤 이름으로 넘어오든 확실하게 장비 파밍으로 연결!
       else if (type === 'gear' || type === 'core') newBattleType = 'mining_gear'; 
 
       setCurrentEnemyId(enemyId);
       setBattleType(newBattleType);
+      setNextEventId(null); // 채굴은 다음 스토리가 없으므로 null
       nav.goBattle();
   };
 
@@ -42,28 +45,19 @@ export default function App() {
 
   const onGameEnd = useCallback((result) => {
       if (result === 'win') {
-          // A. 데이터 칩 채굴
           if (battleType === 'mining_chip') {
               const rewardAmount = Math.floor(Math.random() * 2) + 4; 
               data.addResource('chip_basic', rewardAmount);
-              setBattleRewards([
-                  { id: 'chip_basic', name: '데이터 보강칩', count: rewardAmount }
-              ]);
+              setBattleRewards([{ id: 'chip_basic', name: '데이터 보강칩', count: rewardAmount }]);
           } 
-          // B. 인과석 채굴
           else if (battleType === 'mining_stone') {
               const rewardAmount = Math.floor(Math.random() * 2) + 1; 
               data.addResource('causality_stone', rewardAmount);
-              setBattleRewards([
-                  { id: 'causality_stone', name: '인과석', count: rewardAmount }
-              ]);
+              setBattleRewards([{ id: 'causality_stone', name: '인과석', count: rewardAmount }]);
           }
-          // C. [Fix 2] 장비 파밍 (데이터 중첩핵)
           else if (battleType === 'mining_gear') {
               const dropCount = Math.floor(Math.random() * 2) + 3; 
               const newItems = [];
-              
-              // [핵심 해결] 가챠 전용인 3번 슬롯(기억 세공)을 철저히 배제하고, 1번과 2번 칩만 드랍되도록 풀 제한!
               const miningSlotKeys = ['SLOT_1', 'SLOT_2'];
               
               for (let i = 0; i < dropCount; i++) {
@@ -94,9 +88,14 @@ export default function App() {
 
   const handleEventComplete = (nextAction) => {
     if (typeof nextAction === 'string' && nextAction.startsWith('battle:')) {
-        const enemyId = nextAction.split(':')[1];
+        // nextAction 분해: 'battle:보스ID:다음스토리ID'
+        const parts = nextAction.split(':');
+        const enemyId = parts[1];
+        const nextEvtId = parts[2] || null; // 3번째 값이 있으면 저장, 없으면 null
+
         setCurrentEnemyId(enemyId);
         setBattleType('story'); 
+        setNextEventId(nextEvtId); // [NEW] 상태에 저장
         nav.goBattle(); 
     } else {
         nav.goBattle(); 
@@ -107,10 +106,16 @@ export default function App() {
       nav.goBattle();
   };
 
+  // [Fix] 전투 후 나가기(또는 다음 스토리로) 핸들러
   const handleLeaveBattle = () => {
-      if (battleType.startsWith('mining')) {
+      if (battleType === 'story' && nextEventId) {
+          // 다음 이벤트가 지정되어 있다면, 이벤트 화면으로 이동시킴
+          nav.goEvent(nextEventId); // (참고: GameRouter에서 activeEventId를 받도록 프롭스를 하나 더 뚫어줘야 할 수 있지만, 지금은 기본 goEvent 호출)
+      } 
+      else if (battleType.startsWith('mining')) {
           nav.goDirectMiningSelect(); 
-      } else {
+      } 
+      else {
           nav.goHome(); 
       }
   };
@@ -120,7 +125,14 @@ export default function App() {
     [data.partyList, data.roster]
   );
 
-  const battleState = { currentEnemyId, battleType, battleRewards };
+  // [NEW] isStoryChain 플래그를 오버레이에 전달하기 위해 battleState에 추가
+  const battleState = { 
+      currentEnemyId, 
+      battleType, 
+      battleRewards,
+      isStoryChain: !!nextEventId // 다음 스토리가 있는지 여부 (boolean)
+  };
+  
   const handlers = {
       handleContentSelect,
       handleDirectMining,       
@@ -146,6 +158,8 @@ export default function App() {
         battleState={battleState}
         handlers={handlers}
         initialParty={initialParty}
+        // [NEW] App에서 들고 있는 다음 스토리 ID를 라우터로 넘겨줌
+        activeEventId={nextEventId || 'prologue'} 
       />
     </div>
   );

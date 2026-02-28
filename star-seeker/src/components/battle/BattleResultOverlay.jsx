@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, DoorOpen, Package, Star, Trophy, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { RefreshCw, DoorOpen, Package, Star, Trophy, AlertTriangle, CheckCircle2, Home, ArrowRight } from 'lucide-react';
 
-// [Fix] ModalWrapper를 컴포넌트 외부로 이동 (리렌더링 시 재생성 방지)
 const ModalWrapper = ({ children, title, icon: Icon, titleColor }) => (
-  <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in px-6">
+  <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in px-6">
     <div className="bg-slate-900 border border-white/20 rounded-xl p-6 w-full max-w-sm shadow-2xl relative overflow-hidden">
-      {/* 상단 장식 효과 */}
       <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${titleColor === 'text-rose-400' ? 'from-rose-500 to-transparent' : 'from-amber-400 to-transparent'}`} />
       
       <h3 className={`text-lg font-bold ${titleColor} mb-6 flex items-center gap-2 tracking-wider`}>
@@ -18,41 +16,40 @@ const ModalWrapper = ({ children, title, icon: Icon, titleColor }) => (
 );
 
 export default function BattleResultOverlay({ 
-  result,          // 'win' | 'lose'
-  rewards = [],    // 획득한 아이템 목록
-  expGained = 0,   // 획득 경험치
-  battleType,      // 'story' | 'mining'
-  onRetry,         // 재전투 핸들러
-  onLeave          // 나가기 핸들러
+  result,          
+  rewards = [],    
+  expGained = 0,   
+  battleType,      
+  isStoryChain,    // [NEW] App에서 넘어온 스토리 연전 여부
+  onRetry,         
+  onLeave,
+  onHome           
 }) {
-  const [step, setStep] = useState('intro'); // 'intro' -> 'reward' -> 'action'
+  const [step, setStep] = useState('intro'); 
 
-  // 1단계: 승리/패배 텍스트 연출 (1.5초 후 팝업으로 전환)
   useEffect(() => {
     if (step === 'intro') {
       const timer = setTimeout(() => {
         if (result === 'win') setStep('reward');
-        else setStep('action'); // 패배 시 보상 단계 건너뜀
-      }, 1500);
+        else setStep('action'); 
+      }, 2500);
       return () => clearTimeout(timer);
     }
   }, [step, result]);
 
-  // 1. Intro 화면 (텍스트 연출)
   if (step === 'intro') {
     return (
-      <div className="absolute inset-0 z-50 bg-black/90 flex items-center justify-center animate-fade-in pointer-events-none">
-        <h1 className={`text-5xl font-black tracking-[0.3em] italic transform -skew-x-12 animate-scale-bounce
+      <div className="absolute inset-0 z-50 bg-black/30 flex items-center justify-center animate-fade-in pointer-events-none">
+        <h1 className={`text-5xl font-black tracking-[0.2em] italic transform -skew-x-12 animate-scale-bounce
           ${result === 'win' 
-            ? 'text-transparent bg-clip-text bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-600 drop-shadow-[0_0_25px_rgba(251,191,36,0.5)]' 
-            : 'text-rose-600 drop-shadow-[0_0_25px_rgba(225,29,72,0.5)]'}`}>
-          {result === 'win' ? 'VICTORY' : 'DEFEAT'}
+            ? 'text-transparent bg-clip-text bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-600 drop-shadow-[0_0_25px_rgba(251,191,36,0.6)]' 
+            : 'text-rose-600 drop-shadow-[0_0_25px_rgba(225,29,72,0.8)]'}`}>
+          {result === 'win' ? '전투 승리' : '전투 패배'}
         </h1>
       </div>
     );
   }
 
-  // 2. 보상 팝업 (Reward) - 승리 시에만 등장
   if (step === 'reward') {
     return (
       <ModalWrapper 
@@ -61,7 +58,6 @@ export default function BattleResultOverlay({
         titleColor="text-amber-400"
       >
         <div className="space-y-4 mb-6">
-          {/* 경험치 섹션 */}
           <div className="bg-black/40 p-3 rounded-lg border border-white/5 flex items-center justify-between">
             <div className="flex items-center gap-2">
                 <Star size={16} className="text-yellow-400" />
@@ -70,7 +66,6 @@ export default function BattleResultOverlay({
             <span className="text-sm font-bold text-white font-mono">+{expGained} EXP</span>
           </div>
 
-          {/* 아이템 섹션 */}
           <div className="bg-black/40 p-3 rounded-lg border border-white/5">
             <div className="flex items-center gap-2 mb-2">
                 <Package size={16} className="text-cyan-400" />
@@ -92,18 +87,28 @@ export default function BattleResultOverlay({
           </div>
         </div>
 
-        <button 
-          onClick={() => setStep('action')}
-          className="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold shadow-lg shadow-amber-900/50 transition-colors flex items-center justify-center gap-2"
-        >
-          <CheckCircle2 size={16} />
-          확인
-        </button>
+        {/* [NEW] 스토리 체인 상태일 경우, 버튼 디자인과 로직을 분기합니다. */}
+        {isStoryChain && battleType === 'story' ? (
+            <button 
+                onClick={onLeave} // 3단계(action)를 건너뛰고 바로 다음 스토리로 진입!
+                className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-lg shadow-emerald-900/50 transition-colors flex items-center justify-center gap-2"
+            >
+                <ArrowRight size={16} />
+                다음 스토리로
+            </button>
+        ) : (
+            <button 
+                onClick={() => setStep('action')}
+                className="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-bold shadow-lg shadow-amber-900/50 transition-colors flex items-center justify-center gap-2"
+            >
+                <CheckCircle2 size={16} />
+                확인
+            </button>
+        )}
       </ModalWrapper>
     );
   }
 
-  // 3. 행동 선택 (Action) - 재전투/나가기
   if (step === 'action') {
     const isWin = result === 'win';
     
@@ -120,26 +125,30 @@ export default function BattleResultOverlay({
             </p>
         </div>
 
-        <div className="flex gap-3">
-            {/* 나가기 버튼 */}
+        <div className="flex gap-2">
             <button 
-                onClick={onLeave}
-                className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-2"
+                onClick={onRetry}
+                className="flex-1 py-3 bg-cyan-700 hover:bg-cyan-600 text-white rounded-lg text-xs font-bold shadow-lg shadow-cyan-900/50 transition-colors flex flex-col items-center justify-center gap-1.5"
             >
-                <DoorOpen size={16} />
-                {battleType === 'story' ? '다음으로' : '나가기'}
+                <RefreshCw size={16} />
+                <span>다시하기</span>
             </button>
 
-            {/* 재전투 버튼 (채굴 모드일 때만 표시) */}
-            {battleType === 'mining' && (
-                <button 
-                    onClick={onRetry}
-                    className="flex-1 py-3 bg-cyan-700 hover:bg-cyan-600 text-white rounded-lg text-xs font-bold shadow-lg shadow-cyan-900/50 transition-colors flex items-center justify-center gap-2"
-                >
-                    <RefreshCw size={16} />
-                    재전투
-                </button>
-            )}
+            <button 
+                onClick={onLeave}
+                className="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg text-xs font-bold transition-colors flex flex-col items-center justify-center gap-1.5"
+            >
+                <DoorOpen size={16} />
+                <span>나가기</span>
+            </button>
+
+            <button 
+                onClick={onHome}
+                className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold transition-colors flex flex-col items-center justify-center gap-1.5"
+            >
+                <Home size={16} />
+                <span>홈으로</span>
+            </button>
         </div>
       </ModalWrapper>
     );

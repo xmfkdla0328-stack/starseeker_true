@@ -97,7 +97,6 @@ export default function GameRouter({
       {nav.gameState === 'storage' && <StorageScreen inventory={data.inventory} onBack={nav.goHome} />}
       {nav.gameState === 'guide' && <GuideBookScreen collectedKeywords={data.collectedKeywords} onBack={nav.goHome} />}
       
-      {/* 가챠 화면 - consumeResource 및 addEquipment 속성 전달 */}
       {nav.gameState === 'gacha' && (
         <GachaScreen 
             roster={data.roster} 
@@ -105,7 +104,7 @@ export default function GameRouter({
             inventory={data.inventory} 
             setInventory={data.setInventory} 
             consumeResource={data.consumeResource} 
-            addEquipment={data.addEquipment} // [NEW] 장비 추가 핸들러 연결
+            addEquipment={data.addEquipment} 
             onBack={nav.goHome} 
         />
       )}
@@ -120,7 +119,8 @@ export default function GameRouter({
         />
       )}
       
-      {nav.gameState === 'active' && (
+      {/* [Fix] 전투가 끝나도(win, lose) 배틀 스크린이 뒤에 남아있도록 조건 수정 */}
+      {(nav.gameState === 'active' || nav.gameState === 'win' || nav.gameState === 'lose') && (
         <BattleScreen 
             userStats={data.userStats} 
             hpMultiplier={data.hpMultiplier} 
@@ -138,6 +138,7 @@ export default function GameRouter({
             expGained={100}
             onRetry={handleRetryBattle}
             onLeave={handleLeaveBattle}
+            onHome={nav.goHome} // [NEW] 홈으로 가기 핸들러 추가
         />
       )}
     </>
