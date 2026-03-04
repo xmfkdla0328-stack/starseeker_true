@@ -4,6 +4,8 @@ import React from 'react';
 import HomeScreen from '../components/HomeScreen';
 import SelectScreen from '../components/SelectScreen';
 import StorySelectScreen from '../components/StorySelectScreen';
+// [NEW] 스토리 노드 선택 화면 (사건의 지평선) 임포트
+import StoryNodeScreen from '../components/StoryNodeScreen'; 
 import EventScreen from '../components/EventScreen';
 import BattleScreen from '../screens/BattleScreen'; 
 import PartyScreen from '../components/PartyScreen';
@@ -21,15 +23,17 @@ export default function GameRouter({
   data, 
   battleState, 
   handlers, 
-  initialParty 
+  initialParty,
+  activeEventId 
 }) {
-  const { currentEnemyId, battleType, battleRewards } = battleState;
+  const { currentEnemyId, battleType, battleRewards, isStoryChain } = battleState;
   
   const {
     handleContentSelect,
     handleDirectMining,
     handleStartMiningBattle,
     handleAutoMiningEntry,
+    handleStartStoryEvent,
     onGameEnd,
     handleEventComplete,
     handleRetryBattle,
@@ -51,7 +55,18 @@ export default function GameRouter({
       )}
 
       {nav.gameState === 'select' && <SelectScreen onSelectContent={handleContentSelect} onBack={nav.goHome} />}
-      {nav.gameState === 'story_select' && <StorySelectScreen onSelectChapter={() => nav.goEvent()} onBack={nav.goSelect} />}
+      
+      {/* [Fix] 관측 시작 버튼을 누르면 '사건의 지평선' 화면으로 넘어가도록 nav.goStoryNodeSelect 연결 */}
+      {nav.gameState === 'story_select' && <StorySelectScreen onSelectChapter={nav.goStoryNodeSelect} onBack={nav.goSelect} />}
+      
+      {/* [NEW] 사건의 지평선 (인과의 나무) 화면 라우팅 추가 */}
+      {nav.gameState === 'story_node_select' && (
+        <StoryNodeScreen 
+            clearedNodes={data.clearedNodes} 
+            onSelectStory={handleStartStoryEvent} 
+            onBack={nav.goStorySelect} 
+        />
+      )}
       
       {nav.gameState === 'mining_select' && (
         <ResourcesScreen 
@@ -95,7 +110,14 @@ export default function GameRouter({
       )}
 
       {nav.gameState === 'storage' && <StorageScreen inventory={data.inventory} onBack={nav.goHome} />}
-      {nav.gameState === 'guide' && <GuideBookScreen collectedKeywords={data.collectedKeywords} onBack={nav.goHome} />}
+      
+      {nav.gameState === 'guide' && (
+        <GuideBookScreen 
+            collectedKeywords={data.collectedKeywords} 
+            visitedNodes={data.clearedNodes} 
+            onBack={nav.goHome} 
+        />
+      )}
       
       {nav.gameState === 'gacha' && (
         <GachaScreen 
@@ -111,6 +133,7 @@ export default function GameRouter({
       
       {nav.gameState === 'event' && (
         <EventScreen 
+            activeEventId={activeEventId} 
             onOptionSelected={data.handleOptionSelected} 
             onEventComplete={handleEventComplete} 
             onUnlockKeyword={data.handleUnlockKeyword}
@@ -119,7 +142,6 @@ export default function GameRouter({
         />
       )}
       
-      {/* [Fix] 전투가 끝나도(win, lose) 배틀 스크린이 뒤에 남아있도록 조건 수정 */}
       {(nav.gameState === 'active' || nav.gameState === 'win' || nav.gameState === 'lose') && (
         <BattleScreen 
             userStats={data.userStats} 
@@ -136,9 +158,10 @@ export default function GameRouter({
             battleType={battleType}
             rewards={battleRewards}
             expGained={100}
+            isStoryChain={isStoryChain} 
             onRetry={handleRetryBattle}
             onLeave={handleLeaveBattle}
-            onHome={nav.goHome} // [NEW] 홈으로 가기 핸들러 추가
+            onHome={nav.goHome} 
         />
       )}
     </>

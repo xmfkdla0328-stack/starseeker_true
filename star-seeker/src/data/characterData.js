@@ -7,7 +7,7 @@ export const ALL_CHARACTERS = [
     efficiency: 1.1, star: 5,
     image: "/images/characters/mainImage/sujumok_manage.png",
     // [New] 리스트용 얼굴 아이콘
-    listImage: "/images/characters/mainImage/sujumokList.png",
+    listImage: "/images/characters/mainImage/list/sujumokList.png",
     skills: ['요리', '채집', '관찰'],
     combatSkills: {
         normal: { name: "강타", desc: "방어력의 100% 위력으로 단일 적을 공격합니다.", mult: 1.0 },
@@ -110,7 +110,7 @@ export const ALL_CHARACTERS = [
     efficiency: 0.8, star: 5,
     image: "/images/characters/mainImage/ekidna_manage.png",
     // [New] 리스트용 얼굴 아이콘
-    listImage: "/images/characters/mainImage/ekidnaList.png",
+    listImage: "/images/characters/mainImage/list/ekidnaList.png",
     skills: ['만능', '제조', '수호'],
     combatSkills: {
         normal: { name: "코드 입력: 7AD0N", desc: "공격력의 100% 위력으로 적을 공격합니다.", mult: 1.0 },

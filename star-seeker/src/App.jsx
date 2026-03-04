@@ -14,7 +14,6 @@ export default function App() {
   const [battleType, setBattleType] = useState('story'); 
   const [battleRewards, setBattleRewards] = useState([]);
   
-  // [NEW] 스토리 체인을 위해, 전투 후 넘어갈 다음 이벤트 ID를 기억합니다.
   const [nextEventId, setNextEventId] = useState(null);
 
   const handleContentSelect = (contentType) => {
@@ -35,12 +34,18 @@ export default function App() {
 
       setCurrentEnemyId(enemyId);
       setBattleType(newBattleType);
-      setNextEventId(null); // 채굴은 다음 스토리가 없으므로 null
+      setNextEventId(null); 
       nav.goBattle();
   };
 
   const handleAutoMiningEntry = () => {
     nav.goResult('auto_mining'); 
+  };
+
+  // [NEW] 사건의 지평선(인과의 나무)에서 노드를 클릭했을 때 스토리를 시작하는 함수
+  const handleStartStoryEvent = (eventId) => {
+      setNextEventId(eventId); 
+      nav.goEvent();           
   };
 
   const onGameEnd = useCallback((result) => {
@@ -83,19 +88,23 @@ export default function App() {
           setBattleRewards([]); 
       }
       
+      // 스토리 모드 클리어 시 진행도 저장
+      if (result === 'win' && battleType === 'story' && nextEventId) {
+          data.completeStoryNode && data.completeStoryNode(nextEventId);
+      }
+      
       nav.goResult(result);
-  }, [nav, battleType, data]);
+  }, [nav, battleType, data, nextEventId]);
 
   const handleEventComplete = (nextAction) => {
     if (typeof nextAction === 'string' && nextAction.startsWith('battle:')) {
-        // nextAction 분해: 'battle:보스ID:다음스토리ID'
         const parts = nextAction.split(':');
         const enemyId = parts[1];
-        const nextEvtId = parts[2] || null; // 3번째 값이 있으면 저장, 없으면 null
+        const nextEvtId = parts[2] || null; 
 
         setCurrentEnemyId(enemyId);
         setBattleType('story'); 
-        setNextEventId(nextEvtId); // [NEW] 상태에 저장
+        setNextEventId(nextEvtId); 
         nav.goBattle(); 
     } else {
         nav.goBattle(); 
@@ -106,11 +115,9 @@ export default function App() {
       nav.goBattle();
   };
 
-  // [Fix] 전투 후 나가기(또는 다음 스토리로) 핸들러
   const handleLeaveBattle = () => {
       if (battleType === 'story' && nextEventId) {
-          // 다음 이벤트가 지정되어 있다면, 이벤트 화면으로 이동시킴
-          nav.goEvent(nextEventId); // (참고: GameRouter에서 activeEventId를 받도록 프롭스를 하나 더 뚫어줘야 할 수 있지만, 지금은 기본 goEvent 호출)
+          nav.goEvent(); 
       } 
       else if (battleType.startsWith('mining')) {
           nav.goDirectMiningSelect(); 
@@ -125,12 +132,11 @@ export default function App() {
     [data.partyList, data.roster]
   );
 
-  // [NEW] isStoryChain 플래그를 오버레이에 전달하기 위해 battleState에 추가
   const battleState = { 
       currentEnemyId, 
       battleType, 
       battleRewards,
-      isStoryChain: !!nextEventId // 다음 스토리가 있는지 여부 (boolean)
+      isStoryChain: !!nextEventId 
   };
   
   const handlers = {
@@ -138,6 +144,7 @@ export default function App() {
       handleDirectMining,       
       handleStartMiningBattle,  
       handleAutoMiningEntry,
+      handleStartStoryEvent, // 핸들러 전달
       onGameEnd,
       handleEventComplete,
       handleRetryBattle,
@@ -158,8 +165,7 @@ export default function App() {
         battleState={battleState}
         handlers={handlers}
         initialParty={initialParty}
-        // [NEW] App에서 들고 있는 다음 스토리 ID를 라우터로 넘겨줌
-        activeEventId={nextEventId || 'prologue'} 
+        activeEventId={nextEventId || 'evt_prologue_start'} 
       />
     </div>
   );

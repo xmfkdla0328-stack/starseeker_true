@@ -7,9 +7,11 @@ export default function useGameNavigation() {
     goHome: () => setGameState('home'),
     goSelect: () => setGameState('select'),
     goStorySelect: () => setGameState('story_select'),
-    goMiningSelect: () => setGameState('mining_select'),
     
-    // [New] 직접 채굴 단계 선택 화면으로 이동
+    // [NEW] 스토리(인과의 나무) 노드 선택 화면으로 이동하는 길 추가!
+    goStoryNodeSelect: () => setGameState('story_node_select'), 
+
+    goMiningSelect: () => setGameState('mining_select'),
     goDirectMiningSelect: () => setGameState('mining_stage_select'),
 
     goParty: () => setGameState('party'),
