@@ -1,14 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlertTriangle, Zap } from 'lucide-react';
 import { ENEMY_CAUSALITY_TRIGGER } from '../../data/gameData';
 
 export default function BattleEnemyZone({ enemy, enemyWarning, showStatus = true }) {
+  const [introWarning, setIntroWarning] = useState(false);
+  const [circleActive, setCircleActive] = useState(false);
+
+  useEffect(() => {
+    if (enemy && enemy.image) {
+      const t1 = setTimeout(() => setIntroWarning(true), 500);
+      const t2 = setTimeout(() => {
+        setIntroWarning(false);
+        setCircleActive(true);
+      }, 2000);
+      return () => { clearTimeout(t1); clearTimeout(t2); };
+    } else {
+      setCircleActive(true);
+    }
+  }, [enemy]);
+
   if (!enemy) return null;
+
+  const isBreakout = showStatus && enemy.image;
 
   return (
     <div className="relative flex-1 flex flex-col items-center justify-center gap-4 p-4 z-10 overflow-hidden">
       
-      {/* 1. 몹 이름 및 hp 표기 */}
+      {/* 1. 몹 이름 및 hp 표기 (최상단 레이어) */}
       <div className={`w-4/5 max-w-md z-10 transition-opacity duration-1000 ${showStatus ? 'opacity-100' : 'opacity-0'}`}>
         <div className="flex justify-between items-end border-b border-white/20 pb-1">
           <div className="flex flex-col">
@@ -22,27 +40,49 @@ export default function BattleEnemyZone({ enemy, enemyWarning, showStatus = true
         </div>
       </div>
 
-      {/* 2. 적 이미지 */}
-      <div className={`relative z-0 transition-all duration-500 ${enemy.hp <= 0 ? 'opacity-0 scale-95 blur-sm' : 'opacity-100 scale-100'}`}>
-         <div 
-            // [New] 적 데미지 텍스트 위치 타겟 ID
-            id="enemy-target-main"
-            className="relative w-48 h-48 flex items-center justify-center"
-         >
-            {/* Aura Effect */}
-            <div className={`absolute inset-0 bg-rose-500/20 blur-3xl rounded-full animate-pulse ${enemyWarning ? 'bg-fuchsia-500/40' : ''}`} />
+      {/* 2. 원형 감옥 이펙트 (배경 레이어 z-0) */}
+      <div className={`relative w-full flex items-center justify-center transition-all duration-500 z-0 ${enemy.hp <= 0 ? 'opacity-0 scale-95 blur-sm' : 'opacity-100 scale-100'} ${circleActive ? 'opacity-100' : 'opacity-0'}`}>
+         <div id="enemy-target-main" className="relative w-64 h-64 flex items-center justify-center mt-4">
+            {/* 후광 효과 (Aura) */}
+            <div className={`absolute inset-8 bg-rose-500/20 blur-3xl rounded-full animate-pulse ${enemyWarning ? 'bg-fuchsia-500/40' : ''}`} />
             
-            {/* Main Enemy Circle */}
-            <div className={`w-32 h-32 rounded-full border-2 ${enemyWarning ? 'border-fuchsia-500 shadow-[0_0_30px_rgba(232,121,249,0.6)]' : 'border-rose-500 shadow-[0_0_20px_rgba(244,63,94,0.4)]'} bg-black/40 backdrop-blur-sm flex items-center justify-center overflow-hidden`}>
-               <div className={`w-full h-full bg-gradient-to-b ${enemyWarning ? 'from-fuchsia-900/80 to-black' : 'from-rose-900/80 to-black'} opacity-80`} />
-               <span className="absolute text-4xl select-none grayscale opacity-80">👾</span>
+            {/* 원형 감옥 */}
+            <div className={`absolute inset-10 rounded-full border-2 bg-black/40 backdrop-blur-sm flex items-center justify-center overflow-hidden z-10 transition-all duration-700
+                ${isBreakout ? 'border-transparent bg-transparent shadow-none scale-125 opacity-0' : (enemyWarning ? 'border-fuchsia-500 shadow-[0_0_30px_rgba(232,121,249,0.6)]' : 'border-rose-500 shadow-[0_0_20px_rgba(244,63,94,0.4)]')}
+            `}>
+               <div className={`absolute inset-0 bg-gradient-to-b ${enemyWarning ? 'from-fuchsia-900/80' : 'from-rose-900/80'} to-black opacity-60 z-0`} />
+               
+               {/* 이미지가 있을 경우 원형 안에 갇힌 모습, 없으면 도트 출력 */}
+               {enemy.image ? (
+                   <img 
+                      src={enemy.image} 
+                      alt="갇힌 보스" 
+                      className={`absolute z-10 w-full h-full object-cover transition-opacity duration-300 ${isBreakout ? 'opacity-0' : 'opacity-100'}`} 
+                   />
+               ) : (
+                   <span className="absolute text-5xl select-none grayscale opacity-80 z-10">👾</span>
+               )}
             </div>
          </div>
       </div>
 
-      {/* 3. 게이지 바 */}
-      <div className={`relative z-10 w-4/5 max-w-md space-y-2 backdrop-blur-sm bg-slate-900/30 p-3 rounded-lg border border-white/5 transition-opacity duration-1000 ${showStatus ? 'opacity-100' : 'opacity-0'}`}>
-        
+      {/* [NEW] 거대 보스 이미지 레이어 (원형을 벗어나 화면 최하단에 닻을 내림!) */}
+      {enemy.image && (
+          <div className="absolute inset-x-0 bottom-0 top-12 pointer-events-none flex items-end justify-center z-[5]">
+              <img 
+                  src={enemy.image} 
+                  alt={enemy.name} 
+                  // object-bottom: 이미지의 최하단을 컨테이너 바닥에 완벽히 밀착시킵니다.
+                  // w-[140%]: 가로로 더 넓게 퍼지도록 크기를 키웁니다.
+                  className={`w-[140%] max-h-full object-contain object-bottom drop-shadow-[0_0_30px_rgba(244,63,94,0.6)] transition-all duration-1000 ease-out origin-bottom
+                      ${isBreakout ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-75 translate-y-10'}
+                  `}
+              />
+          </div>
+      )}
+
+      {/* 3. 게이지 바 (게이지가 보스 이미지의 앞쪽으로 오도록 z-10) */}
+      <div className={`relative z-10 w-4/5 max-w-md space-y-2 backdrop-blur-sm bg-slate-900/50 p-3 rounded-lg border border-white/5 transition-opacity duration-1000 ${showStatus ? 'opacity-100' : 'opacity-0'} mt-2`}>
         {/* HP Bar */}
         <div className="w-full h-1.5 bg-slate-800/80 rounded-full overflow-hidden mb-1">
           <div className="h-full bg-gradient-to-r from-rose-600 via-rose-500 to-rose-400 transition-all duration-300 shadow-[0_0_10px_rgba(244,63,94,0.5)]" style={{ width: `${(enemy.hp / enemy.maxHp) * 100}%` }} />
@@ -51,14 +91,11 @@ export default function BattleEnemyZone({ enemy, enemyWarning, showStatus = true
         <div className="flex items-center gap-3">
           {/* Ult Gauge */}
           <div className="flex-[2] flex flex-col gap-0.5">
-             <span className="text-[9px] text-amber-500 font-mono flex items-center gap-1">
-                <Zap size={8} /> SKILL CHARGE
-             </span>
+             <span className="text-[9px] text-amber-500 font-mono flex items-center gap-1"><Zap size={8} /> SKILL CHARGE</span>
              <div className="w-full h-1 bg-slate-800/80 rounded-full overflow-hidden">
                 <div className="h-full bg-amber-500 transition-all duration-300" style={{ width: `${(enemy.ultGauge / enemy.maxUltGauge) * 100}%` }} />
              </div>
           </div>
-
           {/* Causality Gauge */}
           <div className="flex-[1] flex flex-col gap-0.5">
              <span className="text-[9px] text-fuchsia-500 font-mono text-right">CAUSALITY</span>
@@ -69,12 +106,14 @@ export default function BattleEnemyZone({ enemy, enemyWarning, showStatus = true
         </div>
       </div>
 
-      {/* 경고 오버레이 */}
-      {enemyWarning && (
-        <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none animate-pulse-fast bg-fuchsia-900/10">
-          <div className="bg-black/80 border border-fuchsia-500/50 px-6 py-3 rounded-sm flex items-center gap-3 backdrop-blur-md">
-            <AlertTriangle className="text-fuchsia-500" size={24} />
-            <span className="text-fuchsia-200 font-bold tracking-[0.2em] text-sm">WARNING: HIGH CAUSALITY</span>
+      {/* 특수 경고창 */}
+      {(introWarning || enemyWarning) && (
+        <div className={`absolute inset-0 flex items-center justify-center z-50 pointer-events-none ${introWarning ? 'bg-red-900/30 backdrop-blur-sm animate-pulse' : 'bg-fuchsia-900/10 animate-pulse-fast'}`}>
+          <div className={`bg-black/80 border px-6 py-4 rounded-sm flex items-center gap-4 backdrop-blur-md shadow-2xl ${enemyWarning ? 'border-fuchsia-500/50' : 'border-red-500'}`}>
+            <AlertTriangle className={enemyWarning ? 'text-fuchsia-500' : 'text-red-500'} size={32} />
+            <span className={`${enemyWarning ? 'text-fuchsia-200' : 'text-red-200'} font-black tracking-[0.2em] text-lg`}>
+              {introWarning ? "WARNING: UNKNOWN ENTITY" : "WARNING: HIGH CAUSALITY"}
+            </span>
           </div>
         </div>
       )}

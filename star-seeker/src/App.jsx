@@ -42,7 +42,6 @@ export default function App() {
     nav.goResult('auto_mining'); 
   };
 
-  // [NEW] 사건의 지평선(인과의 나무)에서 노드를 클릭했을 때 스토리를 시작하는 함수
   const handleStartStoryEvent = (eventId) => {
       setNextEventId(eventId); 
       nav.goEvent();           
@@ -88,7 +87,6 @@ export default function App() {
           setBattleRewards([]); 
       }
       
-      // 스토리 모드 클리어 시 진행도 저장
       if (result === 'win' && battleType === 'story' && nextEventId) {
           data.completeStoryNode && data.completeStoryNode(nextEventId);
       }
@@ -96,18 +94,28 @@ export default function App() {
       nav.goResult(result);
   }, [nav, battleType, data, nextEventId]);
 
+  // [Fix] 스토리가 끝났을 때의 네비게이션을 똑똑하게 분기 처리합니다.
   const handleEventComplete = (nextAction) => {
-    if (typeof nextAction === 'string' && nextAction.startsWith('battle:')) {
-        const parts = nextAction.split(':');
-        const enemyId = parts[1];
-        const nextEvtId = parts[2] || null; 
+    if (typeof nextAction === 'string') {
+        if (nextAction.startsWith('battle:')) {
+            const parts = nextAction.split(':');
+            const enemyId = parts[1];
+            const nextEvtId = parts[2] || null; 
 
-        setCurrentEnemyId(enemyId);
-        setBattleType('story'); 
-        setNextEventId(nextEvtId); 
-        nav.goBattle(); 
+            setCurrentEnemyId(enemyId);
+            setBattleType('story'); 
+            setNextEventId(nextEvtId); 
+            nav.goBattle(); 
+        } 
+        else if (nextAction === 'story_node_select') {
+            // [핵심] 꼬리표가 'story_node_select'이면 사건의 지평선(인과의 나무)으로 보냄!
+            nav.goStoryNodeSelect(); 
+        } 
+        else {
+            nav.goHome(); // 그 외 알 수 없는 명령어는 안전하게 홈으로
+        }
     } else {
-        nav.goBattle(); 
+        nav.goHome(); // 꼬리표가 아예 없어도 안전하게 홈으로
     }
   };
 
@@ -144,9 +152,9 @@ export default function App() {
       handleDirectMining,       
       handleStartMiningBattle,  
       handleAutoMiningEntry,
-      handleStartStoryEvent, // 핸들러 전달
+      handleStartStoryEvent, 
       onGameEnd,
-      handleEventComplete,
+      handleEventComplete, // 수정한 핸들러 적용
       handleRetryBattle,
       handleLeaveBattle
   };
