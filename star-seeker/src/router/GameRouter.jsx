@@ -4,7 +4,6 @@ import React from 'react';
 import HomeScreen from '../components/HomeScreen';
 import SelectScreen from '../components/SelectScreen';
 import StorySelectScreen from '../components/StorySelectScreen';
-// [NEW] 스토리 노드 선택 화면 (사건의 지평선) 임포트
 import StoryNodeScreen from '../components/StoryNodeScreen'; 
 import EventScreen from '../components/EventScreen';
 import BattleScreen from '../screens/BattleScreen'; 
@@ -51,15 +50,15 @@ export default function GameRouter({
             onRecord={nav.goGuide}
             onGacha={nav.goGacha}
             inventory={data.inventory}
+            // [Fix] 드디어 홈 화면에 진짜 유저 레벨과 경험치 데이터를 꽂아줍니다!
+            levelInfo={data.levelInfo} 
         />
       )}
 
       {nav.gameState === 'select' && <SelectScreen onSelectContent={handleContentSelect} onBack={nav.goHome} />}
       
-      {/* [Fix] 관측 시작 버튼을 누르면 '사건의 지평선' 화면으로 넘어가도록 nav.goStoryNodeSelect 연결 */}
       {nav.gameState === 'story_select' && <StorySelectScreen onSelectChapter={nav.goStoryNodeSelect} onBack={nav.goSelect} />}
       
-      {/* [NEW] 사건의 지평선 (인과의 나무) 화면 라우팅 추가 */}
       {nav.gameState === 'story_node_select' && (
         <StoryNodeScreen 
             clearedNodes={data.clearedNodes} 
@@ -157,7 +156,8 @@ export default function GameRouter({
             result={nav.gameState}
             battleType={battleType}
             rewards={battleRewards}
-            expGained={100}
+            // [참고] 여기 expGained는 나중에 전투 결과창 연출용으로 쓸 수 있습니다. 일단 100(고정)으로 두셔도 무방합니다.
+            expGained={50} 
             isStoryChain={isStoryChain} 
             onRetry={handleRetryBattle}
             onLeave={handleLeaveBattle}

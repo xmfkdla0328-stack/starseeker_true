@@ -1,13 +1,15 @@
 import { useState, useCallback } from 'react';
-import { INITIAL_USER_STATS } from '../../data/gameData'; 
+import { INITIAL_USER_STATS, getRequiredExp } from '../../data/gameData'; 
 
 export default function usePlayer() {
   const [userStats, setUserStats] = useState(INITIAL_USER_STATS);
   const [hpMultiplier, setHpMultiplier] = useState(1.0);
   const [collectedKeywords, setCollectedKeywords] = useState([]);
   
-  // [NEW] 유저가 클리어한 스토리 노드 ID를 추적합니다. (기본으로 시작점 제공)
-  const [clearedNodes, setClearedNodes] = useState(['node_start']);
+  // [Fix] 초기 상태를 완전히 비워진 배열로 수정합니다! (아무것도 클리어하지 않은 태초의 상태)
+  const [clearedNodes, setClearedNodes] = useState([]);
+
+  const [levelInfo, setLevelInfo] = useState({ level: 1, exp: 0 });
 
   const unlockKeyword = useCallback((keywordId) => {
     setCollectedKeywords(prev => {
@@ -21,7 +23,6 @@ export default function usePlayer() {
     else if (type === 'stat') setUserStats(prev => ({ ...prev, [stat]: prev[stat] + value }));
   }, []);
 
-  // [NEW] 전투나 스토리가 끝났을 때 해당 노드를 '클리어 처리'하는 함수
   const completeStoryNode = useCallback((nodeId) => {
     setClearedNodes(prev => {
       if (prev.includes(nodeId)) return prev;
@@ -29,13 +30,32 @@ export default function usePlayer() {
     });
   }, []);
 
+  const addExp = useCallback((amount) => {
+    setLevelInfo(prev => {
+        let newExp = prev.exp + amount;
+        let newLevel = prev.level;
+        let required = getRequiredExp(newLevel);
+
+        while (newExp >= required) {
+            newExp -= required;
+            newLevel += 1;
+            required = getRequiredExp(newLevel);
+            console.log(`[LEVEL UP!] 현재 레벨: ${newLevel}`); 
+        }
+
+        return { level: newLevel, exp: newExp };
+    });
+  }, []);
+
   return {
     userStats,
     hpMultiplier,
     collectedKeywords,
-    clearedNodes,       // [NEW] 내보내기
+    clearedNodes,       
+    levelInfo,        
     unlockKeyword,
     updateOption,
-    completeStoryNode   // [NEW] 내보내기
+    completeStoryNode,  
+    addExp            
   };
 }

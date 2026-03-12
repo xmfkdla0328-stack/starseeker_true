@@ -15,6 +15,9 @@ export default function App() {
   const [battleRewards, setBattleRewards] = useState([]);
   
   const [nextEventId, setNextEventId] = useState(null);
+  
+  // [NEW] 지금 유저가 진입한 진짜 노드 ID (예: 'node_start')를 기억해둡니다.
+  const [currentNodeId, setCurrentNodeId] = useState(null); 
 
   const handleContentSelect = (contentType) => {
     if (contentType === 'story') nav.goStorySelect();
@@ -42,13 +45,17 @@ export default function App() {
     nav.goResult('auto_mining'); 
   };
 
-  const handleStartStoryEvent = (eventId) => {
+  // [Fix] 노드 ID도 같이 받아서 기억해둡니다.
+  const handleStartStoryEvent = (eventId, nodeId) => {
       setNextEventId(eventId); 
+      if (nodeId) setCurrentNodeId(nodeId); 
       nav.goEvent();           
   };
 
   const onGameEnd = useCallback((result) => {
       if (result === 'win') {
+          if (data.addExp) data.addExp(50);
+
           if (battleType === 'mining_chip') {
               const rewardAmount = Math.floor(Math.random() * 2) + 4; 
               data.addResource('chip_basic', rewardAmount);
@@ -87,15 +94,14 @@ export default function App() {
           setBattleRewards([]); 
       }
       
-      if (result === 'win' && battleType === 'story' && nextEventId) {
-          data.completeStoryNode && data.completeStoryNode(nextEventId);
-      }
+      // [Fix] 전투 직후에 엉뚱한 ID를 클리어 기록에 넣던 버그 로직을 삭제했습니다!
       
       nav.goResult(result);
   }, [nav, battleType, data, nextEventId]);
 
-  // [Fix] 스토리가 끝났을 때의 네비게이션을 똑똑하게 분기 처리합니다.
   const handleEventComplete = (nextAction) => {
+    if (data.addExp) data.addExp(20);
+
     if (typeof nextAction === 'string') {
         if (nextAction.startsWith('battle:')) {
             const parts = nextAction.split(':');
@@ -108,14 +114,20 @@ export default function App() {
             nav.goBattle(); 
         } 
         else if (nextAction === 'story_node_select') {
-            // [핵심] 꼬리표가 'story_node_select'이면 사건의 지평선(인과의 나무)으로 보냄!
+            // [Fix] 스토리가 완전히 끝났을 때! 우리가 진입했던 진짜 노드 ID에 도장을 찍습니다.
+            if (currentNodeId && data.completeStoryNode) {
+                data.completeStoryNode(currentNodeId);
+            }
             nav.goStoryNodeSelect(); 
         } 
         else {
-            nav.goHome(); // 그 외 알 수 없는 명령어는 안전하게 홈으로
+            nav.goHome(); 
         }
     } else {
-        nav.goHome(); // 꼬리표가 아예 없어도 안전하게 홈으로
+        if (currentNodeId && data.completeStoryNode) {
+            data.completeStoryNode(currentNodeId);
+        }
+        nav.goHome(); 
     }
   };
 
@@ -154,7 +166,7 @@ export default function App() {
       handleAutoMiningEntry,
       handleStartStoryEvent, 
       onGameEnd,
-      handleEventComplete, // 수정한 핸들러 적용
+      handleEventComplete, 
       handleRetryBattle,
       handleLeaveBattle
   };

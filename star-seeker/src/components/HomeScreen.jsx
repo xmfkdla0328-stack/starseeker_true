@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Play, Users, Settings, Database, BookOpen, Sparkles } from 'lucide-react';
 
-export default function HomeScreen({ onStart, onParty, onManage, onStorage, onRecord, onGacha, inventory }) {
+// [Fix] 프롭스(Props)에 방금 만든 levelInfo를 추가로 받아옵니다!
+export default function HomeScreen({ onStart, onParty, onManage, onStorage, onRecord, onGacha, inventory, levelInfo }) {
   const [touchStart, setTouchStart] = useState(null);
   
-  // [New] 자원 갯수 찾기 (데이터가 없으면 0으로 표시)
-  // 1. 데이터 보강칩 (노란색/칩)
   const chipCount = inventory?.find(i => i.id === 'chip_basic')?.count || 0;
-  // 2. 인과석 (파란색/스톤)
   const stoneCount = inventory?.find(i => i.id === 'causality_stone')?.count || 0;
 
-  // 파티클 효과용 상태
   const [particles, setParticles] = useState([]);
 
   useEffect(() => {
@@ -39,6 +36,10 @@ export default function HomeScreen({ onStart, onParty, onManage, onStorage, onRe
     return () => clearInterval(interval);
   }, []);
 
+  // [NEW] 데이터가 아직 안 넘어왔을 때를 대비한 안전 장치 (기본값 Lv.1 / EXP 0)
+  const currentLevel = levelInfo?.level || 1;
+  const currentExp = levelInfo?.exp || 0;
+
   return (
     <div className="flex flex-col h-full relative overflow-hidden bg-[#0f172a] text-slate-100 animate-fade-in">
       
@@ -66,17 +67,18 @@ export default function HomeScreen({ onStart, onParty, onManage, onStorage, onRe
            </div>
            <div className="flex flex-col">
              <span className="text-sm font-bold text-slate-100 tracking-wider">PLAYER</span>
-             <span className="text-[10px] text-cyan-400 font-mono">Lv. 5 / RANK D</span>
+             {/* [Fix] 더미 데이터를 지우고 실제 레벨과 경험치(EXP)를 출력합니다! */}
+             <span className="text-[10px] text-cyan-400 font-mono tracking-widest">
+                LV.{currentLevel} <span className="text-slate-500 mx-1">|</span> EXP {currentExp}
+             </span>
            </div>
         </div>
 
         <div className="flex gap-2">
-            {/* 데이터 보강칩 (노란색) */}
             <div className="px-3 py-1 bg-black/40 border border-white/5 rounded-full text-xs font-mono text-amber-300 flex items-center gap-1">
                 <div className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_5px_rgba(251,191,36,0.8)]"></div>
                 {chipCount.toLocaleString()}
             </div>
-            {/* 인과석 (파란색) */}
             <div className="px-3 py-1 bg-black/40 border border-white/5 rounded-full text-xs font-mono text-cyan-300 flex items-center gap-1">
                 <div className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_5px_rgba(34,211,238,0.8)]"></div>
                 {stoneCount.toLocaleString()}
@@ -114,7 +116,6 @@ export default function HomeScreen({ onStart, onParty, onManage, onStorage, onRe
            <MenuButton icon={BookOpen} label="ARCHIVE" onClick={onRecord} color="text-rose-400" />
         </div>
         
-        {/* 가챠 버튼 추가 */}
         <button 
             onClick={onGacha}
             className="w-full py-3 mt-2 bg-gradient-to-r from-violet-900/50 to-fuchsia-900/50 border border-fuchsia-500/30 hover:border-fuchsia-400 rounded-lg flex items-center justify-center gap-2 group transition-all"

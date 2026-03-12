@@ -14,6 +14,11 @@ export const INITIAL_USER_STATS = {
   hp: 100, atk: 15, def: 5, spd: 10
 };
 
+// [NEW] 레벨업에 필요한 경험치 요구량 계산 공식 (예: 현재 레벨 * 100)
+export const getRequiredExp = (currentLevel) => {
+    return currentLevel * 100; 
+};
+
 // --- 전체 아이템 데이터베이스 ---
 export const ALL_ITEMS = {
   'chip_basic': {

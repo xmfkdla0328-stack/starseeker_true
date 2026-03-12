@@ -12,7 +12,13 @@ export default function useGameData() {
   } = useInventory();
   
   const { roster, partyList, setRoster, setPartyList, enhanceCharacter, equipItem, unequipItem } = useRoster();
-  const { userStats, hpMultiplier, collectedKeywords, unlockKeyword, updateOption } = usePlayer();
+  
+  // [Fix] levelInfo, addExp, 그리고 누락되었던 clearedNodes와 completeStoryNode를 제대로 받아옵니다!
+  const { 
+    userStats, hpMultiplier, collectedKeywords, clearedNodes, levelInfo, 
+    unlockKeyword, updateOption, completeStoryNode, addExp 
+  } = usePlayer();
+  
   const { miningState, handleAssignMiner, handleRemoveMiner, handleCollectReward } = useMining(setInventory);
 
   // [Core Logic] 최종 스탯 계산 함수 (기본 + 강화 + 장비)
@@ -20,7 +26,6 @@ export default function useGameData() {
     const char = roster.find(c => c.id === charId);
     if (!char) return null;
 
-    // 1. [기본 스탯] + [노드 강화 스탯] 합산
     const baseStats = {
         hp: (char.hp || 0) + (char.baseHp || 0),
         atk: (char.atk || 0) + (char.baseAtk || 0),
@@ -30,7 +35,6 @@ export default function useGameData() {
         critDmg: (char.critDmg || 0)
     };
 
-    // 2. 장착된 장비 스탯 집계
     const items = char.equipped
         .map(id => equipmentList.find(e => e.id === id))
         .filter(Boolean);
@@ -38,16 +42,13 @@ export default function useGameData() {
     let percentBonuses = { hp: 0, atk: 0, def: 0 };
     let flatBonuses = { hp: 0, atk: 0, def: 0, speed: 0, critRate: 0, critDmg: 0 };
     
-    // [NEW] 기억 세공 효과 저장용 배열
     let addedMemorySkills = [];
     let activeMemoryEffects = [];
 
     items.forEach(item => {
-        // [NEW] 3번 슬롯(기억 세공) 데이터 처리
         if (item.memorySkill) addedMemorySkills.push(item.memorySkill);
         if (item.memoryEffect) activeMemoryEffects.push(item.memoryEffect);
 
-        // 기존 1, 2번 슬롯 스탯 배열화 (기억 세공은 mainStat이 없으므로 안전하게 방어 코드 작성)
         const allStats = [];
         if (item.mainStat) allStats.push(item.mainStat);
         if (item.subStats) allStats.push(...item.subStats);
@@ -68,7 +69,6 @@ export default function useGameData() {
         });
     });
 
-    // 3. 최종 계산: (순수 스펙 * 퍼센트 보너스) + 장비 깡스탯
     const finalStats = {
         hp: Math.floor(baseStats.hp * (1 + percentBonuses.hp / 100) + flatBonuses.hp),
         atk: Math.floor(baseStats.atk * (1 + percentBonuses.atk / 100) + flatBonuses.atk),
@@ -78,18 +78,16 @@ export default function useGameData() {
         critDmg: baseStats.critDmg + flatBonuses.critDmg
     };
 
-    // [NEW] 기본 스킬 배열에 장비로 얻은 스킬을 합치고, 중복된 스킬은 하나로 합침(Set 활용)
     const combinedSkills = Array.from(new Set([...(char.skills || []), ...addedMemorySkills]));
 
     return { 
         ...char, 
         ...finalStats, 
-        skills: combinedSkills,               // 업데이트된 스토리 스킬 배열
-        memoryEffects: activeMemoryEffects    // 전투 로직에서 읽어갈 버프 배열
+        skills: combinedSkills,               
+        memoryEffects: activeMemoryEffects    
     };
   }, [roster, equipmentList]);
 
-  // 장비 장착 핸들러
   const handleEquip = (charId, slotIndex, item) => {
     const char = roster.find(c => c.id === charId);
     if (!char) return;
@@ -103,7 +101,6 @@ export default function useGameData() {
     equipItem(charId, slotIndex, item.id);
   };
 
-  // 장비 해제 핸들러
   const handleUnequip = (charId, slotIndex) => {
     const char = roster.find(c => c.id === charId);
     if (!char) return;
@@ -115,7 +112,6 @@ export default function useGameData() {
     }
   };
 
-  // 노드 해금 핸들러
   const handleUnlockNode = (charId, nodeIndex, isMajor, nodeInfo) => {
     const costItem = isMajor ? 'core_essence' : 'chip_basic';
     const costAmount = isMajor ? 1 : 5; 
@@ -132,11 +128,15 @@ export default function useGameData() {
   return {
     userStats, hpMultiplier, inventory, roster, partyList, miningState, collectedKeywords,
     equipmentList, 
+    clearedNodes, // [Fix] 추가 완료
+    levelInfo,    // [NEW] 레벨 데이터 내보내기 완료
     setInventory, setRoster, setPartyList,
     handleUnlockNode, 
     handleOptionSelected: updateOption,
     handleAssignMiner, handleRemoveMiner, handleCollectReward,
     handleUnlockKeyword: unlockKeyword, 
+    completeStoryNode, // [Fix] 추가 완료
+    addExp,            // [NEW] 경험치 획득 함수 내보내기 완료
     addResource, consumeResource, 
     addEquipment, removeEquipment, addTestEquipments,
     handleEquip, handleUnequip, getFinalStats
