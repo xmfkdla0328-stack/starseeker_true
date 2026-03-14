@@ -4,7 +4,7 @@ import useBattle from '../hooks/battleLogic/useBattle';
 
 import BattleAllyZone from '../components/battle/BattleAllyZone';
 import BattleEnemyZone from '../components/battle/BattleEnemyZone';
-import BattleLogZone from '../components/battle/BattleLogZone';
+// [수정] BattleLogZone 임포트 삭제됨
 import BattleControlZone from '../components/battle/BattleControlZone';
 import BattleStartOverlay from '../components/battle/BattleStartOverlay';
 import BattleEffectLayer from '../components/battle/BattleEffectLayer';
@@ -26,7 +26,7 @@ const BattleScreenContainer = styled.div`
 `;
 
 const EnemyArea = styled.div`
-  flex: 2; 
+  flex: 1; /* [수정] 로그 영역이 사라진 만큼 빈 공간을 모두 차지하도록 flex: 1로 변경 */
   min-height: 0;
   overflow: hidden;
   &.intro-hidden { opacity: 0; }
@@ -39,13 +39,7 @@ const AllyArea = styled.div`
   opacity: ${props => props.$visible ? 1 : 0};
 `;
 
-const LogArea = styled.div`
-  flex: 1; 
-  min-height: 0; 
-  overflow-y: auto;
-  transition: opacity 1s ease-in-out;
-  opacity: ${props => props.$visible ? 1 : 0};
-`;
+// [수정] LogArea 스타일 컴포넌트 완전 삭제됨
 
 const ControlArea = styled.div`
   flex: 0 0 auto;
@@ -67,28 +61,21 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, enemyI
   const [isMuted, setIsMuted] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
 
-  // [수정] 인트로 시퀀스 자동화
   useEffect(() => {
-    // 1. 적 등장 (0.5초 후)
     const t1 = setTimeout(() => setIntroStep(1), 500);
-    
-    // 2. 오버레이(Start UI) 등장 (2초 후)
     const t2 = setTimeout(() => setIntroStep(2), 2000);
-
-    // 3. [New] 자동 시작 트리거 (오버레이가 뜨고 1.5초 뒤에 자동으로 시작)
     const t3 = setTimeout(() => {
         handleAutoStart(); 
-    }, 3500); // 2000ms(오버레이 등장) + 1500ms(대기)
+    }, 3500); 
 
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []);
 
-  // [수정] 버튼 클릭 대신 호출될 자동 시작 함수
   const handleAutoStart = () => {
-    setIntroStep(3); // 페이드 아웃 시작
+    setIntroStep(3); 
     setTimeout(() => {
-        setIntroStep(4); // UI 표시
-        startBattle();   // 전투 로직 시작
+        setIntroStep(4); 
+        startBattle();   
     }, 1000);
   };
 
@@ -143,9 +130,7 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, enemyI
         <BattleAllyZone allies={allies} />
       </AllyArea>
 
-      <LogArea $visible={introStep >= 3}>
-        <BattleLogZone logs={logs} />
-      </LogArea>
+      {/* [수정] 배틀 로그 영역(<LogArea>) 완전 삭제됨 */}
 
       <ControlArea $visible={introStep >= 3}>
         <BattleControlZone 
@@ -156,11 +141,8 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, enemyI
         />
       </ControlArea>
 
-      {/* 오버레이에 더 이상 버튼 핸들러를 넘길 필요가 없지만, 기존 props 호환성을 위해 둠 */}
       {(introStep === 2 || introStep === 3) && (
-          <BattleStartOverlay 
-            fading={introStep === 3} 
-          />
+          <BattleStartOverlay fading={introStep === 3} />
       )}
     </BattleScreenContainer>
   );
