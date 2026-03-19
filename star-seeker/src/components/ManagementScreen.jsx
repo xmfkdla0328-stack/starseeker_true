@@ -128,17 +128,14 @@ export default function ManagementScreen({
   return (
     <div className="flex flex-col h-full bg-[#0f172a] text-white animate-fade-in overflow-hidden relative">
       
-      {/* 1. 공통 배경 효과 */}
       <ParticleBackground color="bg-cyan-600" />
 
-      {/* 2. Header */}
       <HeaderSection 
         onBack={onBack} 
         chipCount={chipCount} 
         coreCount={coreCount} 
       />
 
-      {/* 3. Character List (유리 패널 컨테이너) */}
       <div className="flex-none z-20 bg-slate-900/60 backdrop-blur border-b border-white/10">
         <CharacterList 
           roster={activeRoster} 
@@ -147,10 +144,8 @@ export default function ManagementScreen({
         />
       </div>
 
-      {/* 4. Tab Buttons */}
       <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* 5. Main Content Area */}
       <div className="flex-1 relative overflow-y-auto overflow-x-hidden scrollbar-hide z-10">
         <div className="p-4 pb-20 min-h-full"> 
             
@@ -160,29 +155,26 @@ export default function ManagementScreen({
                     {/* (Tab 1) Status & Equip */}
                     {activeTab === 'status' && (
                         <>
-                            {/* Portrait Card */}
-                            <div className="w-full max-w-sm mx-auto aspect-[3/4] rounded-2xl overflow-hidden border border-white/20 shadow-[0_0_30px_rgba(0,0,0,0.5)] relative group bg-slate-900/80">
-                                {/* 캐릭터 이미지 */}
+                            {/* [Fix] Portrait Card 크기 및 모양 변경: w-56(작게) + aspect-square(정사각형) */}
+                            <div className="w-56 mx-auto aspect-square rounded-2xl overflow-hidden border border-white/20 shadow-[0_0_30px_rgba(0,0,0,0.5)] relative group bg-slate-900/80 mb-2 mt-4">
+                                
                                 <img 
                                     src={selectedChar.image} 
                                     alt={selectedChar.name} 
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                     onError={(e) => e.target.style.display = 'none'} 
                                 />
-                                {/* 하단 그라데이션 및 정보 */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-90"></div>
-                                <div className="absolute bottom-0 left-0 right-0 p-5">
-                                    <div className="flex items-end justify-between">
-                                        <div>
-                                            <div className="text-3xl font-black italic text-white tracking-tighter drop-shadow-xl">{selectedChar.name}</div>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <span className="px-2 py-0.5 rounded bg-cyan-900/60 border border-cyan-500/30 text-[10px] text-cyan-300 font-bold">
-                                                    {selectedChar.role}
-                                                </span>
-                                                {/* [Fix] 레벨(Lv) 표시 삭제 완료 */}
-                                            </div>
-                                        </div>
-                                        <div className="text-amber-400">
+                                
+                                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/20 to-transparent opacity-90"></div>
+                                
+                                {/* [Fix] 텍스트 크기를 줄이고 가운데 정렬로 예쁘게 배치했습니다 */}
+                                <div className="absolute bottom-0 left-0 right-0 p-3 flex flex-col items-center justify-end">
+                                    <div className="text-2xl font-black italic text-white tracking-tighter drop-shadow-xl">{selectedChar.name}</div>
+                                    <div className="flex items-center justify-center gap-2 mt-1">
+                                        <span className="px-2 py-0.5 rounded bg-cyan-900/60 border border-cyan-500/30 text-[10px] text-cyan-300 font-bold shadow-md">
+                                            {selectedChar.role}
+                                        </span>
+                                        <div className="text-amber-400 text-[10px] drop-shadow-md">
                                             {'★'.repeat(selectedChar.star)}
                                         </div>
                                     </div>

@@ -10,16 +10,15 @@ export function executeUltimateSkill(ally, skill, { finalAtk, finalCritMultiplie
   let alliesToHeal = []; 
   let logSuffix = isCrit ? ' (CRIT!)' : '';
 
-  // [NEW] 기억 세공: 치료 효율 개선 10% 증가 계수
   const healMultiplier = hasHealUp ? 1.1 : 1.0;
 
-  // [서주목] 방어력 계수 + 받피감(20%)
+  // [서주목]
   if (ally.id === 1) {
     damageDealt = Math.floor(ally.def * skill.mult * finalCritMultiplier);
     setBuffs(b => ({ ...b, damageReduction: { active: true, val: skill.buffVal || 0.2, timeLeft: 10000 } }));
     addLog(`✨ [${ally.name}] ${skill.name}!${logSuffix} (DMG: ${damageDealt})`, 'ally_ult');
   }
-  // [시에] 치명타 피해 증가 버프 후 공격
+  // [시에]
   else if (ally.id === 2) {
     newSelfBuffs = { ...ally.selfBuffs, critDmgUp: skill.buffVal || 0.4, buffTime: 10000 };
     const boostedCritMult = 1 + (skill.buffVal || 0.4);
@@ -28,35 +27,41 @@ export function executeUltimateSkill(ally, skill, { finalAtk, finalCritMultiplie
     damageDealt = Math.floor(finalAtk * skill.mult * currentCritMultiplier);
     addLog(`✨ [${ally.name}] ${skill.name}! (치명피해 증가) (DMG: ${damageDealt})`, 'ally_ult');
   }
-  // [아다드] 전체 회복 + 도트힐
+  // [아다드] 전체 회복 + 개인 턴 기반 도트힐
   else if (ally.id === 4) {
-    // [Mod] 힐량 계수 적용
     const healAmount = Math.floor(finalAtk * skill.mult * finalCritMultiplier * healMultiplier);
-    alliesToHeal = (list) => list.map(a => ({ ...a, hp: Math.min(a.maxHp, a.hp + healAmount) }));
-    setBuffs(b => ({ ...b, regen: { active: true, val: skill.dotMult || 0.3, timeLeft: 10000 } }));
-    addLog(`✨ [${ally.name}] ${skill.name}! (전체 치유: ${healAmount})`, 'ally_ult');
+    
+    // [Fix] 0.5라는 수치가 아니라, 아다드의 공격력 기반으로 실제 도트힐 량을 계산합니다!
+    const dotAmount = Math.floor(finalAtk * (skill.dotMult || 0.5) * healMultiplier);
+
+    // [Fix] 전역 버프 대신, 각 아군의 개인 버프(selfBuffs)에 2턴짜리 'hot(지속회복)'를 심어줍니다.
+    alliesToHeal = (list) => list.map(a => ({ 
+        ...a, 
+        hp: Math.min(a.maxHp, a.hp + healAmount),
+        selfBuffs: {
+            ...(a.selfBuffs || {}),
+            hot: { amount: dotAmount, turns: 2 } // 2턴 동안 유지
+        }
+    }));
+    
+    addLog(`✨ [${ally.name}] ${skill.name}! (전체 치유: ${healAmount}, 지속 치유: 매턴 ${dotAmount})`, 'ally_ult');
   }
-  // [람만] 전체 공격 + 전체 회복
+  // [람만]
   else if (ally.id === 5) {
     damageDealt = Math.floor(finalAtk * skill.mult * finalCritMultiplier);
-    // [Mod] 힐량 계수 적용
     const healAmount = Math.floor(finalAtk * (skill.healMult || 2.0) * healMultiplier);
     alliesToHeal = (list) => list.map(a => ({ ...a, hp: Math.min(a.maxHp, a.hp + healAmount) }));
     addLog(`✨ [${ally.name}] ${skill.name}! (공격 ${damageDealt} + 치유 ${healAmount})`, 'ally_ult');
   }
-  // [천백] 자가 공증(20%) + 공격
+  // [천백]
   else if (ally.id === 6) {
-    // 1. 공격력 증가 버프 적용 (기본 20% 혹은 설정값)
     const buffVal = skill.buffVal || 0.2;
-    newSelfBuffs = { ...ally.selfBuffs, atkUp: buffVal, buffTime: 10000 }; // 10초 지속
-    
-    // 2. 증가된 공격력으로 즉시 데미지 계산
+    newSelfBuffs = { ...ally.selfBuffs, atkUp: buffVal, buffTime: 10000 }; 
     const enhancedAtk = finalAtk * (1 + buffVal);
     damageDealt = Math.floor(enhancedAtk * skill.mult * finalCritMultiplier);
-    
     addLog(`✨ [${ally.name}] ${skill.name}! (공격력 증가) (DMG: ${damageDealt})`, 'ally_ult');
   }
-  // [기본 로직] 단순 데미지 (성시하, 에키드나 등)
+  // [기본 로직]
   else {
     damageDealt = Math.floor(finalAtk * skill.mult * finalCritMultiplier);
     addLog(`✨ [${ally.name}] ${skill.name}!${logSuffix} (DMG: ${damageDealt})`, 'ally_ult');
@@ -71,10 +76,9 @@ export function executeNormalSkill(ally, skill, { finalAtk, finalCritMultiplier,
   let alliesToModify = null; 
   let logSuffix = isCrit ? ' (CRIT!)' : '';
 
-  // [NEW] 기억 세공: 치료 효율 개선 10% 증가 계수
   const healMultiplier = hasHealUp ? 1.1 : 1.0;
 
-  // [아다드] 평타: 생명력이 제일 낮은 아군 회복
+  // [아다드]
   if (ally.id === 4) {
     let targetIdx = -1;
     let minRatio = 1.01;
@@ -87,7 +91,6 @@ export function executeNormalSkill(ally, skill, { finalAtk, finalCritMultiplier,
     });
     if (targetIdx === -1) targetIdx = currentAllies.findIndex(a => a.id === ally.id); 
 
-    // [Mod] 힐량 계수 적용
     const healAmount = Math.floor(finalAtk * skill.mult * (isCrit ? 1.5 : 1.0) * healMultiplier);
     
     alliesToModify = (allies) => allies.map((a, idx) => {
@@ -98,7 +101,7 @@ export function executeNormalSkill(ally, skill, { finalAtk, finalCritMultiplier,
     });
     addLog(`${ally.name}의 ${skill.name} -> ${currentAllies[targetIdx].name} 치유 (${healAmount})`, 'ally_atk');
   }
-  // [서주목] 평타: 방어력 계수
+  // [서주목]
   else if (ally.id === 1) {
     damageDealt = Math.floor(ally.def * skill.mult * finalCritMultiplier);
     addLog(`${ally.name}의 ${skill.name}! (방어비례) (DMG: ${damageDealt})${logSuffix}`, 'ally_atk');

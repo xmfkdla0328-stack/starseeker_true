@@ -5,9 +5,7 @@ export const ALL_CHARACTERS = [
     baseHp: 1200, baseAtk: 55, baseDef: 25, baseSpd: 8, 
     color: "from-blue-600 to-blue-800", desc: "삶의 증명을 위하여 싸우는 남겨진 자",
     efficiency: 1.1, star: 5,
-    image: "/images/characters/mainImage/sujumok_manage.png",
-    // [New] 리스트용 얼굴 아이콘
-    listImage: "/images/characters/mainImage/list/sujumokList.png",
+    image: "/images/characters/mainImage/list/sujumokList.png",
     skills: ['요리', '채집', '관찰'],
     combatSkills: {
         normal: { name: "강타", desc: "방어력의 100% 위력으로 단일 적을 공격합니다.", mult: 1.0 },
@@ -25,6 +23,7 @@ export const ALL_CHARACTERS = [
     baseHp: 850, baseAtk: 95, baseDef: 12, baseSpd: 10, 
     color: "from-rose-600 to-rose-800", desc: "죽음을 등진 이방인",
     efficiency: 0.95, star: 5,
+    image: "/images/characters/mainImage/list/sieList.png",
     skills: ['카리스마', '관찰', '직감'],
     combatSkills: {
         normal: { name: "공에서 일로", desc: "공격력의 120% 위력으로 단일 적을 공격합니다.", mult: 1.2 },
@@ -41,8 +40,7 @@ export const ALL_CHARACTERS = [
     baseHp: 700, baseAtk: 140, baseDef: 8, baseSpd: 12, 
     color: "from-violet-600 to-violet-800", desc: "바라보는 것은 동경의 뒷면",
     efficiency: 1.5, star: 4,
-    image: "/images/characters/mainImage/sungsiha_manage.png",
-    listimage: "/images/characters/mainImage/sungsiha_manage.png",
+    image: "/images/characters/mainImage/list/sungsihaList.png",
     skills: ['관찰', '계산'],
     combatSkills: {
         normal: { name: "연타", desc: "공격력의 80% 위력으로 단일 적을 공격합니다.", mult: 0.8 },
@@ -59,6 +57,7 @@ export const ALL_CHARACTERS = [
     baseHp: 650, baseAtk: 50, baseDef: 8, baseSpd: 10, 
     color: "from-emerald-600 to-emerald-800", desc: "풍요는 존재의 증명이 될 수 있는가?",
     efficiency: 1.0, star: 5,
+    image: "/images/characters/mainImage/list/adardList.png",
     skills: ['화술', '계산', '리더쉽'],
     combatSkills: {
         normal: { name: "시장 개입", desc: "공격력의 50% 위력으로 생명력이 제일 낮은 아군을 회복합니다.", mult: 0.5 },
@@ -76,6 +75,7 @@ export const ALL_CHARACTERS = [
     baseHp: 600, baseAtk: 130, baseDef: 5, baseSpd: 35, 
     color: "from-amber-600 to-amber-800", desc: "절제 없는 소비는 인간의 본성",
     efficiency: 0.8, star: 4,
+    image: "/images/characters/mainImage/list/rammanList.png",
     skills: ['화술', '유혹'],
     combatSkills: {
         normal: { name: "머니건", desc: "공격력의 90% 위력으로 적을 공격합니다.", mult: 0.9 },
@@ -92,6 +92,7 @@ export const ALL_CHARACTERS = [
     baseHp: 1100, baseAtk: 55, baseDef: 10, baseSpd: 30, 
     color: "from-orange-600 to-red-700", desc: "모르고도 행함은 무엇을 위함인가?",
     efficiency: 1.2, star: 4,
+    image: "/images/characters/mainImage/list/chunbackList.png",
     skills: ['괴력'],
     combatSkills: {
         normal: { name: "일점 찌르기", desc: "공격력의 110% 위력으로 적을 공격합니다.", mult: 1.1 },
@@ -108,9 +109,7 @@ export const ALL_CHARACTERS = [
     baseHp: 600, baseAtk: 130, baseDef: 5, baseSpd: 45, 
     color: "from-amber-600 to-amber-800", desc: "구세주의 귀환을 기다리는 사과 나무의 뱀",
     efficiency: 0.8, star: 5,
-    image: "/images/characters/mainImage/ekidna_manage.png",
-    // [New] 리스트용 얼굴 아이콘
-    listImage: "/images/characters/mainImage/list/ekidnaList.png",
+    image: "/images/characters/mainImage/list/ekidnaList.png",
     skills: ['만능', '제조', '수호'],
     combatSkills: {
         normal: { name: "코드 입력: 7AD0N", desc: "공격력의 100% 위력으로 적을 공격합니다.", mult: 1.0 },

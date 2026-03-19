@@ -59,7 +59,9 @@ export default function CharacterList({ roster, selectedCharId, onSelect }) {
           const isSelected = char.id === selectedCharId;
           
           const staticData = ALL_CHARACTERS.find(c => c.id === char.id);
-          const listImage = staticData?.listImage;
+          
+          // [Fix] listImage 대신 통합된 image 속성을 불러옵니다!
+          const profileImage = staticData?.image;
 
           return (
             <button
@@ -72,25 +74,25 @@ export default function CharacterList({ roster, selectedCharId, onSelect }) {
                   : 'border-slate-600/50 hover:border-slate-400 opacity-70 hover:opacity-100 hover:scale-105' 
                 }`}
             >
-              {/* [수정] 배경 색상 변경: 원색 계열(char.color) -> 짙은 남색~검정 그라데이션 */}
               <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-black"></div>
               
-              {/* 역할 아이콘 (이미지 로드 전 표시) */}
-              <span className="absolute inset-0 flex items-center justify-center text-lg font-bold text-white/90 drop-shadow-md">
-                {char.role.charAt(0)}
-              </span>
+              {/* 역할 아이콘 (이미지 로드 전이나 이미지가 없을 때 텍스트 표시) */}
+              {!profileImage && (
+                  <span className="absolute inset-0 flex items-center justify-center text-lg font-bold text-white/90 drop-shadow-md">
+                    {char.role.charAt(0)}
+                  </span>
+              )}
 
-              {/* 얼굴 이미지 */}
-              {listImage && (
+              {/* [Fix] 통합된 profileImage(image) 렌더링 */}
+              {profileImage && (
                 <img 
-                    src={listImage} 
+                    src={profileImage} 
                     alt={char.name}
                     className="absolute inset-0 w-full h-full object-cover"
                     onError={(e) => e.target.style.display = 'none'} 
                 />
               )}
               
-              {/* 선택 시 광택 효과 */}
               {isSelected && <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/30 to-transparent mix-blend-overlay"></div>}
             </button>
           );

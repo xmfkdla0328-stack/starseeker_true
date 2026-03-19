@@ -94,6 +94,10 @@ export function processBattleTick({
   damageToEnemyTotal = allyResult.damageToEnemy;
   triggeredSkillInfo = allyResult.triggeredSkillInfo;
 
+  if (allyResult.allyTickEvents && allyResult.allyTickEvents.length > 0) {
+    tickEvents.push(...allyResult.allyTickEvents);
+}
+
   // 컷신 트리거 발생 시, 적 피격 이펙트 미리 생성
   if (triggeredSkillInfo && damageToEnemyTotal > 0) {
       tickEvents.push({
