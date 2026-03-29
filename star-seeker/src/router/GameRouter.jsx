@@ -108,7 +108,7 @@ export default function GameRouter({
         />
       )}
 
-      {nav.gameState === 'storage' && <StorageScreen inventory={data.inventory} onBack={nav.goHome} />}
+      {nav.gameState === 'storage' && <StorageScreen inventory={data.inventory} equipmentList={data.equipmentList} onBack={nav.goHome} />}
       
       {nav.gameState === 'guide' && (
         <GuideBookScreen 
