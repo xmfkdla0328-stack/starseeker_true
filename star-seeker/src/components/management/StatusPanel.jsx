@@ -136,6 +136,12 @@ export default function StatusPanel({
         onClose={() => setModalOpen(false)}
         equipmentList={equipmentList}
         slotType={selectedSlotType}
+        slotLabel={slots.find(s => s.type === selectedSlotType)?.label}
+        currentEquippedItem={
+          selectedSlotIndex !== null && character.equipped[selectedSlotIndex]
+            ? equipmentList.find(e => e.id === character.equipped[selectedSlotIndex])
+            : null
+        }
         onEquip={handleEquipItem}
       />
     </div>
