@@ -1,5 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, DoorOpen, Package, Star, Trophy, AlertTriangle, CheckCircle2, Home, ArrowRight } from 'lucide-react';
+import { RefreshCw, DoorOpen, Package, Star, Trophy, AlertTriangle, CheckCircle2, Home, ArrowRight, HardDrive, Database, FileText, Sparkles, Cpu, Coins } from 'lucide-react';
+import { ALL_ITEMS } from '../../data/gameData';
+
+const renderItemIcon = (iconType, colorClass) => {
+  switch (iconType) {
+    case 'chip':  return <HardDrive size={22} className={colorClass} />;
+    case 'core':
+    case 'star':  return <Sparkles size={22} className={colorClass} />;
+    case 'coins': return <Coins size={22} className={colorClass} />;
+    case 'file':  return <FileText size={22} className={colorClass} />;
+    case 'gear':  return <Cpu size={22} className={colorClass} />;
+    default:      return <Database size={22} className={colorClass} />;
+  }
+};
+
+const getRarityColor = (rarity) => {
+  switch (rarity) {
+    case 'legendary': return 'text-amber-400 border-amber-500/50 bg-amber-500/10';
+    case 'epic':      return 'text-violet-400 border-violet-500/50 bg-violet-500/10';
+    case 'rare':      return 'text-cyan-400 border-cyan-500/50 bg-cyan-500/10';
+    default:          return 'text-slate-400 border-slate-500/50 bg-slate-500/10';
+  }
+};
 
 const ModalWrapper = ({ children, title, icon: Icon, titleColor }) => (
   <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in px-6">
@@ -20,12 +42,13 @@ export default function BattleResultOverlay({
   rewards = [],    
   expGained = 0,   
   battleType,      
-  isStoryChain,    // [NEW] App에서 넘어온 스토리 연전 여부
+  isStoryChain,
   onRetry,         
   onLeave,
   onHome           
 }) {
-  const [step, setStep] = useState('intro'); 
+  const [step, setStep] = useState('intro');
+  const [tooltipIdx, setTooltipIdx] = useState(null);
 
   useEffect(() => {
     if (step === 'intro') {
@@ -85,12 +108,31 @@ export default function BattleResultOverlay({
             
             {rewards.length > 0 ? (
                 <div className="grid grid-cols-4 gap-2">
-                    {rewards.map((item, idx) => (
-                        <div key={idx} className="aspect-square bg-slate-800 border border-white/10 rounded flex flex-col items-center justify-center relative group hover:border-cyan-500/50 transition-colors">
-                            <div className="text-xl">📦</div>
-                            <span className="absolute bottom-0.5 right-1 text-[10px] font-mono text-cyan-200">x{item.count}</span>
-                        </div>
-                    ))}
+                    {rewards.map((item, idx) => {
+                        const itemData = ALL_ITEMS[item.id];
+                        const rarityClass = getRarityColor(itemData?.rarity);
+                        const iconColor = rarityClass.split(' ')[0];
+                        const borderBg = rarityClass.split(' ').slice(1).join(' ');
+                        const isActive = tooltipIdx === idx;
+                        return (
+                            <div
+                                key={idx}
+                                className={`aspect-square border rounded flex flex-col items-center justify-center relative transition-colors cursor-pointer ${borderBg} ${isActive ? 'border-white/40' : ''}`}
+                                onMouseEnter={() => setTooltipIdx(idx)}
+                                onMouseLeave={() => setTooltipIdx(null)}
+                                onTouchStart={() => setTooltipIdx(idx)}
+                                onTouchEnd={() => setTimeout(() => setTooltipIdx(null), 1200)}
+                            >
+                                {renderItemIcon(itemData?.iconType, iconColor)}
+                                <span className="absolute bottom-0.5 right-1 text-[10px] font-mono text-cyan-200">x{item.count}</span>
+                                {isActive && (
+                                    <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-700 border border-white/20 text-white text-[10px] font-semibold px-2 py-1 rounded whitespace-nowrap z-10 pointer-events-none">
+                                        {itemData?.name ?? item.name}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             ) : (
                 <div className="text-xs text-slate-600 text-center py-2 italic">획득한 아이템이 없습니다.</div>
