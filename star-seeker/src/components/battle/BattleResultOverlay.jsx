@@ -38,14 +38,25 @@ export default function BattleResultOverlay({
   }, [step, result]);
 
   if (step === 'intro') {
+    const isWin = result === 'win';
     return (
-      <div className="absolute inset-0 z-50 bg-black/30 flex items-center justify-center animate-fade-in pointer-events-none">
-        <h1 className={`text-5xl font-black tracking-[0.2em] italic transform -skew-x-12 animate-scale-bounce
-          ${result === 'win' 
-            ? 'text-transparent bg-clip-text bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-600 drop-shadow-[0_0_25px_rgba(251,191,36,0.6)]' 
-            : 'text-rose-600 drop-shadow-[0_0_25px_rgba(225,29,72,0.8)]'}`}>
-          {result === 'win' ? '전투 승리' : '전투 패배'}
-        </h1>
+      <div className="absolute inset-0 z-50 bg-black/50 flex items-center justify-center animate-fade-in pointer-events-none">
+        <div className="flex flex-col items-center gap-2">
+          <div className={`h-px w-20 ${isWin ? 'bg-amber-400/70' : 'bg-rose-500/70'}`} />
+          <span className={`text-[0.55rem] font-semibold tracking-[0.5em] uppercase ${isWin ? 'text-amber-400' : 'text-rose-400'}`}>
+            {isWin ? 'OPERATION COMPLETE' : 'MISSION FAILED'}
+          </span>
+          <h1
+            className={`text-4xl font-black tracking-[0.12em] ${isWin ? 'text-white' : 'text-rose-200'}`}
+            style={{ textShadow: isWin
+              ? '0 0 24px rgba(251,191,36,0.35)'
+              : '0 0 24px rgba(225,29,72,0.45)'
+            }}
+          >
+            {isWin ? '전투 승리' : '전투 패배'}
+          </h1>
+          <div className={`h-px w-20 ${isWin ? 'bg-amber-400/70' : 'bg-rose-500/70'}`} />
+        </div>
       </div>
     );
   }
