@@ -35,7 +35,7 @@ export const ALL_ITEMS = {
     type: 'material',
     rarity: 'epic',
     desc: '중복된 인과율 속에서 추출한 고농도 에너지. 특수 능력을 개방합니다.',
-    iconType: 'core'
+    iconType: 'coins'
   },
   'causality_stone': {
     id: 'causality_stone',
@@ -43,7 +43,7 @@ export const ALL_ITEMS = {
     type: 'currency',
     rarity: 'legendary',
     desc: '인과율의 흐름을 고정시켜 새로운 가능성(캐릭터)을 관측할 때 사용합니다.',
-    iconType: 'stone'
+    iconType: 'star'
   },
   'memory_fragment': {
     id: 'memory_fragment',
