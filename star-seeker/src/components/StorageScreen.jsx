@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronLeft, Archive, HardDrive, Database, FileText, Sparkles, Cpu, Coins, Shield, Zap, BookOpen } from 'lucide-react';
+import { ChevronLeft, Archive, HardDrive, Database, FileText, Sparkles, Cpu, Coins, Shield, Zap, BookOpen, Diamond } from 'lucide-react';
 import { ALL_ITEMS } from '../data/gameData';
 import { STAT_TYPES } from '../data/equipmentData';
 import ParticleBackground from './common/ParticleBackground';
@@ -23,8 +23,8 @@ export default function StorageScreen({ inventory, equipmentList = [], onBack })
   const equipmentItems = equipmentList.map(equip => ({
     id: equip.id,
     name: equip.name,
-    iconType: equip.slot === 'slot_3' ? 'memory' : 'gear',
-    rarity: equip.slot === 'slot_3' ? 'epic' : equip.slot === 'slot_2' ? 'rare' : 'common',
+    iconType: equip.slot === 'slot_3' ? 'diamond' : 'gear',
+    rarity: equip.slot === 'slot_3' ? 'epic' : 'rare',
     type: 'equipment',
     count: 1,
     isEquipment: true,
@@ -50,6 +50,7 @@ export default function StorageScreen({ inventory, equipmentList = [], onBack })
       case 'file':   return <FileText size={24} className={colorClass} />;
       case 'gear':   return <Cpu size={24} className={colorClass} />;
       case 'memory': return <BookOpen size={24} className={colorClass} />;
+      case 'diamond': return <Diamond size={24} className={colorClass} />;
       default:       return <Database size={24} className={colorClass} />;
     }
   };
