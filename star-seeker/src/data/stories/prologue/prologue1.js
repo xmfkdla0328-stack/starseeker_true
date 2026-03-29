@@ -64,7 +64,7 @@ export const prologue_event = {
       text: "관측자!", 
       keywordUnlock: 'kw_observer',
       speaker: "누군가",
-      characterImage: "/images/characters/ekidna_normal.png",
+      characterImage: "/images/characters/mainImage/list/ekidnaList.png",
       bg: "ruin_entrance",
       highlight: ["관측자"] 
     },
@@ -73,7 +73,7 @@ export const prologue_event = {
       type: 'script', 
       text: "에키드나.", 
       speaker: "관측자",
-      characterImage: "/images/characters/OrigineNoel.png",
+      characterImage: "/images/characters/mainImage/list/noeloriginList.png",
       bg: "ruin_entrance"
     },
     { 
@@ -82,7 +82,7 @@ export const prologue_event = {
       text: `너…상태가…! 잠시만 기다려.
 내가 곧바로 신체 복구용 키트를─.`, 
       speaker: "에키드나",
-      characterImage: "/images/characters/ekidna_normal.png",
+      characterImage: "/images/characters/mainImage/list/ekidnaList.png",
       bg: "ruin_entrance",
       effect: "shake" // [연출 강화] 다급한 에키드나의 목소리에 맞춰 가벼운 흔들림
     },
@@ -98,7 +98,7 @@ export const prologue_event = {
       type: 'script', 
       text: "에키드나, 지금은 그보다 급한 일이 있어.", 
       speaker: "관측자",
-      characterImage: "/images/characters/OrigineNoel.png",
+      characterImage: "/images/characters/mainImage/list/noeloriginList.png",
       bg: "red_alert",
       effect: "heartbeat" 
     },
@@ -107,7 +107,7 @@ export const prologue_event = {
       type: 'script', 
       text: "그게 무슨.", 
       speaker: "에키드나",
-      characterImage: "/images/characters/ekidna_normal.png",
+      characterImage: "/images/characters/mainImage/list/ekidnaList.png",
       bg: "ruin_entrance"
     },
     {
@@ -115,7 +115,7 @@ export const prologue_event = {
       type: 'script', 
       text: "그것이 여전히 살아 있어.", 
       speaker: "관측자",
-      characterImage: "/images/characters/OrigineNoel.png",
+      characterImage: "/images/characters/mainImage/list/noeloriginList.png",
       bg: "ruin_entrance",
     },
     { 
@@ -146,7 +146,7 @@ export const prologue_event = {
       text: `인과력을 감지하고, 다루는 데에는 아무런 문제도 없어.`,
       keywordUnlock: 'kw_causality',
       speaker: "관측자",
-      characterImage: "/images/characters/OrigineNoel.png",
+      characterImage: "/images/characters/mainImage/list/noeloriginList.png",
       bg: "black", // 계속 어두운 상태 유지
       highlight: ["인과력"] 
     },
@@ -155,7 +155,7 @@ export const prologue_event = {
       type: 'script',
       text: `지금 그게 문제가…`,
       speaker: "에키드나",
-      characterImage: "/images/characters/ekidna_normal.png",
+      characterImage: "/images/characters/mainImage/list/ekidnaList.png",
       bg: "black",
     },
     {
@@ -163,7 +163,7 @@ export const prologue_event = {
       type: 'script',
       text: `에키드나, 내 몸은 내가 제일 잘 알아.`,
       speaker: "관측자",
-      characterImage: "/images/characters/OrigineNoel.png",
+      characterImage: "/images/characters/mainImage/list/noeloriginList.png",
       bg: "black",
     },
     {
@@ -171,7 +171,7 @@ export const prologue_event = {
       type: 'script',
       text: `….`,
       speaker: "에키드나",
-      characterImage: "/images/characters/ekidna_normal.png",
+      characterImage: "/images/characters/mainImage/list/ekidnaList.png",
       bg: "black",
     },
     {
@@ -202,7 +202,7 @@ export const prologue_event = {
       type: 'script',
       text: `가자.`, 
       speaker: "관측자", 
-      characterImage: "/images/characters/OrigineNoel.png",
+      characterImage: "/images/characters/mainImage/list/noeloriginList.png",
       bg: "red_alert",
     },
     {

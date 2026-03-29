@@ -11,10 +11,10 @@ export const prologue2_event = {
       speaker: "???", bg: "ruin_entrance", effect: "shake", 
     },
     { 
-      id: 2, type: 'script', text: "드디어…! 드디어 놈이 쓰러졌어, 관측자!", speaker: "에키드나", characterImage: "/images/characters/ekidna_normal.png", bg: "ruin_entrance",
+      id: 2, type: 'script', text: "드디어…! 드디어 놈이 쓰러졌어, 관측자!", speaker: "에키드나", characterImage: "/images/characters/mainImage/list/ekidnaList.png", bg: "ruin_entrance",
     },
     { 
-      id: 3, type: 'script', text: "…그럴리가….", speaker: "관측자", characterImage: "/images/characters/OrigineNoel.png", bg: "ruin_entrance",
+      id: 3, type: 'script', text: "…그럴리가….", speaker: "관측자", characterImage: "/images/characters/mainImage/list/noeloriginList.png", bg: "ruin_entrance",
     },
     { 
       id: 4, type: 'monologue', text: "이렇게 쉽게 쓰러질 상대가 아니다.", speaker: "???", bg: "ruin_entrance",
@@ -23,7 +23,7 @@ export const prologue2_event = {
       id: 5, type: 'monologue', text: "당신은 모공이 송연해지는 것을 느낀다.", speaker: "???", bg: "ruin_entrance",
     },
     { 
-      id: 6, type: 'script', text: "조심해, 에키드나! 이렇게 끝이 날 놈이 아니─.", speaker: "관측자", characterImage: "/images/characters/OrigineNoel.png", bg: "ruin_entrance",
+      id: 6, type: 'script', text: "조심해, 에키드나! 이렇게 끝이 날 놈이 아니─.", speaker: "관측자", characterImage: "/images/characters/mainImage/list/noeloriginList.png", bg: "ruin_entrance",
     },
     {
       id: 7, type: 'monologue', text: "쿠구구구궁...!", speaker: "???", bg: "ruin_entrance", effect: "shake",
@@ -48,7 +48,7 @@ export const prologue2_event = {
       // [NEW] 3. 에키드나의 비명 (화면이 흔들리며 붉게 점멸)
       id: 10, type: 'script', 
       text: "관측자!!!", 
-      speaker: "에키드나", characterImage: "/images/characters/ekidna_normal.png", 
+      speaker: "에키드나", characterImage: "/images/characters/mainImage/list/ekidnaList.png", 
       bg: "red_alert", effect: "shake",
       centerImage: "/images/enemy/disaster.png"
     },
