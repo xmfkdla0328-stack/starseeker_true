@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronLeft, Archive, HardDrive, Database, FileText, Sparkles, Cpu, Star, Coins } from 'lucide-react';
+import { ChevronLeft, Archive, HardDrive, Database, FileText, Sparkles, Cpu, Coins } from 'lucide-react';
 import { ALL_ITEMS } from '../data/gameData';
 import ParticleBackground from './common/ParticleBackground'; // 배경 효과 추가
 
@@ -26,7 +26,7 @@ export default function StorageScreen({ inventory, onBack }) {
     switch (type) {
       case 'chip': return <HardDrive size={24} className={colorClass} />;
       case 'core': return <Sparkles size={24} className={colorClass} />;
-      case 'star': return <Star size={24} className={colorClass} />;
+      case 'star': return <Sparkles size={24} className={colorClass} />;
       case 'coins': return <Coins size={24} className={colorClass} />;
       case 'file': return <FileText size={24} className={colorClass} />;
       case 'gear': return <Cpu size={24} className={colorClass} />;
