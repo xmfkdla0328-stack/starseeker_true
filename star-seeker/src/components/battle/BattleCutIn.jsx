@@ -1,46 +1,72 @@
 import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 
-// 1. 배경 암전 애니메이션 (강력한 암전)
-const flashDark = keyframes`
-  0% { opacity: 0; background: rgba(0, 0, 0, 0); }
-  10% { opacity: 1; background: rgba(0, 0, 0, 0.95); } /* 거의 검게 암전 */
-  90% { opacity: 1; background: rgba(0, 0, 0, 0.9); }
-  100% { opacity: 0; background: rgba(0, 0, 0, 0); }
+const backdropFade = keyframes`
+  0%   { opacity: 0; }
+  8%   { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { opacity: 0; }
 `;
 
-// 2. 위아래로 날카롭게 닫히는 레터박스
-const cinematicClose = keyframes`
-  0% { transform: scaleY(0); }
-  15% { transform: scaleY(1); }
-  90% { transform: scaleY(1); }
-  100% { transform: scaleY(0); }
+const barSlideTop = keyframes`
+  0%   { transform: translateY(-100%); }
+  12%  { transform: translateY(0%); }
+  88%  { transform: translateY(0%); }
+  100% { transform: translateY(-100%); }
 `;
 
-// 3. 캐릭터 눈가 컷인 슬라이드 (더 빠르고 임팩트 있게)
-const slideAndZoom = keyframes`
-  0% { transform: translateX(60%) scale(1.15); opacity: 0; filter: blur(10px); }
-  15% { transform: translateX(5%) scale(1.15); opacity: 1; filter: blur(0px); }
-  85% { transform: translateX(-5%) scale(1.2); opacity: 1; filter: blur(0px); }
-  100% { transform: translateX(-60%) scale(1.25); opacity: 0; filter: blur(10px); }
+const barSlideBottom = keyframes`
+  0%   { transform: translateY(100%); }
+  12%  { transform: translateY(0%); }
+  88%  { transform: translateY(0%); }
+  100% { transform: translateY(100%); }
 `;
 
-// 4. 스킬 이름 텍스트 애니메이션 (날카로운 슬라이드)
-const textSlide = keyframes`
-  0% { transform: translateX(-100px) skewX(-20deg); opacity: 0; }
-  15% { transform: translateX(0) skewX(-20deg); opacity: 1; }
-  85% { transform: translateX(30px) skewX(-20deg); opacity: 1; }
-  100% { transform: translateX(150px) skewX(-20deg); opacity: 0; }
+const imageReveal = keyframes`
+  0%   { transform: translateX(80px) scale(1.22); opacity: 0; filter: brightness(2) blur(6px); }
+  16%  { transform: translateX(0px)  scale(1.18); opacity: 1; filter: brightness(1) blur(0); }
+  84%  { transform: translateX(-18px) scale(1.22); opacity: 1; filter: brightness(1.05) blur(0); }
+  100% { transform: translateX(-60px) scale(1.25); opacity: 0; filter: brightness(1.5) blur(4px); }
 `;
 
-const CutInOverlay = styled.div`
+const scanSweep = keyframes`
+  0%   { top: -4px; opacity: 0.9; }
+  100% { top: 110%; opacity: 0; }
+`;
+
+const flashBurst = keyframes`
+  0%   { opacity: 0.9; }
+  12%  { opacity: 0.1; }
+  18%  { opacity: 0.6; }
+  30%  { opacity: 0; }
+  100% { opacity: 0; }
+`;
+
+const nameReveal = keyframes`
+  0%   { transform: translateX(-40px); opacity: 0; }
+  18%  { transform: translateX(0px);   opacity: 1; }
+  84%  { transform: translateX(8px);   opacity: 1; }
+  100% { transform: translateX(60px);  opacity: 0; }
+`;
+
+const skillReveal = keyframes`
+  0%   { transform: translateX(-60px) skewX(-8deg); opacity: 0; }
+  22%  { transform: translateX(0px)   skewX(-8deg); opacity: 1; }
+  84%  { transform: translateX(12px)  skewX(-8deg); opacity: 1; }
+  100% { transform: translateX(80px)  skewX(-8deg); opacity: 0; }
+`;
+
+const accentLine = keyframes`
+  0%   { width: 0%;   opacity: 0; }
+  20%  { width: 100%; opacity: 0.7; }
+  84%  { width: 100%; opacity: 0.4; }
+  100% { width: 0%;   opacity: 0; }
+`;
+
+const Overlay = styled.div`
   position: absolute;
   inset: 0;
-  z-index: 999; 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  z-index: 999;
   overflow: hidden;
   pointer-events: none;
 `;
@@ -48,66 +74,145 @@ const CutInOverlay = styled.div`
 const Backdrop = styled.div`
   position: absolute;
   inset: 0;
-  animation: ${flashDark} 1.6s ease-out forwards;
+  background: rgba(0, 0, 0, 0.93);
+  animation: ${backdropFade} 2s ease-in-out forwards;
 `;
 
-// [Fix] 시네마틱 레터박스를 훨씬 더 좁게 만듭니다 (35vh -> 20vh)
-const CinematicBars = styled.div`
-  position: relative;
-  width: 100%;
-  height: 20vh; /* 화면의 20%만 사용하여 눈가만 날카롭게 보여줍니다 */
-  background: black;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  transform-origin: center;
-  animation: ${cinematicClose} 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  
-  /* 금빛 테두리 라인을 더 선명하게 */
-  border-top: 2px solid rgba(251, 191, 36, 0.7); 
-  border-bottom: 2px solid rgba(251, 191, 36, 0.7);
-  box-shadow: 0 0 40px rgba(251, 191, 36, 0.3);
-`;
-
-const CharacterImage = styled.img`
-  width: 160%; /* 가로로 더 넓게 펼쳐서 속도감을 줌 */
-  height: 100%;
-  
-  /* [Fix] object-position을 미세하게 조정하여 눈매가 중앙에 오도록 맞춥니다 */
-  object-fit: cover;
-  object-position: 50% 23%; 
-  
-  animation: ${slideAndZoom} 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  
-  /* 양쪽 끝 그라데이션 페이드아웃 범위를 넓혀 부드럽게 */
-  mask-image: linear-gradient(to right, transparent 0%, black 20%, black 80%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 20%, black 80%, transparent 100%);
-`;
-
-// [Fix] 스킬 대사 영역(TextArea, SkillQuote)을 텍스트 하나만 깔끔하게 배치하는 구조로 변경
-const SkillNameArea = styled.div`
+const FlashBurst = styled.div`
   position: absolute;
-  left: 8%;
-  /* 레터박스 중앙에 딱 맞게 배치 */
-  z-index: 10;
-  animation: ${textSlide} 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  inset: 0;
+  background: #fff;
+  z-index: 2;
+  animation: ${flashBurst} 2s ease-out forwards;
 `;
 
-const SkillName = styled.h2`
-  font-size: 3.8rem; /* 글씨 크기를 더 키워 시원하게 */
-  font-weight: 950; /* 가장 두껍게 */
-  font-style: italic; /* 역동적인 기울임 */
-  color: #fff;
+const BarTop = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 38%;
+  background: #000;
+  z-index: 3;
+  animation: ${barSlideTop} 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+`;
+
+const BarBottom = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 38%;
+  background: #000;
+  z-index: 3;
+  animation: ${barSlideBottom} 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+`;
+
+const EyeWindow = styled.div`
+  position: absolute;
+  top: 38%;
+  left: 0;
+  right: 0;
+  height: 24%;
+  z-index: 4;
+  overflow: hidden;
+  border-top: 1.5px solid rgba(34, 211, 238, 0.55);
+  border-bottom: 1.5px solid rgba(34, 211, 238, 0.55);
+  box-shadow:
+    0 0 24px rgba(34, 211, 238, 0.18),
+    inset 0 0 40px rgba(0, 0, 0, 0.45);
+`;
+
+const CharImage = styled.img`
+  position: absolute;
+  inset: 0;
+  width: 140%;
+  height: 100%;
+  left: -20%;
+  object-fit: cover;
+  object-position: 50% 22%;
+  animation: ${imageReveal} 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 14%,
+    black 86%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 14%,
+    black 86%,
+    transparent 100%
+  );
+`;
+
+const ScanLine = styled.div`
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(34, 211, 238, 0.85),
+    transparent
+  );
+  animation: ${scanSweep} 0.7s ease-out forwards;
+  animation-delay: 0.1s;
+  z-index: 5;
+`;
+
+const TextArea = styled.div`
+  position: absolute;
+  top: 38%;
+  left: 0;
+  right: 0;
+  height: 24%;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 9%;
+  gap: 3px;
+`;
+
+const AccentBar = styled.div`
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    rgba(34, 211, 238, 0.7),
+    transparent
+  );
+  animation: ${accentLine} 2s ease-out forwards;
+  animation-delay: 0.15s;
+  margin-bottom: 4px;
+`;
+
+const CharName = styled.div`
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 6px;
   text-transform: uppercase;
-  letter-spacing: 4px; /* 자간을 넓혀 웅장하게 */
-  /* 강력한 흰색 발광 효과 + 선명도를 위한 하드 쉐도우 */
-  text-shadow: 
-    0 0 15px rgba(255, 255, 255, 1), 
-    0 0 5px rgba(251, 191, 36, 0.8), /* 미세한 금빛 후광 */
-    4px 4px 0px #000;
-  margin: 0;
+  color: rgba(34, 211, 238, 0.92);
+  text-shadow: 0 0 14px rgba(34, 211, 238, 0.8);
+  animation: ${nameReveal} 2s ease-out forwards;
+`;
+
+const SkillName = styled.div`
+  font-size: 2.2rem;
+  font-weight: 900;
+  font-style: italic;
+  color: #ffffff;
+  letter-spacing: 2px;
   line-height: 1;
+  text-transform: uppercase;
+  animation: ${skillReveal} 2s ease-out forwards;
+  text-shadow:
+    0 0 22px rgba(255, 255, 255, 0.75),
+    0 0 8px rgba(34, 211, 238, 0.45),
+    3px 3px 0 rgba(0, 0, 0, 0.85);
 `;
 
 export default function BattleCutIn({ cutInInfo, onComplete }) {
@@ -116,11 +221,10 @@ export default function BattleCutIn({ cutInInfo, onComplete }) {
   useEffect(() => {
     if (cutInInfo) {
       setVisible(true);
-      // 1.6초 후 컷신 완전 종료
       const timer = setTimeout(() => {
         setVisible(false);
         if (onComplete) onComplete();
-      }, 1600);
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [cutInInfo, onComplete]);
@@ -128,19 +232,25 @@ export default function BattleCutIn({ cutInInfo, onComplete }) {
   if (!visible || !cutInInfo) return null;
 
   return (
-    <CutInOverlay>
+    <Overlay>
       <Backdrop />
-      
-      {/* 2. 더 좁아진 시네마틱 레터박스 & 눈가 크롭 컷인 */}
-      <CinematicBars>
-        {cutInInfo.image && <CharacterImage src={cutInInfo.image} alt="Cut-in" />}
-        
-        {/* 3. [Fix] 유치한 대사는 빼고 오직 깔끔하고 웅장한 스킬 이름만 슬라이딩 됨 */}
-        <SkillNameArea>
-          <SkillName>{cutInInfo.skillName}</SkillName>
-        </SkillNameArea>
-      </CinematicBars>
-      
-    </CutInOverlay>
+      <FlashBurst />
+
+      <BarTop />
+      <BarBottom />
+
+      <EyeWindow>
+        {cutInInfo.image && (
+          <CharImage src={cutInInfo.image} alt={cutInInfo.name} />
+        )}
+        <ScanLine />
+      </EyeWindow>
+
+      <TextArea>
+        <AccentBar />
+        <CharName>{cutInInfo.name}</CharName>
+        <SkillName>{cutInInfo.skillName}</SkillName>
+      </TextArea>
+    </Overlay>
   );
 }
