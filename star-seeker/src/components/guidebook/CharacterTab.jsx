@@ -18,9 +18,13 @@ export default function CharacterTab() {
             <button key={char.id} onClick={() => setSelectedCharId(char.id)} 
               className={`flex-shrink-0 w-12 h-12 rounded-full border-2 overflow-hidden transition-all
               ${selectedCharId === char.id ? 'border-emerald-400 scale-110' : 'border-slate-700 opacity-60'}`}>
-              <div className={`w-full h-full bg-gradient-to-br ${char.color} flex items-center justify-center`}>
-                <span className="text-sm font-bold text-white">{char.role.charAt(0)}</span>
-              </div>
+              {char.image ? (
+                <img src={char.image} alt={char.name} className="w-full h-full object-cover" />
+              ) : (
+                <div className={`w-full h-full bg-gradient-to-br ${char.color} flex items-center justify-center`}>
+                  <span className="text-sm font-bold text-white">{char.role.charAt(0)}</span>
+                </div>
+              )}
             </button>
           ))}
         </div>
