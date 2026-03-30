@@ -1,5 +1,12 @@
 import React from 'react';
-import { Star, Lock, Check } from 'lucide-react';
+import { Star, Lock, Check, Shield, Swords, Map, Cross } from 'lucide-react';
+
+const ROLE_ICON = {
+  KEEPER:     <Shield     size={36} strokeWidth={1.5} className="text-white/90" />,
+  EXECUTOR:   <Swords     size={36} strokeWidth={1.5} className="text-white/90" />,
+  PATHFINDER: <Map        size={36} strokeWidth={1.5} className="text-white/90" />,
+  SUSTAINER:  <Cross      size={36} strokeWidth={1.5} className="text-white/90" />,
+};
 
 // 노드 데이터 정의
 const NODES_LAYOUT = [
@@ -52,7 +59,7 @@ export default function UpgradeNodeGraph({ char, onNodeClick, onNodeHover }) {
       {/* 중앙 캐릭터 아이콘 */}
       <div className="absolute z-20 w-24 h-24 rounded-full border-4 border-slate-800 shadow-[0_0_30px_rgba(0,0,0,0.5)] overflow-hidden bg-slate-900">
         <div className={`w-full h-full bg-gradient-to-br ${char.color} opacity-80 flex items-center justify-center`}>
-          <span className="text-3xl font-bold text-white">{char.role.charAt(0)}</span>
+          {ROLE_ICON[char.role?.toUpperCase()] ?? <span className="text-3xl font-bold text-white">{char.role.charAt(0)}</span>}
         </div>
       </div>
 
