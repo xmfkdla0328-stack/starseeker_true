@@ -47,11 +47,15 @@ export default function MiningZone({ title, icon: Icon, iconColor, zoneData, ros
                         <div key={idx} className="aspect-[3/4] rounded-xl border border-dashed border-slate-600 bg-black/20 flex flex-col items-center justify-center relative group">
                             {miner ? (
                                 <>
-                                    <div className={`absolute inset-0 bg-gradient-to-br ${miner.color} opacity-30 rounded-xl`}></div>
-                                    <span className="relative z-10 text-2xl font-bold text-white drop-shadow-md mb-1">{miner.role.charAt(0)}</span>
-                                    <span className="relative z-10 text-[9px] text-slate-300 truncate w-full text-center px-1">{miner.name}</span>
-                                    
-                                    {/* 해제 버튼 (Hover시 표시) */}
+                                    {miner.image ? (
+                                        <img src={miner.image} alt={miner.name} className="absolute inset-0 w-full h-full object-cover rounded-xl" />
+                                    ) : (
+                                        <div className={`absolute inset-0 bg-gradient-to-br ${miner.color} opacity-30 rounded-xl`}></div>
+                                    )}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent rounded-xl" />
+                                    <span className="absolute bottom-1 left-0 right-0 z-10 text-[9px] text-slate-200 truncate text-center px-1 drop-shadow-md">{miner.name}</span>
+
+                                    {/* 해제 버튼 */}
                                     <button 
                                         onClick={(e) => { e.stopPropagation(); onRemove(idx); }}
                                         className="absolute top-1 right-1 z-20 bg-black/60 hover:bg-red-500 text-white rounded-full p-1 transition-colors"
