@@ -1,23 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { ChevronLeft, Shield, Sword, Heart, Zap, Save, UserPlus, X, Users, Lock } from 'lucide-react';
+import { ChevronLeft, Shield, Sword, Heart, Zap, Save, UserPlus, Users, Lock } from 'lucide-react';
 import { ALL_CHARACTERS } from '../data/gameData';
 import ParticleBackground from './common/ParticleBackground';
 
 const ROLE_FILTERS = ['전체', 'EXECUTOR', 'PATHFINDER', 'SUSTAINER', 'KEEPER'];
 
-const ROLE_COLOR = {
-  EXECUTOR:   'text-rose-400   border-rose-500/40   bg-rose-950/30',
-  PATHFINDER: 'text-amber-400  border-amber-500/40  bg-amber-950/30',
-  SUSTAINER:  'text-emerald-400 border-emerald-500/40 bg-emerald-950/30',
-  KEEPER:     'text-violet-400 border-violet-500/40 bg-violet-950/30',
-};
-
-const ROLE_BAR = {
-  EXECUTOR:   'bg-rose-500',
-  PATHFINDER: 'bg-amber-500',
-  SUSTAINER:  'bg-emerald-500',
-  KEEPER:     'bg-violet-500',
-};
+const STAR_BAR   = { 5: 'bg-amber-400',  4: 'bg-violet-500' };
+const STAR_TEXT  = { 5: 'text-amber-400', 4: 'text-violet-400' };
 
 function normalizeRole(role) {
   return role?.toUpperCase() ?? '';
@@ -28,6 +17,7 @@ function normalizeRole(role) {
 // ----------------------------------------------------------------------
 const PartySlot = ({ member, index, isActive, onClick }) => {
   const role = normalizeRole(member?.role);
+  const starText = STAR_TEXT[member?.star] ?? 'text-cyan-400';
 
   return (
     <button
@@ -60,7 +50,7 @@ const PartySlot = ({ member, index, isActive, onClick }) => {
           )}
 
           <div className="absolute bottom-2 left-0 right-0 px-2 text-center">
-            <div className={`text-[9px] font-bold tracking-wider mb-0.5 ${ROLE_COLOR[role]?.split(' ')[0] ?? 'text-cyan-400'}`}>
+            <div className={`text-[9px] font-bold tracking-wider mb-0.5 ${starText}`}>
               {role}
             </div>
             <div className="text-xs font-bold text-white truncate drop-shadow-md">
@@ -93,8 +83,7 @@ const PartySlot = ({ member, index, isActive, onClick }) => {
 // ----------------------------------------------------------------------
 const RosterItem = ({ char, slotIndex, isInParty, isDisabled, isTargetSlot, onSelect }) => {
   const role = normalizeRole(char.role);
-  const barColor = ROLE_BAR[role] ?? 'bg-cyan-500';
-  const roleStyle = ROLE_COLOR[role] ?? 'text-cyan-400 border-cyan-500/40 bg-cyan-950/30';
+  const barColor = STAR_BAR[char.star] ?? 'bg-cyan-500';
 
   return (
     <button
@@ -145,7 +134,7 @@ const RosterItem = ({ char, slotIndex, isInParty, isDisabled, isTargetSlot, onSe
                 ACTIVE
               </span>
             )}
-            <span className={`text-[9px] px-1.5 py-0.5 rounded border font-bold tracking-wider ${roleStyle}`}>
+            <span className="text-[9px] px-1.5 py-0.5 rounded border font-bold tracking-wider text-slate-400 border-white/15 bg-white/5">
               {role}
             </span>
           </div>
@@ -297,14 +286,6 @@ export default function PartyScreen({ currentParty, onUpdateParty, onBack }) {
             </button>
           ))}
         </div>
-
-        {/* 파티 가득참 알림 배너 */}
-        {partyFull && !isSelectionMode && (
-          <div className="mx-4 mb-2 px-3 py-2 rounded-lg bg-rose-950/40 border border-rose-500/30 flex items-center gap-2 flex-shrink-0">
-            <Lock size={12} className="text-rose-400 flex-shrink-0" />
-            <span className="text-[10px] text-rose-300 font-mono tracking-wide">파티가 가득 찼습니다. 슬롯을 탭하여 교체하거나 제거하세요.</span>
-          </div>
-        )}
 
         {/* 스크롤 리스트 */}
         <div className="flex-1 overflow-y-auto px-4 pb-24 space-y-2 pt-1">
