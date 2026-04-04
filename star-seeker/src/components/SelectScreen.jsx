@@ -64,7 +64,7 @@ export default function SelectScreen({ onSelectContent, onBack }) {
       <div className="mx-5 h-px bg-gradient-to-r from-transparent via-cyan-900/60 to-transparent flex-shrink-0" />
 
       {/* 카드 영역 */}
-      <div className="relative z-10 flex flex-1 gap-4 px-5 py-8 min-h-0">
+      <div className="relative z-10 flex flex-1 gap-4 px-5 py-16 min-h-0">
 
         {/* 왼쪽: 행성 관측 */}
         <CutCornerCard onClick={() => onSelectContent('story')} accentColor="#22d3ee">
@@ -101,8 +101,8 @@ export default function SelectScreen({ onSelectContent, onBack }) {
             </p>
 
             {/* 하단 태그 */}
-            <div className="mt-auto flex items-center gap-1.5 text-[9px] font-mono text-cyan-600 border border-cyan-900/60 px-2.5 py-1 group-hover:border-cyan-700/60 group-hover:text-cyan-500 transition-all">
-              <span className="w-1.5 h-1.5 bg-cyan-500 rounded-full" />
+            <div className="mt-auto flex items-center gap-2 text-xs font-mono text-cyan-500 border border-cyan-700/50 px-3 py-1.5 group-hover:border-cyan-500/70 group-hover:text-cyan-400 transition-all">
+              <span className="w-2 h-2 bg-cyan-400 rounded-full" />
               MAIN STORY
             </div>
           </div>
@@ -143,8 +143,8 @@ export default function SelectScreen({ onSelectContent, onBack }) {
             </p>
 
             {/* 하단 태그 */}
-            <div className="mt-auto flex items-center gap-1.5 text-[9px] font-mono text-amber-600 border border-amber-900/60 px-2.5 py-1 group-hover:border-amber-700/60 group-hover:text-amber-500 transition-all">
-              <span className="w-1.5 h-1.5 bg-amber-500 rounded-full" />
+            <div className="mt-auto flex items-center gap-2 text-xs font-mono text-amber-500 border border-amber-700/50 px-3 py-1.5 group-hover:border-amber-500/70 group-hover:text-amber-400 transition-all">
+              <span className="w-2 h-2 bg-amber-400 rounded-full" />
               RESOURCE
             </div>
           </div>
