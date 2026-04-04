@@ -21,7 +21,7 @@ export default function SelectScreen({ onSelectContent, onBack }) {
       </div>
 
       {/* 1행 2열 카드 영역 */}
-      <div className="flex flex-1 gap-3 px-5 pb-8 pt-2 min-h-0">
+      <div className="flex flex-1 gap-3 px-5 py-12 min-h-0">
 
         {/* 왼쪽: 행성 관측 */}
         <button
