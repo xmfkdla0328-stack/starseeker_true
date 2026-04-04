@@ -65,7 +65,7 @@ export default function SelectScreen({ onSelectContent, onBack }) {
 
       {/* 카드 영역 */}
       <div className="relative z-10 flex flex-1 items-center justify-center px-5 py-4">
-      <div className="flex w-full gap-4 h-72">
+      <div className="flex w-full gap-4 h-[432px]">
 
         {/* 왼쪽: 행성 관측 */}
         <CutCornerCard onClick={() => onSelectContent('story')} accentColor="#22d3ee">
