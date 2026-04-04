@@ -64,7 +64,8 @@ export default function SelectScreen({ onSelectContent, onBack }) {
       <div className="mx-5 h-px bg-gradient-to-r from-transparent via-cyan-900/60 to-transparent flex-shrink-0" />
 
       {/* 카드 영역 */}
-      <div className="relative z-10 flex flex-1 gap-4 px-5 py-16 min-h-0">
+      <div className="relative z-10 flex flex-1 items-center justify-center px-5 py-4">
+      <div className="flex w-full gap-4 h-72">
 
         {/* 왼쪽: 행성 관측 */}
         <CutCornerCard onClick={() => onSelectContent('story')} accentColor="#22d3ee">
@@ -150,6 +151,7 @@ export default function SelectScreen({ onSelectContent, onBack }) {
           </div>
         </CutCornerCard>
 
+      </div>
       </div>
 
       {/* 하단 상태바 */}
