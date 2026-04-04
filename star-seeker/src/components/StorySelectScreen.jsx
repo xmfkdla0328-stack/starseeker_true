@@ -168,11 +168,11 @@ export default function StorySelectScreen({ onSelectChapter, onBack }) {
                       <span className="text-[9px] font-mono text-slate-600 tracking-widest uppercase">
                         Available
                       </span>
-                      <div className="flex items-center gap-2 text-[11px] font-mono font-bold
+                      <div className="flex items-center gap-2 text-sm font-mono font-bold
                         text-cyan-400 bg-cyan-950/60 border border-cyan-700/50 px-3 py-1.5
                         group-hover:border-cyan-500/70 group-hover:text-cyan-300 transition-all">
-                        <span className="tracking-widest uppercase">관측 시작</span>
-                        <Play size={10} className="fill-cyan-400 group-hover:fill-cyan-300" />
+                        <span className="tracking-wider uppercase">관측 시작</span>
+                        <Play size={12} className="fill-cyan-400 group-hover:fill-cyan-300" />
                       </div>
                     </>
                   )}
