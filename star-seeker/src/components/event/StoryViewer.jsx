@@ -131,6 +131,11 @@ export default function StoryViewer({ script, history, onNext, paused }) {
                 <div className="causality-ripple ripple-delay-1"></div>
             </div>
           )}
+          {script.effect === 'warp_white' && (
+            <div className="absolute inset-0 z-[100]">
+                <div className="warp-circle"></div>
+            </div>
+          )}
       </div>
 
       {/* 3. UI 레이어 (z-20) - 대화창 */}
