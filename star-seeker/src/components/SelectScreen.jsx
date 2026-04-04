@@ -1,120 +1,164 @@
 import React from 'react';
-import { Telescope, Pickaxe, ChevronLeft, Star, Zap } from 'lucide-react';
+import { Telescope, Pickaxe, ChevronLeft, Radio, Cpu } from 'lucide-react';
+
+const CutCornerCard = ({ onClick, accentColor, children }) => {
+  const clipPath = 'polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px))';
+  return (
+    <button
+      onClick={onClick}
+      className={`group relative flex-1 flex flex-col overflow-hidden active:scale-[0.97] transition-all duration-200`}
+      style={{ clipPath }}
+    >
+      {children}
+      {/* 모서리 컷 장식선 */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ clipPath }} xmlns="http://www.w3.org/2000/svg">
+        <rect
+          x="1" y="1"
+          width="calc(100% - 2px)" height="calc(100% - 2px)"
+          fill="none"
+          stroke={accentColor}
+          strokeWidth="1"
+          strokeOpacity="0.3"
+          className="group-hover:[stroke-opacity:0.7] transition-all"
+        />
+      </svg>
+    </button>
+  );
+};
 
 export default function SelectScreen({ onSelectContent, onBack }) {
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#04080f] animate-fade-in overflow-hidden">
+    <div className="flex-1 flex flex-col h-full bg-[#030912] animate-fade-in overflow-hidden relative">
+
+      {/* 배경 그리드 오버레이 */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.04]"
+        style={{
+          backgroundImage: 'linear-gradient(rgba(100,200,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(100,200,255,1) 1px, transparent 1px)',
+          backgroundSize: '40px 40px',
+        }}
+      />
 
       {/* 상단 헤더 */}
-      <div className="flex items-center px-4 pt-4 pb-3 flex-shrink-0">
+      <div className="relative z-10 flex items-center justify-between px-5 pt-5 pb-3 flex-shrink-0">
         <button
           onClick={onBack}
-          className="flex items-center gap-1 text-slate-500 hover:text-white transition-colors"
+          className="flex items-center gap-1.5 text-slate-500 hover:text-cyan-400 transition-colors"
         >
-          <ChevronLeft size={16} />
-          <span className="text-[10px] tracking-widest uppercase">Back</span>
+          <ChevronLeft size={14} />
+          <span className="text-[10px] tracking-widest font-mono uppercase">Back</span>
         </button>
-        <span className="mx-auto text-[9px] tracking-[0.4em] text-slate-600 font-mono uppercase">
-          Mission Select
-        </span>
-        <div className="w-10" />
+
+        <div className="flex flex-col items-center gap-0.5">
+          <span className="text-[9px] tracking-[0.5em] font-mono text-slate-500 uppercase">Operation</span>
+          <span className="text-xs tracking-[0.3em] font-mono text-cyan-500/80 uppercase">Select</span>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+          <span className="text-[9px] font-mono text-slate-600 uppercase">Online</span>
+        </div>
       </div>
 
-      {/* 1행 2열 카드 영역 */}
-      <div className="flex flex-1 gap-3 px-5 py-12 min-h-0">
+      {/* 얇은 구분선 */}
+      <div className="mx-5 h-px bg-gradient-to-r from-transparent via-cyan-900/60 to-transparent flex-shrink-0" />
+
+      {/* 카드 영역 */}
+      <div className="relative z-10 flex flex-1 gap-4 px-5 py-8 min-h-0">
 
         {/* 왼쪽: 행성 관측 */}
-        <button
-          onClick={() => onSelectContent('story')}
-          className="group relative flex-1 flex flex-col items-center justify-center overflow-hidden rounded-2xl border border-cyan-900/40 hover:border-cyan-500/50 active:scale-[0.97] transition-all duration-200 bg-[#060f20]"
-        >
-          {/* 배경 그라디언트 */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#071535] via-[#060f20] to-[#020810] group-hover:from-[#0a1f45] transition-all duration-300" />
-
-          {/* 별빛 파티클 */}
-          {[...Array(16)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full bg-white animate-pulse"
-              style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                width: `${Math.random() * 1.5 + 0.5}px`,
-                height: `${Math.random() * 1.5 + 0.5}px`,
-                opacity: Math.random() * 0.4 + 0.1,
-                animationDelay: `${Math.random() * 4}s`,
-                animationDuration: `${2 + Math.random() * 3}s`,
-              }}
-            />
-          ))}
+        <CutCornerCard onClick={() => onSelectContent('story')} accentColor="#22d3ee">
+          <div className="absolute inset-0 bg-gradient-to-b from-[#060f20] to-[#030912] group-hover:from-[#091525] transition-all duration-300" />
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500/60 to-transparent" />
+          <div className="absolute inset-0 bg-cyan-500/0 group-hover:bg-cyan-500/[0.04] transition-all duration-300" />
 
           {/* 광원 */}
-          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-cyan-600/20 blur-2xl group-hover:bg-cyan-500/30 transition-all duration-500" />
+          <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full bg-cyan-600/15 blur-2xl group-hover:bg-cyan-500/25 transition-all duration-500" />
 
-          {/* 워터마크 */}
-          <div className="absolute bottom-3 right-2 text-cyan-900/20 group-hover:text-cyan-800/30 transition-colors">
-            <Telescope size={80} strokeWidth={0.7} />
-          </div>
-
-          {/* 콘텐츠 */}
-          <div className="relative z-10 flex flex-col items-center gap-3 px-3">
-            <div className="p-3 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 group-hover:bg-cyan-500/25 group-hover:border-cyan-400/50 transition-all">
-              <Telescope size={28} />
+          <div className="relative z-10 flex flex-col items-center justify-center gap-4 p-5 h-full">
+            {/* 타입 뱃지 */}
+            <div className="flex items-center gap-1.5 self-start">
+              <Radio size={9} className="text-cyan-500" />
+              <span className="text-[9px] font-mono tracking-widest text-cyan-500/80 uppercase">Survey</span>
             </div>
-            <h2 className="text-base font-bold tracking-[0.12em] text-white group-hover:text-cyan-100 transition-colors uppercase leading-tight text-center">
-              행성<br />관측
-            </h2>
-            <p className="text-[10px] text-slate-500 leading-relaxed text-center">
+
+            {/* 아이콘 */}
+            <div className="p-3.5 rounded-lg bg-cyan-950/60 border border-cyan-500/20 text-cyan-400 group-hover:border-cyan-400/40 group-hover:bg-cyan-950/80 transition-all">
+              <Telescope size={30} strokeWidth={1.5} />
+            </div>
+
+            {/* 제목 */}
+            <div className="text-center">
+              <p className="text-[9px] font-mono text-slate-600 tracking-widest uppercase mb-1">Mission Type</p>
+              <h2 className="text-lg font-bold tracking-wider text-white group-hover:text-cyan-100 transition-colors leading-tight">
+                행성<br />관측
+              </h2>
+            </div>
+
+            {/* 설명 */}
+            <p className="text-[10px] text-slate-500 text-center leading-relaxed font-light">
               미지의 좌표를<br />탐사하고 성운의<br />기억을 추적합니다
             </p>
-            <div className="flex items-center gap-1 text-[9px] text-cyan-400 bg-cyan-950/70 px-2 py-0.5 rounded-full border border-cyan-500/25">
-              <Star size={8} className="fill-cyan-400" />
-              <span className="tracking-wider uppercase">Story</span>
+
+            {/* 하단 태그 */}
+            <div className="mt-auto flex items-center gap-1.5 text-[9px] font-mono text-cyan-600 border border-cyan-900/60 px-2.5 py-1 group-hover:border-cyan-700/60 group-hover:text-cyan-500 transition-all">
+              <span className="w-1.5 h-1.5 bg-cyan-500 rounded-full" />
+              MAIN STORY
             </div>
           </div>
-
-          {/* 하단 강조선 */}
-          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-        </button>
+        </CutCornerCard>
 
         {/* 오른쪽: 자원 채굴 */}
-        <button
-          onClick={() => onSelectContent('mining')}
-          className="group relative flex-1 flex flex-col items-center justify-center overflow-hidden rounded-2xl border border-amber-900/40 hover:border-amber-500/50 active:scale-[0.97] transition-all duration-200 bg-[#120a02]"
-        >
-          {/* 배경 그라디언트 */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#1c0e02] via-[#120a02] to-[#060400] group-hover:from-[#2a1503] transition-all duration-300" />
+        <CutCornerCard onClick={() => onSelectContent('mining')} accentColor="#f59e0b">
+          <div className="absolute inset-0 bg-gradient-to-b from-[#180d01] to-[#030912] group-hover:from-[#221202] transition-all duration-300" />
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-500/60 to-transparent" />
+          <div className="absolute inset-0 bg-amber-500/0 group-hover:bg-amber-500/[0.03] transition-all duration-300" />
 
           {/* 광원 */}
-          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-amber-600/15 blur-2xl group-hover:bg-amber-500/25 transition-all duration-500" />
+          <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full bg-amber-600/10 blur-2xl group-hover:bg-amber-500/20 transition-all duration-500" />
 
-          {/* 워터마크 */}
-          <div className="absolute bottom-3 left-2 text-amber-900/15 group-hover:text-amber-800/25 transition-colors -rotate-12">
-            <Pickaxe size={80} strokeWidth={0.7} />
-          </div>
-
-          {/* 콘텐츠 */}
-          <div className="relative z-10 flex flex-col items-center gap-3 px-3">
-            <div className="p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 group-hover:bg-amber-500/25 group-hover:border-amber-400/50 transition-all">
-              <Pickaxe size={28} />
+          <div className="relative z-10 flex flex-col items-center justify-center gap-4 p-5 h-full">
+            {/* 타입 뱃지 */}
+            <div className="flex items-center gap-1.5 self-start">
+              <Cpu size={9} className="text-amber-500" />
+              <span className="text-[9px] font-mono tracking-widest text-amber-500/80 uppercase">Mining</span>
             </div>
-            <h2 className="text-base font-bold tracking-[0.12em] text-white group-hover:text-amber-100 transition-colors uppercase leading-tight text-center">
-              자원<br />채굴
-            </h2>
-            <p className="text-[10px] text-slate-500 leading-relaxed text-center">
+
+            {/* 아이콘 */}
+            <div className="p-3.5 rounded-lg bg-amber-950/60 border border-amber-500/20 text-amber-400 group-hover:border-amber-400/40 group-hover:bg-amber-950/80 transition-all">
+              <Pickaxe size={30} strokeWidth={1.5} />
+            </div>
+
+            {/* 제목 */}
+            <div className="text-center">
+              <p className="text-[9px] font-mono text-slate-600 tracking-widest uppercase mb-1">Mission Type</p>
+              <h2 className="text-lg font-bold tracking-wider text-white group-hover:text-amber-100 transition-colors leading-tight">
+                자원<br />채굴
+              </h2>
+            </div>
+
+            {/* 설명 */}
+            <p className="text-[10px] text-slate-500 text-center leading-relaxed font-light">
               소행성대에서<br />필요한 자원을<br />확보합니다
             </p>
-            <div className="flex items-center gap-1 text-[9px] text-amber-400 bg-amber-950/70 px-2 py-0.5 rounded-full border border-amber-500/25">
-              <Zap size={8} className="fill-amber-400" />
-              <span className="tracking-wider uppercase">Mining</span>
+
+            {/* 하단 태그 */}
+            <div className="mt-auto flex items-center gap-1.5 text-[9px] font-mono text-amber-600 border border-amber-900/60 px-2.5 py-1 group-hover:border-amber-700/60 group-hover:text-amber-500 transition-all">
+              <span className="w-1.5 h-1.5 bg-amber-500 rounded-full" />
+              RESOURCE
             </div>
           </div>
-
-          {/* 하단 강조선 */}
-          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-500/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-        </button>
+        </CutCornerCard>
 
       </div>
+
+      {/* 하단 상태바 */}
+      <div className="relative z-10 flex items-center justify-center gap-3 pb-5 flex-shrink-0">
+        <span className="text-[9px] font-mono text-slate-700 tracking-widest uppercase">
+          Awaiting Selection...
+        </span>
+      </div>
+
     </div>
   );
 }
