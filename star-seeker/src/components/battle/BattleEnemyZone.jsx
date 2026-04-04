@@ -3,19 +3,10 @@ import { AlertTriangle, Zap } from 'lucide-react';
 import { ENEMY_CAUSALITY_TRIGGER } from '../../data/gameData';
 
 export default function BattleEnemyZone({ enemy, enemyWarning, showStatus = true }) {
-  const [introWarning, setIntroWarning] = useState(false);
   const [circleActive, setCircleActive] = useState(false);
 
   useEffect(() => {
-    if (enemy && enemy.image) {
-      // 0.2초에 띄우고 1.5초만에 빠르게 닫아 템포를 살립니다.
-      const t1 = setTimeout(() => setIntroWarning(true), 200);
-      const t2 = setTimeout(() => {
-        setIntroWarning(false);
-        setCircleActive(true);
-      }, 1500);
-      return () => { clearTimeout(t1); clearTimeout(t2); };
-    } else {
+    if (enemy) {
       setCircleActive(true);
     }
   }, [enemy]);
@@ -103,15 +94,12 @@ export default function BattleEnemyZone({ enemy, enemyWarning, showStatus = true
         </div>
       </div>
 
-      {/* [Fix] 뚝 끊기던 네모 박스 삭제 -> 화면 전체를 가로지르는 시네마틱 경고 배너 형태로 교체 */}
-      {(introWarning || enemyWarning) && (
-        <div className={`absolute inset-0 flex items-center justify-center z-50 pointer-events-none ${introWarning ? 'bg-red-950/20 backdrop-blur-sm animate-pulse' : 'bg-fuchsia-900/10 animate-pulse-fast'}`}>
-          <div className={`w-full py-6 flex items-center justify-center gap-4 backdrop-blur-md shadow-[0_0_40px_rgba(0,0,0,0.8)] border-y
-            ${enemyWarning ? 'bg-fuchsia-950/80 border-fuchsia-500/50' : 'bg-red-950/80 border-red-500/40'}
-          `}>
-            <AlertTriangle className={enemyWarning ? 'text-fuchsia-500 animate-bounce' : 'text-red-500'} size={28} />
-            <span className={`${enemyWarning ? 'text-fuchsia-200' : 'text-red-200'} font-black tracking-[0.3em] text-lg`}>
-              {introWarning ? "WARNING: ENTITY DETECTED" : "WARNING: HIGH CAUSALITY"}
+      {enemyWarning && (
+        <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none bg-fuchsia-900/10 animate-pulse">
+          <div className="w-full py-6 flex items-center justify-center gap-4 backdrop-blur-md shadow-[0_0_40px_rgba(0,0,0,0.8)] border-y bg-fuchsia-950/80 border-fuchsia-500/50">
+            <AlertTriangle className="text-fuchsia-500 animate-bounce" size={28} />
+            <span className="text-fuchsia-200 font-black tracking-[0.3em] text-lg">
+              WARNING: HIGH CAUSALITY
             </span>
           </div>
         </div>
