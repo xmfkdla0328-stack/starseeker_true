@@ -195,7 +195,6 @@ export const prologue_event = {
       text: `그곳에, 지금까지 무의미한 것을 알면서도 싸워온 이유가 있다.`, 
       speaker: "???", 
       bg: "red_alert",
-      effect: "heartbeat_fast" // [NEW] 전투 임박, 심박수 증가
     },
     {
       id: 24, 
