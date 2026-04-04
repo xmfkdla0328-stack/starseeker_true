@@ -172,7 +172,8 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col h-[100dvh] w-full max-w-md mx-auto bg-[#0f172a] overflow-hidden font-sans border-x border-white/10 shadow-2xl text-slate-100 selection:bg-cyan-500/30 relative">
+    <div className="min-h-screen w-full flex items-center justify-center bg-black">
+    <div className="flex flex-col h-[100dvh] max-h-[900px] w-full max-w-md mx-auto bg-[#0f172a] overflow-hidden font-sans border-x border-white/10 shadow-2xl text-slate-100 selection:bg-cyan-500/30 relative">
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#020617] via-[#1e1b4b] to-[#0f172a] pointer-events-none">
         {[...Array(20)].map((_, i) => (
             <div key={i} className="star" style={{ top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%`, width: `${Math.random() * 2 + 1}px`, height: `${Math.random() * 2 + 1}px`, animationDelay: `${Math.random() * 3}s` }}></div>
@@ -187,6 +188,7 @@ export default function App() {
         initialParty={initialParty}
         activeEventId={nextEventId || 'evt_prologue_start'} 
       />
+    </div>
     </div>
   );
 }
