@@ -4,19 +4,18 @@ import useTypewriter from '../../hooks/event/useTypewriter';
 import LogModal from './LogModal';
 
 const STAT_CONFIG = [
-  { key: 'str', label: '힘',   icon: <Sword  size={10} className="text-rose-400" /> },
-  { key: 'agi', label: '민첩', icon: <Zap    size={10} className="text-amber-400" /> },
-  { key: 'int', label: '지력', icon: <Brain  size={10} className="text-violet-400" /> },
-  { key: 'wil', label: '의지', icon: <Shield size={10} className="text-emerald-400" /> },
-  { key: 'chr', label: '매력', icon: <Heart  size={10} className="text-pink-400" /> },
+  { key: 'str', label: '힘',   icon: <Sword  size={9} className="text-rose-400" /> },
+  { key: 'agi', label: '민첩', icon: <Zap    size={9} className="text-amber-400" /> },
+  { key: 'int', label: '지력', icon: <Brain  size={9} className="text-violet-400" /> },
+  { key: 'wil', label: '의지', icon: <Shield size={9} className="text-emerald-400" /> },
+  { key: 'chr', label: '매력', icon: <Heart  size={9} className="text-pink-400" /> },
 ];
 
 export default function StoryViewer({ script, history, onNext, paused, userStats }) {
-  const hasImage = !!script.characterImage;
+  const hasPortrait = !!(script.characterImage && script.bg !== 'black');
   const [showLog, setShowLog] = useState(false);
   
   const { displayedText, isTyping, forceComplete } = useTypewriter(script.text || "");
-
   const effectKey = `${script.id}-${script.effect}`;
 
   useEffect(() => {
@@ -39,7 +38,7 @@ export default function StoryViewer({ script, history, onNext, paused, userStats
   const getTextStyle = () => {
     if (script.type === 'monologue') return 'font-serif text-slate-400 italic tracking-wide'; 
     if (script.type === 'question') return 'font-sans text-cyan-200 font-bold';
-    return 'font-serif text-slate-100 font-bold tracking-wide leading-relaxed';
+    return 'font-serif text-slate-100 tracking-wide leading-relaxed';
   };
 
   const renderStyledText = (text) => {
@@ -83,60 +82,44 @@ export default function StoryViewer({ script, history, onNext, paused, userStats
 
       {showLog && <LogModal history={history} onClose={() => setShowLog(false)} />}
 
-      {/* === 전체화면 이펙트 (warp_white / blackout) — 항상 최상위 === */}
+      {/* 전체화면 이펙트 (최상위) */}
       <div key={effectKey} className="absolute inset-0 z-50 pointer-events-none">
-        {script.effect === 'blackout' && <div className="absolute inset-0 bg-black z-[100]" />}
-        {script.effect === 'warp_white' && (
-          <div className="absolute inset-0 z-[100]">
-            <div className="warp-circle" />
-          </div>
-        )}
+        {script.effect === 'blackout'   && <div className="absolute inset-0 bg-black z-[100]" />}
+        {script.effect === 'warp_white' && <div className="absolute inset-0 z-[100]"><div className="warp-circle" /></div>}
       </div>
 
-      {/* =====================================================
-          TOP ZONE: 배경 이미지 영역
-          - hideUI=true 시 → 전체 화면 (CG 연출)
-          - 일반 시 → 1/3 height
-      ===================================================== */}
+      {/* ── TOP ZONE: 배경 이미지 영역 ─────────────────────────── */}
       <div
-        className={`relative flex-shrink-0 overflow-hidden transition-all duration-500 ${getBgClass()} ${script.hideUI ? 'flex-1' : ''}`}
+        className={`relative flex-shrink-0 overflow-hidden ${getBgClass()} ${script.hideUI ? 'flex-1' : ''}`}
         style={!script.hideUI ? { height: '33%' } : undefined}
       >
-        {/* 배경 이미지 (경로가 /로 시작할 때) */}
         {isBgImage && (
           <img src={script.bg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />
         )}
 
-        {/* CG 이미지 */}
         {script.centerImage && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 opacity-90 overflow-hidden">
             <img
               src={script.centerImage}
               alt="Event CG"
               className={`w-full h-full object-contain drop-shadow-[0_0_50px_rgba(220,38,38,0.4)] origin-bottom
-                ${script.centerImageEffect === 'pan-up' ? 'animate-pan-up' : 'animate-fade-in scale-[1.25]'}
-              `}
+                ${script.centerImageEffect === 'pan-up' ? 'animate-pan-up' : 'animate-fade-in scale-[1.25]'}`}
             />
           </div>
         )}
 
-        {/* 이펙트: glitch */}
-        {script.effect === 'glitch' && <div className="absolute inset-0 animate-glitch z-20" />}
-
-        {/* 이펙트: flash_red */}
+        {/* 이펙트들 */}
+        {script.effect === 'glitch'              && <div className="absolute inset-0 animate-glitch z-20" />}
         {script.effect === 'flash_red_and_shake' && <div className="absolute inset-0 animate-flash-red mix-blend-overlay z-20" />}
-
-        {/* heartbeat ECG */}
         {script.effect === 'heartbeat' && (
           <div className="absolute inset-0 flex items-center justify-center opacity-80 z-20">
-            <svg viewBox="0 0 800 200" className="w-full h-32 animate-scan-pass drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]">
-              <path d="M0 100 H300 L320 80 L340 120 L360 40 L380 160 L400 60 L420 100 H800" fill="none" stroke="#ef4444" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            <svg viewBox="0 0 800 200" className="w-full h-28 animate-scan-pass drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]">
+              <path d="M0 100 H300 L320 80 L340 120 L360 40 L380 160 L400 60 L420 100 H800"
+                fill="none" stroke="#ef4444" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             <div className="absolute inset-0 bg-[radial-gradient(circle,transparent_60%,rgba(239,68,68,0.2)_100%)] animate-pulse" />
           </div>
         )}
-
-        {/* causality_manifest */}
         {script.effect === 'causality_manifest' && (
           <div className="absolute inset-0 flex items-center justify-center animate-fade-in z-20">
             <div className="causality-core" />
@@ -144,25 +127,22 @@ export default function StoryViewer({ script, history, onNext, paused, userStats
           </div>
         )}
 
-        {/* 하단 그라디언트 — 대사창으로 자연스럽게 이어짐 */}
+        {/* 하단 페이드 */}
         {!script.hideUI && (
           <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-slate-950 to-transparent z-30" />
         )}
-        {/* 상단 어두운 처리 */}
-        <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-black/50 to-transparent z-30" />
+        <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-black/50 to-transparent z-30" />
       </div>
 
-      {/* =====================================================
-          BOTTOM ZONE: stat HUD + 대사창 (hideUI=false 때만 렌더)
-      ===================================================== */}
+      {/* ── BOTTOM ZONE: Stat HUD + 대사창 ──────────────────────── */}
       {!script.hideUI && (
-        <div className="flex-1 flex flex-col bg-slate-950 overflow-hidden relative min-h-0">
+        <div className="flex-1 flex flex-col bg-slate-950 overflow-hidden min-h-0">
 
           {/* Stat HUD */}
           {userStats && (
-            <div className="flex-shrink-0 flex items-center justify-center gap-4 px-4 py-1.5 bg-slate-900/70 border-b border-white/5">
+            <div className="flex-shrink-0 flex items-center justify-center gap-4 px-4 py-1.5 bg-slate-900/60 border-b border-white/5">
               {STAT_CONFIG.map(({ key, label, icon }) => (
-                <div key={key} className="flex items-center gap-1 font-mono text-[10px] text-slate-400">
+                <div key={key} className="flex items-center gap-1 font-mono text-[10px]">
                   {icon}
                   <span className="text-slate-500">{label}</span>
                   <span className="text-slate-200 font-bold">{userStats[key]}</span>
@@ -171,52 +151,67 @@ export default function StoryViewer({ script, history, onNext, paused, userStats
             </div>
           )}
 
-          {/* 대화창 영역 */}
-          <div className="relative z-20 flex-1 flex flex-col p-4 pb-5 animate-fade-in min-h-0">
-            <div className="relative w-full max-w-4xl mx-auto flex-1 flex flex-col justify-end">
+          {/* 대사 패널 */}
+          <div className="flex-1 flex p-3 min-h-0">
+            <div className="flex-1 flex rounded-xl overflow-hidden border border-white/10 bg-slate-950/70 backdrop-blur-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_0_30px_rgba(0,0,0,0.6)] relative min-h-0">
 
-              {/* 캐릭터 썸네일 */}
-              <div className={`absolute left-2 bottom-full translate-y-8 z-30 transition-all duration-500 ease-out origin-bottom-left 
-                ${hasImage && script.bg !== 'black' ? 'opacity-100 scale-100' : 'opacity-0 scale-90 pointer-events-none'}`}>
-                {script.characterImage && (
-                  <div className="w-20 h-20 rounded-lg border-2 border-white/15 bg-slate-800 shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden">
-                    <img src={script.characterImage} alt={script.speaker} className="w-full h-full object-cover" />
-                  </div>
-                )}
-              </div>
+              {/* 상단 하이라이트 선 */}
+              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent z-10" />
 
-              {/* 화자 이름 */}
-              {script.speaker && script.speaker !== '???' && (
-                <div className={`absolute z-20 bottom-full mb-[-2px] transition-all duration-500 ${hasImage && script.bg !== 'black' ? 'left-24' : 'left-2'}`}>
-                  <div className="bg-slate-900/80 border border-white/10 border-b-0 text-amber-400 text-xs font-bold px-4 py-1.5 rounded-t-lg shadow-lg tracking-wider backdrop-blur-md">
-                    {script.speaker}
+              {/* 왼쪽: 캐릭터 포트레이트 패널 */}
+              {hasPortrait && (
+                <div className="flex-shrink-0 w-[72px] flex flex-col border-r border-white/8 bg-slate-900/40">
+                  <div className="flex-1 overflow-hidden">
+                    <img
+                      src={script.characterImage}
+                      alt={script.speaker}
+                      className="w-full h-full object-cover object-top"
+                    />
                   </div>
+                  {script.speaker && script.speaker !== '???' && (
+                    <div className="flex-shrink-0 bg-slate-900/80 border-t border-white/8 py-1 px-1 text-center">
+                      <span className="text-amber-400 font-bold tracking-wider leading-none"
+                        style={{ fontSize: '9px' }}>
+                        {script.speaker}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* 대사창 */}
-              <div className={`relative backdrop-blur-xl border rounded-2xl p-4 shadow-[0_0_50px_rgba(0,0,0,0.4)] flex flex-col justify-between transition-colors flex-1
-                ${script.bg === 'black' ? 'bg-black/80 border-white/5 rounded-tl-2xl' : 'bg-slate-950/60 border-white/10 rounded-tl-none group-hover:bg-slate-950/70'}`}>
+              {/* 오른쪽: 텍스트 영역 */}
+              <div className="flex-1 flex flex-col p-4 min-w-0 relative">
+                {/* 이미지 없을 때 화자 이름 */}
+                {!hasPortrait && script.speaker && script.speaker !== '???' && (
+                  <div className="flex-shrink-0 mb-2">
+                    <span className="text-amber-400 text-xs font-bold tracking-widest font-mono">
+                      {script.speaker}
+                    </span>
+                    <div className="mt-0.5 h-[1px] bg-gradient-to-r from-amber-400/30 to-transparent" />
+                  </div>
+                )}
 
-                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-
-                <button
-                  onClick={(e) => { e.stopPropagation(); setShowLog(true); }}
-                  className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-white/10 text-slate-500 hover:text-white transition-colors z-40"
-                >
-                  <History size={15} />
-                </button>
-
-                <div className={`transition-all duration-300 ${hasImage && script.bg !== 'black' ? 'pt-9' : 'pt-5'} flex-1`}>
-                  <p className={`text-sm leading-loose whitespace-pre-wrap text-shadow-sm z-30 relative ${getTextStyle()}`}>
+                {/* 대사 텍스트 */}
+                <div className="flex-1 overflow-hidden">
+                  <p className={`text-sm leading-loose whitespace-pre-wrap ${getTextStyle()}`}>
                     {renderStyledText(displayedText)}
-                    {isTyping && <span className="animate-pulse ml-1 inline-block w-1.5 h-4 bg-cyan-400 align-middle" />}
+                    {isTyping && (
+                      <span className="animate-pulse ml-1 inline-block w-1 h-[1em] bg-cyan-400 align-middle" />
+                    )}
                   </p>
                 </div>
 
-                <div className="absolute bottom-2 right-4 animate-pulse">
-                  <span className="text-[10px] text-slate-500 font-mono tracking-widest uppercase opacity-70 group-hover:opacity-100 transition-opacity">
-                    {isTyping ? '▶ skipping...' : '▶ touch'}
+                {/* 하단 바: 로그 버튼 + 진행 힌트 */}
+                <div className="flex-shrink-0 flex items-center justify-between mt-2 pt-2 border-t border-white/5">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setShowLog(true); }}
+                    className="flex items-center gap-1 text-slate-500 hover:text-slate-300 transition-colors p-1 rounded"
+                  >
+                    <History size={13} />
+                    <span className="text-[10px] font-mono tracking-wider">LOG</span>
+                  </button>
+                  <span className="text-[10px] text-slate-500 font-mono tracking-widest uppercase animate-pulse">
+                    {isTyping ? '■ skip' : '▶ next'}
                   </span>
                 </div>
               </div>
