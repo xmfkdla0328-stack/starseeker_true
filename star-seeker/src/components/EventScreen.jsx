@@ -20,6 +20,7 @@ export default function EventScreen({
   onEventComplete, 
   onUnlockKeyword, 
   collectedKeywords, 
+  userStats,
   navigate 
 }) {
   // --- State ---
@@ -158,7 +159,8 @@ export default function EventScreen({
                     script={currentScene} 
                     history={history} 
                     onNext={handleNext} 
-                    paused={isPaused} 
+                    paused={isPaused}
+                    userStats={userStats}
                 />
             )}
             {phase === 'choice' && (
