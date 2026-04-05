@@ -172,8 +172,8 @@ export default function StoryViewer({ script, history, onNext, paused, userStats
           )}
 
           {/* 대화창 영역 */}
-          <div className="relative z-20 flex-1 flex flex-col justify-end p-4 pb-5 animate-fade-in min-h-0">
-            <div className="relative w-full max-w-4xl mx-auto">
+          <div className="relative z-20 flex-1 flex flex-col p-4 pb-5 animate-fade-in min-h-0">
+            <div className="relative w-full max-w-4xl mx-auto flex-1 flex flex-col justify-end">
 
               {/* 캐릭터 썸네일 */}
               <div className={`absolute left-2 bottom-full translate-y-8 z-30 transition-all duration-500 ease-out origin-bottom-left 
@@ -195,7 +195,7 @@ export default function StoryViewer({ script, history, onNext, paused, userStats
               )}
 
               {/* 대사창 */}
-              <div className={`relative backdrop-blur-xl border rounded-2xl p-4 shadow-[0_0_50px_rgba(0,0,0,0.4)] min-h-[120px] flex flex-col justify-between transition-colors
+              <div className={`relative backdrop-blur-xl border rounded-2xl p-4 shadow-[0_0_50px_rgba(0,0,0,0.4)] flex flex-col justify-between transition-colors flex-1
                 ${script.bg === 'black' ? 'bg-black/80 border-white/5 rounded-tl-2xl' : 'bg-slate-950/60 border-white/10 rounded-tl-none group-hover:bg-slate-950/70'}`}>
 
                 <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
