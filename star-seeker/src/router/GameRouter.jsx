@@ -138,6 +138,7 @@ export default function GameRouter({
             onUnlockKeyword={data.handleUnlockKeyword}
             collectedKeywords={data.collectedKeywords}
             userStats={data.userStats}
+            partyList={data.partyList}
             navigate={nav.goHome} 
         />
       )}

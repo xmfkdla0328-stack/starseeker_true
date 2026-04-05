@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Scroll, ArrowLeft } from 'lucide-react';
 
 // Sub Components
@@ -21,6 +21,7 @@ export default function EventScreen({
   onUnlockKeyword, 
   collectedKeywords, 
   userStats,
+  partyList,
   navigate 
 }) {
   // --- State ---
@@ -30,6 +31,13 @@ export default function EventScreen({
   const [history, setHistory] = useState([]);
   const [newKeyword, setNewKeyword] = useState(null); 
   
+  // 파티 보유 스킬 (중복 제거, { name, level } 형태)
+  const partySkills = useMemo(() => {
+    if (!partyList) return [];
+    const allSkills = partyList.flatMap(char => char.skills || []);
+    return [...new Set(allSkills)].map(name => ({ name, level: 1 }));
+  }, [partyList]);
+
   // 일시정지 및 설정 상태
   const [isPaused, setIsPaused] = useState(false);
   const [bgmVolume, setBgmVolume] = useState(0.5);
@@ -161,6 +169,7 @@ export default function EventScreen({
                     onNext={handleNext} 
                     paused={isPaused}
                     userStats={userStats}
+                    partySkills={partySkills}
                 />
             )}
             {phase === 'choice' && (
