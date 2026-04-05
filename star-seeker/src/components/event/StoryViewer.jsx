@@ -12,7 +12,7 @@ const STAT_CONFIG = [
 ];
 
 // 포트레이트가 bg존과 대사창 경계에 걸쳐 나오는 사이즈 (px)
-const PORTRAIT_SIZE = 76;
+const PORTRAIT_SIZE = 88;
 // bg존 높이 비율 (33%)
 const BG_RATIO = 0.33;
 
@@ -236,15 +236,26 @@ export default function StoryViewer({ script, history, onNext, paused, userStats
 
           {/* ── Skills HUD ────────────────────────────────────────── */}
           {partySkills && partySkills.length > 0 && (
-            <div className="flex-shrink-0 flex flex-wrap items-center gap-1.5 px-3 py-2 bg-slate-900/50 border-t border-white/5">
-              {partySkills.map(({ name, level }) => (
-                <span
-                  key={name}
-                  className="text-[11px] font-mono text-slate-300 bg-slate-800/70 border border-white/10 px-2 py-0.5 rounded-md tracking-wide"
-                >
-                  {name}<span className="text-cyan-500/80">({level}단계)</span>
-                </span>
-              ))}
+            <div className="flex-shrink-0 border-t border-white/8 bg-[#060d18]">
+              {/* 헤더 */}
+              <div className="flex items-center gap-2 px-3 pt-1.5 pb-1">
+                <div className="h-[1px] w-2 bg-cyan-500/60" />
+                <span className="text-[9px] font-mono tracking-[0.25em] text-cyan-600 uppercase">Acquired Skills</span>
+                <div className="h-[1px] flex-1 bg-cyan-500/20" />
+              </div>
+              {/* 스킬 태그 목록 */}
+              <div className="flex flex-wrap gap-1.5 px-3 pb-2">
+                {partySkills.map(({ name, level }) => (
+                  <div
+                    key={name}
+                    className="flex items-center gap-1 bg-slate-800/80 border border-cyan-900/60 px-2 py-0.5"
+                    style={{ clipPath: 'polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))' }}
+                  >
+                    <span className="text-[10px] font-mono text-slate-200 tracking-wide">{name}</span>
+                    <span className="text-[9px] font-mono text-cyan-400/80 tracking-wider">·{level}단계</span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
