@@ -96,39 +96,74 @@ export default function HomeScreen({ onStart, onParty, onManage, onStorage, onRe
         </p>
       </div>
 
-      {/* 메인 메뉴 버튼들 */}
-      <div className="flex flex-col gap-2.5 px-6 pb-12 z-10">
+      {/* 하단 커맨드 패널 */}
+      <div className="relative px-5 pb-10 z-10">
 
-        {/* GAME START — 주요 CTA */}
-        <button
-          onClick={onStart}
-          className="group relative w-full py-5 rounded-lg overflow-hidden active:scale-[0.98] transition-all duration-200 shadow-[0_0_24px_rgba(6,182,212,0.08)]"
-          style={{ background: 'linear-gradient(135deg, rgba(15,23,42,0.95) 0%, rgba(8,47,73,0.6) 100%)', border: '1px solid rgba(6,182,212,0.25)' }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/8 to-transparent translate-x-[-100%] group-active:translate-x-[100%] transition-transform duration-700 pointer-events-none" />
-          <div className="flex items-center justify-center gap-3">
-            <Play size={16} className="fill-cyan-400 text-cyan-400" />
-            <span className="text-base font-bold tracking-[0.25em] text-white font-mono">GAME START</span>
-          </div>
-        </button>
-
-        {/* 서브 4버튼 */}
-        <div className="grid grid-cols-4 gap-2">
-          <MenuButton icon={Users} label="PARTY" onClick={onParty} />
-          <MenuButton icon={Settings} label="MANAGE" onClick={onManage} />
-          <MenuButton icon={Database} label="STORAGE" onClick={onStorage} />
-          <MenuButton icon={BookOpen} label="ARCHIVE" onClick={onRecord} />
+        {/* 패널 상단 장식선 */}
+        <div className="relative flex items-center gap-2 mb-4">
+          <div className="w-2 h-2 border-l border-t border-white/25" />
+          <div className="h-px flex-1 bg-gradient-to-r from-white/15 to-transparent" />
+          <span className="text-[8px] font-mono tracking-[0.4em] text-slate-600">SYSTEM INTERFACE</span>
+          <div className="h-px flex-1 bg-gradient-to-l from-white/15 to-transparent" />
+          <div className="w-2 h-2 border-r border-t border-white/25" />
         </div>
 
-        {/* WISH / GACHA — 특별 액션 */}
-        <button
-          onClick={onGacha}
-          className="group relative w-full py-4 rounded-lg overflow-hidden active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
-          style={{ background: 'linear-gradient(135deg, rgba(76,29,149,0.5) 0%, rgba(112,26,117,0.4) 100%)', border: '1px solid rgba(192,132,252,0.2)' }}
-        >
-          <Sparkles size={13} className="text-fuchsia-400" />
-          <span className="text-xs font-bold text-fuchsia-100 tracking-[0.35em] font-mono">WISH / GACHA</span>
-        </button>
+        <div className="flex flex-col gap-2">
+
+          {/* GAME START */}
+          <button
+            onClick={onStart}
+            className="group relative w-full rounded overflow-hidden active:scale-[0.98] transition-all duration-200"
+            style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(6,182,212,0.2)', boxShadow: '0 0 30px rgba(6,182,212,0.06) inset' }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/5 via-transparent to-transparent pointer-events-none" />
+            <div className="flex items-center gap-4 px-4 py-4">
+              <div className="w-10 h-10 rounded flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.25)' }}>
+                <Play size={15} className="fill-cyan-400 text-cyan-400 ml-0.5" />
+              </div>
+              <div className="flex flex-col items-start gap-0.5">
+                <span className="text-[8px] font-mono tracking-[0.3em] text-cyan-500/60">PRIMARY ACTION</span>
+                <span className="text-sm font-bold tracking-[0.2em] text-white font-mono">GAME START</span>
+              </div>
+              <div className="ml-auto text-cyan-500/40 text-lg font-thin">›</div>
+            </div>
+          </button>
+
+          {/* 서브 4버튼 */}
+          <div className="grid grid-cols-4 gap-1.5">
+            <MenuButton icon={Users} label="PARTY" onClick={onParty} />
+            <MenuButton icon={Settings} label="MANAGE" onClick={onManage} />
+            <MenuButton icon={Database} label="STORAGE" onClick={onStorage} />
+            <MenuButton icon={BookOpen} label="ARCHIVE" onClick={onRecord} />
+          </div>
+
+          {/* WISH / GACHA */}
+          <button
+            onClick={onGacha}
+            className="group relative w-full rounded overflow-hidden active:scale-[0.98] transition-all duration-200"
+            style={{ background: 'rgba(49,10,76,0.7)', border: '1px solid rgba(192,132,252,0.2)', boxShadow: '0 0 30px rgba(168,85,247,0.04) inset' }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500/5 via-transparent to-transparent pointer-events-none" />
+            <div className="flex items-center gap-4 px-4 py-4">
+              <div className="w-10 h-10 rounded flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(192,132,252,0.1)', border: '1px solid rgba(192,132,252,0.2)' }}>
+                <Sparkles size={15} className="text-fuchsia-400" />
+              </div>
+              <div className="flex flex-col items-start gap-0.5">
+                <span className="text-[8px] font-mono tracking-[0.3em] text-fuchsia-400/50">LIMITED GACHA</span>
+                <span className="text-sm font-bold tracking-[0.2em] text-fuchsia-100 font-mono">WISH / GACHA</span>
+              </div>
+              <div className="ml-auto text-fuchsia-500/40 text-lg font-thin">›</div>
+            </div>
+          </button>
+
+        </div>
+
+        {/* 패널 하단 장식선 */}
+        <div className="relative flex items-center gap-2 mt-4">
+          <div className="w-2 h-2 border-l border-b border-white/25" />
+          <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
+          <div className="w-2 h-2 border-r border-b border-white/25" />
+        </div>
 
       </div>
     </div>
@@ -139,13 +174,12 @@ function MenuButton({ icon: Icon, label, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-center justify-center gap-2.5 py-4 rounded-lg active:scale-95 transition-all duration-150"
-      style={{ background: 'rgba(30,41,59,0.6)', border: '1px solid rgba(255,255,255,0.07)' }}
+      className="flex flex-col items-center justify-center gap-2 py-4 rounded active:scale-95 transition-all duration-150 relative overflow-hidden"
+      style={{ background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.07)' }}
     >
-      <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.05)' }}>
-        <Icon size={18} className="text-slate-200" />
-      </div>
-      <span className="text-[9px] font-mono tracking-widest text-slate-500">{label}</span>
+      <div className="absolute top-0 left-1/3 right-1/3 h-px bg-white/10" />
+      <Icon size={17} className="text-slate-300" />
+      <span className="text-[8px] font-mono tracking-widest text-slate-500">{label}</span>
     </button>
   );
 }
