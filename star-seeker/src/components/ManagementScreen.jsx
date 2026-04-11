@@ -20,7 +20,7 @@ const HeaderSection = ({ onBack, chipCount, coreCount }) => (
         <ArrowLeft size={24} />
       </button>
       <div className="flex flex-col">
-        <div className="flex items-center gap-2 text-cyan-400 font-bold tracking-widest text-lg drop-shadow-md">
+        <div className="flex items-center gap-2 text-white font-bold tracking-widest text-lg drop-shadow-md">
             <Cpu size={18} />
             <span>관리</span>
         </div>
@@ -67,8 +67,8 @@ const TabNavigation = ({ activeTab, onTabChange }) => (
 
 const TabButton = ({ isActive, onClick, label, colorClass }) => {
     const activeStyles = colorClass === 'cyan' 
-        ? 'text-cyan-400 border-b-2 border-cyan-400 bg-cyan-950/30' 
-        : 'text-amber-400 border-b-2 border-amber-400 bg-amber-950/30';
+        ? 'text-white border-b-2 border-white/60 bg-white/5' 
+        : 'text-white border-b-2 border-white/60 bg-white/5';
     
     return (
         <button 

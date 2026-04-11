@@ -16,7 +16,7 @@ export default function ResourcesScreen({ onBack, onDirectMining, onAutoMining }
         </button>
         <div className="flex items-center gap-2">
             <Database size={18} className="text-amber-400" />
-            <h2 className="text-lg font-bold text-amber-100 tracking-[0.1em] drop-shadow-md">
+            <h2 className="text-lg font-bold text-white tracking-[0.1em] drop-shadow-md">
                 RESOURCE MINING
             </h2>
         </div>

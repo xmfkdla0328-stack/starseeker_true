@@ -89,7 +89,7 @@ export default function StorageScreen({ inventory, equipmentList = [], onBack })
             <ChevronLeft size={24} />
           </button>
           <div className="flex flex-col">
-            <div className="flex items-center gap-2 text-amber-400 font-bold tracking-widest text-lg drop-shadow-md">
+            <div className="flex items-center gap-2 text-white font-bold tracking-widest text-lg drop-shadow-md">
               <Archive size={18} />
               <span>창고</span>
             </div>

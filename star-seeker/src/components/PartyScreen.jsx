@@ -227,7 +227,7 @@ export default function PartyScreen({ currentParty, onUpdateParty, onBack }) {
             <ChevronLeft size={24} />
           </button>
           <div className="flex flex-col">
-            <div className="flex items-center gap-2 text-cyan-100 font-bold tracking-widest text-lg drop-shadow-md">
+            <div className="flex items-center gap-2 text-white font-bold tracking-widest text-lg drop-shadow-md">
               <Users size={18} />
               <span>파티 편성</span>
             </div>

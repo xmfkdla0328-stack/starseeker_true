@@ -56,7 +56,7 @@ export default function StoryNodeScreen({
           <ChevronLeft size={24} />
         </button>
         <div className="flex flex-col">
-          <div className="flex items-center gap-2 text-cyan-400 font-bold tracking-widest text-lg drop-shadow-md">
+          <div className="flex items-center gap-2 text-white font-bold tracking-widest text-lg drop-shadow-md">
             <Map size={18} />
             <span>사건의 지평선</span>
           </div>
