@@ -97,32 +97,39 @@ export default function HomeScreen({ onStart, onParty, onManage, onStorage, onRe
       </div>
 
       {/* 메인 메뉴 버튼들 */}
-      <div className="flex flex-col gap-3 px-8 pb-12 z-10">
-        <button 
+      <div className="flex flex-col gap-2 px-6 pb-12 z-10">
+
+        {/* GAME START */}
+        <button
           onClick={onStart}
-          className="group relative w-full py-5 bg-slate-900/80 border border-cyan-500/30 hover:border-cyan-400 hover:bg-cyan-950/30 rounded-xl transition-all duration-300 overflow-hidden"
+          className="group relative w-full py-5 bg-black/40 border border-white/10 rounded-sm overflow-hidden active:scale-[0.98] transition-all duration-200"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+          <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-cyan-500/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/4 to-transparent translate-x-[-100%] group-active:translate-x-[100%] transition-transform duration-700 pointer-events-none" />
           <div className="flex items-center justify-center gap-3">
-            <Play className="fill-cyan-400 text-cyan-400 group-hover:scale-110 transition-transform" />
-            <span className="text-xl font-bold tracking-[0.2em] text-white group-hover:text-cyan-200">GAME START</span>
+            <Play size={16} className="fill-white text-white" />
+            <span className="text-base font-bold tracking-[0.3em] text-white font-mono">GAME START</span>
           </div>
         </button>
 
+        {/* 서브 4버튼 */}
         <div className="grid grid-cols-4 gap-2">
-           <MenuButton icon={Users} label="PARTY" onClick={onParty} />
-           <MenuButton icon={Settings} label="MANAGE" onClick={onManage} />
-           <MenuButton icon={Database} label="STORAGE" onClick={onStorage} />
-           <MenuButton icon={BookOpen} label="ARCHIVE" onClick={onRecord} />
+          <MenuButton icon={Users} label="PARTY" onClick={onParty} />
+          <MenuButton icon={Settings} label="MANAGE" onClick={onManage} />
+          <MenuButton icon={Database} label="STORAGE" onClick={onStorage} />
+          <MenuButton icon={BookOpen} label="ARCHIVE" onClick={onRecord} />
         </div>
-        
-        <button 
-            onClick={onGacha}
-            className="w-full py-3 mt-2 bg-gradient-to-r from-violet-900/50 to-fuchsia-900/50 border border-fuchsia-500/30 hover:border-fuchsia-400 rounded-lg flex items-center justify-center gap-2 group transition-all"
+
+        {/* WISH / GACHA */}
+        <button
+          onClick={onGacha}
+          className="group relative w-full py-4 bg-black/40 border border-white/10 rounded-sm overflow-hidden active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2"
         >
-            <Sparkles size={16} className="text-fuchsia-400 group-hover:rotate-12 transition-transform" />
-            <span className="text-xs font-bold text-fuchsia-200 tracking-widest">WISH / GACHA</span>
+          <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-fuchsia-500/70" />
+          <Sparkles size={13} className="text-fuchsia-400" />
+          <span className="text-xs font-bold text-slate-200 tracking-[0.35em] font-mono">WISH / GACHA</span>
         </button>
+
       </div>
     </div>
   );
@@ -132,25 +139,10 @@ function MenuButton({ icon: Icon, label, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="relative active:scale-95 transition-all duration-150 group"
-      style={{ minHeight: '72px' }}
+      className="flex flex-col items-center justify-center gap-2 py-4 bg-black/40 border border-white/10 rounded-sm active:scale-95 active:bg-white/5 transition-all duration-150"
     >
-      {/* 테두리 레이어 */}
-      <div
-        className="absolute inset-0 bg-white/10 group-active:bg-white/20 transition-colors"
-        style={{ clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))' }}
-      />
-      {/* 내부 컨텐츠 레이어 */}
-      <div
-        className="absolute inset-[1px] flex flex-col items-center justify-center gap-1.5"
-        style={{
-          clipPath: 'polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px))',
-          background: '#060c18'
-        }}
-      >
-        <Icon size={18} className="text-slate-300 group-active:text-white transition-colors" />
-        <span className="text-[9px] font-mono tracking-widest text-slate-500 group-active:text-slate-300 transition-colors">{label}</span>
-      </div>
+      <Icon size={18} className="text-slate-300" />
+      <span className="text-[9px] font-mono tracking-widest text-slate-500">{label}</span>
     </button>
   );
 }
