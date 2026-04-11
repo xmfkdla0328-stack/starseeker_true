@@ -66,15 +66,13 @@ const TabNavigation = ({ activeTab, onTabChange }) => (
 );
 
 const TabButton = ({ isActive, onClick, label, colorClass }) => {
-    const activeStyles = colorClass === 'cyan' 
-        ? 'text-white border-b-2 border-white/60 bg-white/5' 
-        : 'text-white border-b-2 border-white/60 bg-white/5';
+    const activeStyles = 'text-white border-b-2 border-white/60 bg-white/10';
     
     return (
         <button 
             onClick={onClick}
-            className={`flex-1 py-4 text-xs font-bold tracking-[0.15em] transition-all duration-300
-                ${isActive ? activeStyles : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'}`}
+            className={`flex-1 py-4 text-xs font-bold tracking-[0.15em] transition-all duration-300 outline-none
+                ${isActive ? activeStyles : 'text-slate-500 border-b-2 border-transparent bg-transparent hover:text-slate-200'}`}
         >
             {label}
         </button>

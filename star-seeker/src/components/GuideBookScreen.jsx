@@ -44,10 +44,10 @@ function TabButton({ label, icon: Icon, id, active, onClick }) {
     return (
         <button 
             onClick={() => onClick(id)}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-bold tracking-[0.15em] transition-all duration-300 border-b-2
+            className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-bold tracking-[0.15em] transition-all duration-300 border-b-2 outline-none
                 ${active === id 
-                    ? 'text-white border-white/60 bg-white/5' 
-                    : 'text-slate-500 border-transparent hover:text-slate-200 hover:bg-white/5'}`}
+                    ? 'text-white border-white/60 bg-white/10' 
+                    : 'text-slate-500 border-transparent bg-transparent hover:text-slate-200'}`}
         >
             <Icon size={14} /> {label}
         </button>
