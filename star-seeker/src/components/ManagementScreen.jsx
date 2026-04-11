@@ -72,7 +72,7 @@ const TabButton = ({ isActive, onClick, label, colorClass }) => {
         <button 
             onClick={onClick}
             className={`flex-1 py-4 text-xs font-bold tracking-[0.15em] transition-all duration-300 outline-none
-                ${isActive ? activeStyles : 'text-slate-500 border-b-2 border-transparent bg-transparent hover:text-slate-200'}`}
+                ${isActive ? activeStyles : 'text-slate-500 border-b-2 border-transparent bg-transparent'}`}
         >
             {label}
         </button>
