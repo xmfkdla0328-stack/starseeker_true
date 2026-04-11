@@ -109,11 +109,11 @@ export default function HomeScreen({ onStart, onParty, onManage, onStorage, onRe
           </div>
         </button>
 
-        <div className="grid grid-cols-4 gap-3">
-           <MenuButton icon={Users} label="PARTY" onClick={onParty} color="text-violet-400" />
-           <MenuButton icon={Settings} label="MANAGE" onClick={onManage} color="text-emerald-400" />
-           <MenuButton icon={Database} label="STORAGE" onClick={onStorage} color="text-amber-400" />
-           <MenuButton icon={BookOpen} label="ARCHIVE" onClick={onRecord} color="text-rose-400" />
+        <div className="grid grid-cols-4 gap-2">
+           <MenuButton icon={Users} label="PARTY" onClick={onParty} />
+           <MenuButton icon={Settings} label="MANAGE" onClick={onManage} />
+           <MenuButton icon={Database} label="STORAGE" onClick={onStorage} />
+           <MenuButton icon={BookOpen} label="ARCHIVE" onClick={onRecord} />
         </div>
         
         <button 
@@ -128,14 +128,29 @@ export default function HomeScreen({ onStart, onParty, onManage, onStorage, onRe
   );
 }
 
-function MenuButton({ icon: Icon, label, onClick, color }) {
+function MenuButton({ icon: Icon, label, onClick }) {
   return (
-    <button 
+    <button
       onClick={onClick}
-      className="flex flex-col items-center justify-center gap-2 py-4 bg-slate-900/50 border border-white/5 hover:bg-slate-800 hover:border-white/20 rounded-xl transition-all active:scale-95"
+      className="relative active:scale-95 transition-all duration-150 group"
+      style={{ minHeight: '72px' }}
     >
-      <Icon size={20} className={color} />
-      <span className="text-[10px] font-bold text-slate-400">{label}</span>
+      {/* 테두리 레이어 */}
+      <div
+        className="absolute inset-0 bg-white/10 group-active:bg-white/20 transition-colors"
+        style={{ clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))' }}
+      />
+      {/* 내부 컨텐츠 레이어 */}
+      <div
+        className="absolute inset-[1px] flex flex-col items-center justify-center gap-1.5"
+        style={{
+          clipPath: 'polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px))',
+          background: '#060c18'
+        }}
+      >
+        <Icon size={18} className="text-slate-300 group-active:text-white transition-colors" />
+        <span className="text-[9px] font-mono tracking-widest text-slate-500 group-active:text-slate-300 transition-colors">{label}</span>
+      </div>
     </button>
   );
 }
