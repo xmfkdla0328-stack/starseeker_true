@@ -16,7 +16,7 @@ export default function GuideBookScreen({ onBack, visitedNodes = [], collectedKe
             <button onClick={onBack} className="flex items-center gap-1 text-slate-400 hover:text-white transition-colors mr-4">
                 <ChevronLeft size={24} />
             </button>
-            <h2 className="text-lg font-bold text-emerald-300 tracking-widest flex items-center gap-2">
+            <h2 className="text-lg font-bold text-cyan-400 tracking-widest flex items-center gap-2">
                 <BookOpen size={20} /> 아카이브
             </h2>
         </div>
@@ -44,10 +44,10 @@ function TabButton({ label, icon: Icon, id, active, onClick }) {
     return (
         <button 
             onClick={() => onClick(id)}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-bold transition-all border-b-2
+            className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-bold tracking-[0.15em] transition-all duration-300 border-b-2
                 ${active === id 
-                    ? 'text-emerald-400 border-emerald-400 bg-emerald-900/10' 
-                    : 'text-slate-500 border-transparent hover:text-slate-300'}`}
+                    ? 'text-cyan-400 border-cyan-400 bg-cyan-950/30' 
+                    : 'text-slate-500 border-transparent hover:text-slate-200 hover:bg-white/5'}`}
         >
             <Icon size={14} /> {label}
         </button>
