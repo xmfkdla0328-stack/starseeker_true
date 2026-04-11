@@ -193,7 +193,7 @@ export default function StoryViewer({ script, history, onNext, paused, userStats
 
               {/* 대사 텍스트 */}
               <div className="flex-1 overflow-hidden px-4 py-2">
-                <p className={`text-sm leading-loose whitespace-pre-wrap ${getTextStyle()}`}>
+                <p className={`text-base leading-loose whitespace-pre-wrap ${getTextStyle()}`}>
                   {renderStyledText(displayedText)}
                   {isTyping && (
                     <span className="animate-pulse ml-1 inline-block w-[3px] h-[1em] bg-cyan-400 align-middle rounded-sm" />
