@@ -34,8 +34,13 @@ export default function EventScreen({
   // 파티 보유 스킬 (중복 제거, { name, level } 형태)
   const partySkills = useMemo(() => {
     if (!partyList) return [];
-    const allSkills = partyList.flatMap(char => char.skills || []);
-    return [...new Set(allSkills)].map(name => ({ name, level: 1 }));
+    const count = {};
+    partyList.forEach(char => {
+      (char.skills || []).forEach(name => {
+        count[name] = (count[name] || 0) + 1;
+      });
+    });
+    return Object.entries(count).map(([name, level]) => ({ name, level }));
   }, [partyList]);
 
   // 일시정지 및 설정 상태
