@@ -1,11 +1,58 @@
-import React from 'react';
-import { Sword, Shield, Zap, Sparkles, Brain, Heart } from 'lucide-react';
+import React, { useState } from 'react';
+import { Sword, Shield, Zap, Sparkles, Brain, Heart, X } from 'lucide-react';
+
+const STAT_INFO = {
+  str: {
+    label: '힘', sub: 'STR',
+    effect: 'ATK', effectLabel: '전 파티원 공격력',
+    color: 'text-rose-400', border: 'border-rose-500/50', bg: 'bg-rose-950/60',
+    Icon: Sword,
+  },
+  agi: {
+    label: '민첩', sub: 'AGI',
+    effect: 'SPD', effectLabel: '전 파티원 행동속도',
+    color: 'text-amber-400', border: 'border-amber-500/50', bg: 'bg-amber-950/60',
+    Icon: Zap,
+  },
+  int: {
+    label: '지력', sub: 'INT',
+    effect: '인과력', effectLabel: '인과력 획득량',
+    color: 'text-violet-400', border: 'border-violet-500/50', bg: 'bg-violet-950/60',
+    Icon: Brain,
+  },
+  wil: {
+    label: '의지', sub: 'WIL',
+    effect: 'DEF', effectLabel: '전 파티원 방어력',
+    color: 'text-emerald-400', border: 'border-emerald-500/50', bg: 'bg-emerald-950/60',
+    Icon: Shield,
+  },
+  chr: {
+    label: '매력', sub: 'CHR',
+    effect: 'HP', effectLabel: '전 파티원 최대 HP',
+    color: 'text-pink-400', border: 'border-pink-500/50', bg: 'bg-pink-950/60',
+    Icon: Heart,
+  },
+};
+
+const STAT_ORDER = ['str', 'agi', 'int', 'wil', 'chr'];
 
 export default function BattleControlZone({ playerCausality, buffs, userStats, onUseSkill }) {
-  // [수정] 최상위 div에서 flex-1 클래스 제거
+  const [activeStat, setActiveStat] = useState(null);
+
+  const handleStatClick = (e, key) => {
+    e.stopPropagation();
+    setActiveStat(prev => (prev === key ? null : key));
+  };
+
+  const info = activeStat ? STAT_INFO[activeStat] : null;
+  const val  = activeStat ? userStats[activeStat] : 0;
+  const bonus = val * 1; // +1% per point → val%
+
   return (
-    <div className="p-3 flex flex-col z-20 backdrop-blur-md bg-[#0f172a]/80 border-t border-white/10 rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.3)] min-h-0">
-      
+    <div
+      className="p-3 flex flex-col z-20 backdrop-blur-md bg-[#0f172a]/80 border-t border-white/10 rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.3)] min-h-0"
+      onClick={() => setActiveStat(null)}
+    >
       {/* 인과력 게이지 */}
       <div className="flex items-center justify-between mb-3 px-1 flex-shrink-0">
         <div className="flex items-center gap-2 text-cyan-300 font-bold tracking-wider text-sm drop-shadow-md">
@@ -40,13 +87,88 @@ export default function BattleControlZone({ playerCausality, buffs, userStats, o
         </button>
       </div>
 
-      {/* 스탯 정보 */}
-      <div className="flex justify-between items-center bg-black/40 rounded px-4 py-2 text-[10px] text-slate-400 border border-white/5 font-mono flex-shrink-0">
-        <div className="flex items-center gap-1.5"><Sword size={10} className="text-rose-400" /> {userStats.str}</div>
-        <div className="flex items-center gap-1.5"><Zap size={10} className="text-amber-400" /> {userStats.agi}</div>
-        <div className="flex items-center gap-1.5"><Brain size={10} className="text-violet-400" /> {userStats.int}</div>
-        <div className="flex items-center gap-1.5"><Shield size={10} className="text-emerald-400" /> {userStats.wil}</div>
-        <div className="flex items-center gap-1.5"><Heart size={10} className="text-pink-400" /> {userStats.chr}</div>
+      {/* 스탯 바 + 툴팁 */}
+      <div className="relative flex-shrink-0">
+
+        {/* 툴팁 팝업 */}
+        {activeStat && info && (
+          <div
+            className={`absolute bottom-full mb-2 left-0 right-0 z-50 animate-fade-in
+              ${info.bg} border ${info.border} backdrop-blur-xl rounded-lg shadow-[0_0_24px_rgba(0,0,0,0.6)]`}
+            style={{ clipPath: 'polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))' }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* 헤더 */}
+            <div className={`flex items-center justify-between px-3 py-2 border-b border-white/10`}>
+              <div className="flex items-center gap-2">
+                <info.Icon size={13} className={info.color} />
+                <span className={`text-xs font-bold font-mono tracking-wider ${info.color}`}>
+                  {info.label}
+                </span>
+                <span className="text-[10px] text-slate-500 font-mono">{info.sub}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`text-sm font-bold font-mono ${info.color}`}>{val}</span>
+                <button
+                  onClick={() => setActiveStat(null)}
+                  className="text-slate-600 hover:text-slate-300 transition-colors"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            </div>
+
+            {/* 내용 */}
+            <div className="px-3 py-2.5 flex items-center justify-between gap-4">
+              <div>
+                <div className="text-[10px] text-slate-500 font-mono tracking-wider mb-0.5">
+                  {info.effectLabel}
+                </div>
+                <div className="text-[11px] text-slate-300 font-mono">
+                  {info.effect} 보정
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-[10px] text-slate-500 font-mono mb-0.5">현재 보너스</div>
+                <div className={`text-lg font-bold font-mono ${info.color}`}>
+                  +{bonus}%
+                </div>
+              </div>
+            </div>
+
+            {/* 하단 힌트 */}
+            <div className="px-3 pb-2">
+              <div className="h-[1px] bg-white/5 mb-1.5" />
+              <span className="text-[9px] font-mono text-slate-600 tracking-wider">
+                1포인트 = +1% · 선택지를 통해 상승
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* 스탯 정보 바 */}
+        <div className="flex justify-between items-center bg-black/40 rounded px-2 py-2 border border-white/5 font-mono">
+          {STAT_ORDER.map(key => {
+            const s = STAT_INFO[key];
+            const isActive = activeStat === key;
+            return (
+              <button
+                key={key}
+                onClick={e => handleStatClick(e, key)}
+                className={`flex items-center gap-1 px-2 py-0.5 rounded transition-all duration-150
+                  ${isActive
+                    ? `${s.bg} ${s.border} border ring-1 ring-white/10`
+                    : 'hover:bg-white/5 border border-transparent'
+                  }`}
+              >
+                <s.Icon size={10} className={s.color} />
+                <span className={`text-[10px] ${isActive ? s.color : 'text-slate-400'}`}>
+                  {userStats[key]}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
