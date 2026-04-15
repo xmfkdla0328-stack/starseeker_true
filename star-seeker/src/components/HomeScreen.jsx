@@ -96,43 +96,58 @@ export default function HomeScreen({ onStart, onParty, onManage, onStorage, onRe
         </p>
       </div>
 
-      {/* 하단 커맨드 패널 */}
-      <div className="relative px-5 pb-10 z-10">
-
-        {/* 패널 상단 장식선 */}
-        <div className="relative flex items-center gap-2 mb-4">
-          <div className="w-2 h-2 border-l border-t border-white/25" />
-          <div className="h-px flex-1 bg-gradient-to-r from-white/15 to-transparent" />
-          <span className="text-[8px] font-mono tracking-[0.4em] text-slate-600">SYSTEM INTERFACE</span>
-          <div className="h-px flex-1 bg-gradient-to-l from-white/15 to-transparent" />
-          <div className="w-2 h-2 border-r border-t border-white/25" />
-        </div>
-
-        <div className="flex flex-col gap-2">
+      {/* 하단 메뉴 — 유리 패널 */}
+      <div className="px-4 pb-8 z-10">
+        <div
+          className="relative rounded-2xl overflow-hidden p-3 flex flex-col gap-2"
+          style={{
+            background: 'rgba(255,255,255,0.03)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)'
+          }}
+        >
+          {/* 패널 내 별 장식 */}
+          <div className="absolute top-3 right-10 w-[3px] h-[3px] bg-white/50 rounded-full" />
+          <div className="absolute top-7 right-24 w-[2px] h-[2px] bg-cyan-400/70 rounded-full" />
+          <div className="absolute top-5 left-16 w-[2px] h-[2px] bg-white/30 rounded-full" />
+          <div className="absolute bottom-16 right-6 w-[2px] h-[2px] bg-fuchsia-400/50 rounded-full" />
 
           {/* GAME START */}
           <button
             onClick={onStart}
-            className="group relative w-full rounded overflow-hidden active:scale-[0.98] transition-all duration-200"
-            style={{ background: 'rgba(15,23,42,0.9)', border: '1px solid rgba(6,182,212,0.2)', boxShadow: '0 0 30px rgba(6,182,212,0.06) inset' }}
+            className="relative rounded-xl overflow-hidden active:scale-[0.98] transition-all duration-200"
+            style={{
+              background: 'linear-gradient(135deg, rgba(6,182,212,0.13) 0%, rgba(2,20,40,0.6) 100%)',
+              border: '1px solid rgba(6,182,212,0.28)',
+              boxShadow: '0 0 50px rgba(6,182,212,0.12), inset 0 1px 0 rgba(6,182,212,0.12)'
+            }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/5 via-transparent to-transparent pointer-events-none" />
-            <div className="flex items-center gap-4 px-4 py-4">
-              <div className="w-10 h-10 rounded flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.25)' }}>
-                <Play size={15} className="fill-cyan-400 text-cyan-400 ml-0.5" />
+            {/* 별빛 글로우 */}
+            <div className="absolute -top-6 left-8 w-28 h-16 bg-cyan-400/15 rounded-full blur-2xl pointer-events-none" />
+            <div className="flex items-center px-4 py-[14px] gap-4">
+              <div
+                className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(6,182,212,0.15)', border: '1px solid rgba(6,182,212,0.35)' }}
+              >
+                <Play size={18} className="fill-cyan-300 text-cyan-300 ml-0.5" />
               </div>
-              <div className="flex flex-col items-start gap-0.5">
-                <span className="text-[8px] font-mono tracking-[0.3em] text-cyan-500/60">PRIMARY ACTION</span>
-                <span className="text-sm font-bold tracking-[0.2em] text-white font-mono">GAME START</span>
+              <div className="flex flex-col items-start">
+                <span className="text-[8px] font-mono tracking-[0.4em] text-cyan-400/60 mb-0.5">✦ ENGAGE MISSION</span>
+                <span className="text-[15px] font-bold tracking-[0.18em] text-white">GAME START</span>
               </div>
-              <div className="ml-auto text-cyan-500/40 text-lg font-thin">›</div>
+              <div className="ml-auto flex items-center gap-1.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(6,182,212,0.9)] animate-pulse" />
+                <span className="text-[8px] font-mono tracking-widest text-cyan-500/60">READY</span>
+              </div>
             </div>
           </button>
 
           {/* 서브 4버튼 */}
           <div className="grid grid-cols-4 gap-1.5">
-            <MenuButton icon={Users} label="PARTY" onClick={onParty} />
-            <MenuButton icon={Settings} label="MANAGE" onClick={onManage} />
+            <MenuButton icon={Users}    label="PARTY"   onClick={onParty} />
+            <MenuButton icon={Settings} label="MANAGE"  onClick={onManage} />
             <MenuButton icon={Database} label="STORAGE" onClick={onStorage} />
             <MenuButton icon={BookOpen} label="ARCHIVE" onClick={onRecord} />
           </div>
@@ -140,31 +155,33 @@ export default function HomeScreen({ onStart, onParty, onManage, onStorage, onRe
           {/* WISH / GACHA */}
           <button
             onClick={onGacha}
-            className="group relative w-full rounded overflow-hidden active:scale-[0.98] transition-all duration-200"
-            style={{ background: 'rgba(49,10,76,0.7)', border: '1px solid rgba(192,132,252,0.2)', boxShadow: '0 0 30px rgba(168,85,247,0.04) inset' }}
+            className="relative rounded-xl overflow-hidden active:scale-[0.98] transition-all duration-200"
+            style={{
+              background: 'linear-gradient(135deg, rgba(168,85,247,0.15) 0%, rgba(40,5,60,0.6) 100%)',
+              border: '1px solid rgba(192,132,252,0.25)',
+              boxShadow: '0 0 40px rgba(168,85,247,0.1), inset 0 1px 0 rgba(192,132,252,0.1)'
+            }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500/5 via-transparent to-transparent pointer-events-none" />
-            <div className="flex items-center gap-4 px-4 py-4">
-              <div className="w-10 h-10 rounded flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(192,132,252,0.1)', border: '1px solid rgba(192,132,252,0.2)' }}>
-                <Sparkles size={15} className="text-fuchsia-400" />
+            <div className="absolute -top-6 left-8 w-28 h-16 bg-fuchsia-500/12 rounded-full blur-2xl pointer-events-none" />
+            <div className="flex items-center px-4 py-[14px] gap-4">
+              <div
+                className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0"
+                style={{ background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(192,132,252,0.3)' }}
+              >
+                <Sparkles size={17} className="text-fuchsia-300" />
               </div>
-              <div className="flex flex-col items-start gap-0.5">
-                <span className="text-[8px] font-mono tracking-[0.3em] text-fuchsia-400/50">LIMITED GACHA</span>
-                <span className="text-sm font-bold tracking-[0.2em] text-fuchsia-100 font-mono">WISH / GACHA</span>
+              <div className="flex flex-col items-start">
+                <span className="text-[8px] font-mono tracking-[0.4em] text-fuchsia-400/60 mb-0.5">✦ STAR SUMMONING</span>
+                <span className="text-[15px] font-bold tracking-[0.18em] text-fuchsia-100">WISH / GACHA</span>
               </div>
-              <div className="ml-auto text-fuchsia-500/40 text-lg font-thin">›</div>
+              <div className="ml-auto flex items-center gap-1.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-fuchsia-400 shadow-[0_0_6px_rgba(192,132,252,0.8)]" />
+                <span className="text-[8px] font-mono tracking-widest text-fuchsia-500/60">NEW</span>
+              </div>
             </div>
           </button>
 
         </div>
-
-        {/* 패널 하단 장식선 */}
-        <div className="relative flex items-center gap-2 mt-4">
-          <div className="w-2 h-2 border-l border-b border-white/25" />
-          <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
-          <div className="w-2 h-2 border-r border-b border-white/25" />
-        </div>
-
       </div>
     </div>
   );
@@ -174,11 +191,13 @@ function MenuButton({ icon: Icon, label, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-center justify-center gap-2 py-4 rounded active:scale-95 transition-all duration-150 relative overflow-hidden"
-      style={{ background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(255,255,255,0.07)' }}
+      className="flex flex-col items-center justify-center gap-2 py-[14px] rounded-xl active:scale-95 transition-all duration-150"
+      style={{
+        background: 'rgba(255,255,255,0.04)',
+        border: '1px solid rgba(255,255,255,0.09)',
+      }}
     >
-      <div className="absolute top-0 left-1/3 right-1/3 h-px bg-white/10" />
-      <Icon size={17} className="text-slate-300" />
+      <Icon size={19} className="text-slate-200" />
       <span className="text-[8px] font-mono tracking-widest text-slate-500">{label}</span>
     </button>
   );
