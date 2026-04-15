@@ -97,7 +97,17 @@ export default function HomeScreen({ onStart, onParty, onManage, onStorage, onRe
       </div>
 
       {/* 하단 메뉴 — 유리 패널 */}
-      <div className="px-4 pb-8 z-10 flex flex-col gap-2">
+      <div className="px-4 pb-8 z-10">
+        <div
+          className="relative rounded-2xl overflow-hidden p-3 flex flex-col gap-2"
+          style={{
+            background: 'rgba(255,255,255,0.03)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            boxShadow: '0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)'
+          }}
+        >
 
         {/* GAME START */}
         <button
@@ -137,6 +147,7 @@ export default function HomeScreen({ onStart, onParty, onManage, onStorage, onRe
           <GachaButton onClick={onGacha} />
         </div>
 
+        </div>
       </div>
     </div>
   );
