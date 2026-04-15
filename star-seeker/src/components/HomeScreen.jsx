@@ -144,42 +144,42 @@ export default function HomeScreen({ onStart, onParty, onManage, onStorage, onRe
             </div>
           </button>
 
-          {/* 서브 4버튼 */}
-          <div className="grid grid-cols-4 gap-1.5">
+          {/* 서브 버튼 + 가챠 — 3열 통합 그리드 */}
+          <div className="grid grid-cols-3 gap-1.5">
+            {/* 1행: 유틸리티 3개 */}
             <MenuButton icon={Users}    label="PARTY"   onClick={onParty} />
             <MenuButton icon={Settings} label="MANAGE"  onClick={onManage} />
             <MenuButton icon={Database} label="STORAGE" onClick={onStorage} />
-            <MenuButton icon={BookOpen} label="ARCHIVE" onClick={onRecord} />
-          </div>
 
-          {/* WISH / GACHA */}
-          <button
-            onClick={onGacha}
-            className="relative rounded-xl overflow-hidden active:scale-[0.98] transition-all duration-200"
-            style={{
-              background: 'linear-gradient(135deg, rgba(168,85,247,0.15) 0%, rgba(40,5,60,0.6) 100%)',
-              border: '1px solid rgba(192,132,252,0.25)',
-              boxShadow: '0 0 40px rgba(168,85,247,0.1), inset 0 1px 0 rgba(192,132,252,0.1)'
-            }}
-          >
-            <div className="absolute -top-6 left-8 w-28 h-16 bg-fuchsia-500/12 rounded-full blur-2xl pointer-events-none" />
-            <div className="flex items-center px-4 py-[14px] gap-4">
-              <div
-                className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={{ background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(192,132,252,0.3)' }}
-              >
-                <Sparkles size={17} className="text-fuchsia-300" />
+            {/* 2행: ARCHIVE 1칸 + WISH/GACHA 2칸 */}
+            <MenuButton icon={BookOpen} label="ARCHIVE" onClick={onRecord} />
+            <button
+              onClick={onGacha}
+              className="col-span-2 relative rounded-xl overflow-hidden active:scale-[0.98] transition-all duration-200"
+              style={{
+                background: 'linear-gradient(135deg, rgba(168,85,247,0.15) 0%, rgba(40,5,60,0.55) 100%)',
+                border: '1px solid rgba(192,132,252,0.25)',
+                boxShadow: '0 0 30px rgba(168,85,247,0.08), inset 0 1px 0 rgba(192,132,252,0.08)'
+              }}
+            >
+              <div className="absolute -top-4 left-6 w-20 h-12 bg-fuchsia-500/10 rounded-full blur-xl pointer-events-none" />
+              <div className="flex items-center px-3 py-3 gap-3">
+                <div
+                  className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(192,132,252,0.3)' }}
+                >
+                  <Sparkles size={15} className="text-fuchsia-300" />
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="text-[7px] font-mono tracking-[0.3em] text-fuchsia-400/60 mb-0.5">✦ STAR SUMMONING</span>
+                  <span className="text-xs font-bold tracking-[0.15em] text-fuchsia-100">WISH / GACHA</span>
+                </div>
+                <div className="ml-auto">
+                  <div className="w-1.5 h-1.5 rounded-full bg-fuchsia-400 shadow-[0_0_5px_rgba(192,132,252,0.8)]" />
+                </div>
               </div>
-              <div className="flex flex-col items-start">
-                <span className="text-[8px] font-mono tracking-[0.4em] text-fuchsia-400/60 mb-0.5">✦ STAR SUMMONING</span>
-                <span className="text-[15px] font-bold tracking-[0.18em] text-fuchsia-100">WISH / GACHA</span>
-              </div>
-              <div className="ml-auto flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-fuchsia-400 shadow-[0_0_6px_rgba(192,132,252,0.8)]" />
-                <span className="text-[8px] font-mono tracking-widest text-fuchsia-500/60">NEW</span>
-              </div>
-            </div>
-          </button>
+            </button>
+          </div>
 
         </div>
       </div>
@@ -191,13 +191,14 @@ function MenuButton({ icon: Icon, label, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-center justify-center gap-2 py-[14px] rounded-xl active:scale-95 transition-all duration-150"
+      className="flex flex-col items-center justify-center gap-2 py-3 rounded-xl active:scale-95 transition-all duration-150"
       style={{
         background: 'rgba(255,255,255,0.04)',
         border: '1px solid rgba(255,255,255,0.09)',
+        minHeight: '64px',
       }}
     >
-      <Icon size={19} className="text-slate-200" />
+      <Icon size={18} className="text-slate-200" />
       <span className="text-[8px] font-mono tracking-widest text-slate-500">{label}</span>
     </button>
   );
