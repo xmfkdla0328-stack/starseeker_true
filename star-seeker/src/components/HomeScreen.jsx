@@ -97,63 +97,46 @@ export default function HomeScreen({ onStart, onParty, onManage, onStorage, onRe
       </div>
 
       {/* 하단 메뉴 — 유리 패널 */}
-      <div className="px-4 pb-8 z-10">
-        <div
-          className="relative rounded-2xl overflow-hidden p-3 flex flex-col gap-2"
+      <div className="px-4 pb-8 z-10 flex flex-col gap-2">
+
+        {/* GAME START */}
+        <button
+          onClick={onStart}
+          className="relative rounded-xl overflow-hidden active:scale-[0.98] transition-all duration-200"
           style={{
-            background: 'rgba(255,255,255,0.03)',
-            backdropFilter: 'blur(24px)',
-            WebkitBackdropFilter: 'blur(24px)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            boxShadow: '0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)'
+            background: 'linear-gradient(135deg, rgba(6,182,212,0.13) 0%, rgba(2,20,40,0.6) 100%)',
+            border: '1px solid rgba(6,182,212,0.55)',
+            boxShadow: '0 0 24px rgba(6,182,212,0.1)'
           }}
         >
-          {/* 패널 내 별 장식 */}
-          <div className="absolute top-3 right-10 w-[3px] h-[3px] bg-white/50 rounded-full" />
-          <div className="absolute top-7 right-24 w-[2px] h-[2px] bg-cyan-400/70 rounded-full" />
-          <div className="absolute top-5 left-16 w-[2px] h-[2px] bg-white/30 rounded-full" />
-          <div className="absolute bottom-16 right-6 w-[2px] h-[2px] bg-fuchsia-400/50 rounded-full" />
-
-          {/* GAME START */}
-          <button
-            onClick={onStart}
-            className="relative rounded-xl overflow-hidden active:scale-[0.98] transition-all duration-200"
-            style={{
-              background: 'linear-gradient(135deg, rgba(6,182,212,0.13) 0%, rgba(2,20,40,0.6) 100%)',
-              border: '1px solid rgba(6,182,212,0.28)',
-              boxShadow: '0 0 50px rgba(6,182,212,0.12), inset 0 1px 0 rgba(6,182,212,0.12)'
-            }}
-          >
-            {/* 별빛 글로우 */}
-            <div className="absolute -top-6 left-8 w-28 h-16 bg-cyan-400/15 rounded-full blur-2xl pointer-events-none" />
-            <div className="flex items-center px-4 py-[14px] gap-4">
-              <div
-                className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={{ background: 'rgba(6,182,212,0.15)', border: '1px solid rgba(6,182,212,0.35)' }}
-              >
-                <Play size={18} className="fill-cyan-300 text-cyan-300 ml-0.5" />
-              </div>
-              <div className="flex flex-col items-start">
-                <span className="text-[8px] font-mono tracking-[0.4em] text-cyan-400/60 mb-0.5">✦ ENGAGE MISSION</span>
-                <span className="text-[15px] font-bold tracking-[0.18em] text-white">GAME START</span>
-              </div>
-              <div className="ml-auto flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(6,182,212,0.9)] animate-pulse" />
-                <span className="text-[8px] font-mono tracking-widest text-cyan-500/60">READY</span>
-              </div>
+          <div className="absolute -top-6 left-8 w-28 h-16 bg-cyan-400/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="flex items-center px-4 py-[14px] gap-4">
+            <div
+              className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0"
+              style={{ background: 'rgba(6,182,212,0.15)', border: '1px solid rgba(6,182,212,0.5)' }}
+            >
+              <Play size={18} className="fill-cyan-300 text-cyan-300 ml-0.5" />
             </div>
-          </button>
-
-          {/* 서브 5버튼 — 한 줄 */}
-          <div className="grid grid-cols-5 gap-1.5">
-            <MenuButton icon={Users}    label="PARTY"   onClick={onParty} />
-            <MenuButton icon={Settings} label="MANAGE"  onClick={onManage} />
-            <MenuButton icon={Database} label="STORAGE" onClick={onStorage} />
-            <MenuButton icon={BookOpen} label="ARCHIVE" onClick={onRecord} />
-            <GachaButton onClick={onGacha} />
+            <div className="flex flex-col items-start">
+              <span className="text-[8px] font-mono tracking-[0.4em] text-cyan-400/60 mb-0.5">✦ ENGAGE MISSION</span>
+              <span className="text-[15px] font-bold tracking-[0.18em] text-white">GAME START</span>
+            </div>
+            <div className="ml-auto flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(6,182,212,0.9)] animate-pulse" />
+              <span className="text-[8px] font-mono tracking-widest text-cyan-500/60">READY</span>
+            </div>
           </div>
+        </button>
 
+        {/* 서브 5버튼 — 한 줄 */}
+        <div className="grid grid-cols-5 gap-1.5">
+          <MenuButton icon={Users}    label="PARTY"   onClick={onParty} />
+          <MenuButton icon={Settings} label="MANAGE"  onClick={onManage} />
+          <MenuButton icon={Database} label="STORAGE" onClick={onStorage} />
+          <MenuButton icon={BookOpen} label="ARCHIVE" onClick={onRecord} />
+          <GachaButton onClick={onGacha} />
         </div>
+
       </div>
     </div>
   );
@@ -166,7 +149,7 @@ function MenuButton({ icon: Icon, label, onClick }) {
       className="flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl active:scale-95 transition-all duration-150"
       style={{
         background: 'rgba(255,255,255,0.04)',
-        border: '1px solid rgba(255,255,255,0.09)',
+        border: '1px solid rgba(255,255,255,0.22)',
         minHeight: '60px',
       }}
     >
@@ -183,7 +166,7 @@ function GachaButton({ onClick }) {
       className="flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl active:scale-95 transition-all duration-150 relative overflow-hidden"
       style={{
         background: 'linear-gradient(160deg, rgba(168,85,247,0.18) 0%, rgba(40,5,60,0.5) 100%)',
-        border: '1px solid rgba(192,132,252,0.28)',
+        border: '1px solid rgba(192,132,252,0.55)',
         minHeight: '60px',
       }}
     >
