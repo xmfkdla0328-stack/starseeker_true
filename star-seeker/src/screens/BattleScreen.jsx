@@ -47,7 +47,7 @@ const ControlArea = styled.div`
   opacity: ${props => props.$visible ? 1 : 0};
 `;
 
-function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, enemyId }) {
+function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetreat, enemyId }) {
   const { 
     logs, allies, enemy, playerCausality, enemyWarning, buffs,
     useSkill, startBattle, isBattleStarted, isPaused, togglePause,
@@ -92,7 +92,9 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, enemyI
 
   const handleRetreat = () => {
     if (window.confirm("전투를 포기하고 귀환하시겠습니까?")) {
-        onGameEnd('lose'); 
+        togglePause(false); 
+        if (onRetreat) onRetreat();
+        else onGameEnd('lose');
     }
   };
 

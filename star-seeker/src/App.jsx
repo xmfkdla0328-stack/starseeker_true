@@ -135,6 +135,17 @@ export default function App() {
       nav.goBattle();
   };
 
+  const handleBattleRetreat = () => {
+      if (battleType === 'story') {
+          setNextEventId(null); 
+          nav.goStoryNodeSelect();
+      } else if (battleType.startsWith('mining')) {
+          nav.goDirectMiningSelect();
+      } else {
+          nav.goSelect();
+      }
+  };
+
   const handleLeaveBattle = () => {
       if (battleType === 'story' && nextEventId) {
           nav.goEvent(); 
@@ -168,7 +179,8 @@ export default function App() {
       onGameEnd,
       handleEventComplete, 
       handleRetryBattle,
-      handleLeaveBattle
+      handleLeaveBattle,
+      handleBattleRetreat
   };
 
   return (

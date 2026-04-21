@@ -36,7 +36,8 @@ export default function GameRouter({
     onGameEnd,
     handleEventComplete,
     handleRetryBattle,
-    handleLeaveBattle
+    handleLeaveBattle,
+    handleBattleRetreat
   } = handlers;
 
   return (
@@ -149,6 +150,7 @@ export default function GameRouter({
             hpMultiplier={data.hpMultiplier} 
             initialParty={initialParty} 
             onGameEnd={onGameEnd}
+            onRetreat={handleBattleRetreat}
             enemyId={currentEnemyId} 
         />
       )}
