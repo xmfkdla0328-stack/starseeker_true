@@ -84,7 +84,15 @@ export function handleAllyActions({
 
       if (ally.ultGauge >= ally.maxUltGauge) {
         ally.ultGauge = 0;
-        
+
+        // [NEW] 행동 표시용 이벤트 (UI에서 칸 글로우/스케일업)
+        allyTickEvents.push({
+            id: `evt_actor_${ally.id}_${Date.now()}_${Math.random()}`,
+            type: 'actor',
+            actorId: ally.id,
+            actionKind: 'ult'
+        });
+
         triggeredSkillInfo = {
             name: ally.name,
             image: ally.image, 
@@ -133,6 +141,14 @@ export function handleAllyActions({
       else {
         const skillName = ally.combatSkills?.normal?.name || "기본 공격";
         let { damageDealt, alliesToModify } = executeNormalSkill(ally, ally.combatSkills.normal, executorProps);
+
+        // [NEW] 행동 표시용 이벤트 (딜이면 normal, 회복이면 heal)
+        allyTickEvents.push({
+            id: `evt_actor_${ally.id}_${Date.now()}_${Math.random()}`,
+            type: 'actor',
+            actorId: ally.id,
+            actionKind: damageDealt > 0 ? 'normal' : 'heal'
+        });
         
         if (hasDmgUp && damageDealt > 0) {
             damageDealt = Math.floor(damageDealt * 1.1);

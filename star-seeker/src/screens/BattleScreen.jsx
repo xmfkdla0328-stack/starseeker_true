@@ -129,7 +129,7 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
       </EnemyArea>
 
       <AllyArea $visible={introStep >= 3}>
-        <BattleAllyZone allies={allies} />
+        <BattleAllyZone allies={allies} events={battleEvents} />
       </AllyArea>
 
       {/* [수정] 배틀 로그 영역(<LogArea>) 완전 삭제됨 */}
