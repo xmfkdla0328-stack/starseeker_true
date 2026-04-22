@@ -26,7 +26,7 @@ const getColor = (type, isCrit) => {
 
 const DamageText = styled.div`
   position: absolute;
-  font-family: 'Times New Roman', 'Noto Serif KR', Batang, serif;
+  font-family: 'Noto Sans KR', 'Malgun Gothic', Dotum, '돋움', sans-serif;
   font-weight: ${props => props.$isCrit ? 900 : 700};
   font-style: normal;
   letter-spacing: -0.3px;
