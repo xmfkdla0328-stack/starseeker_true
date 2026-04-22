@@ -65,8 +65,14 @@ export function handleAllyActions({
       const selfAtkMult = 1 + (ally.selfBuffs.atkUp || 0);
       const finalAtk = ally.atk * globalAtkMult * selfAtkMult;
       const eff = ally.efficiency || 1.0;
-      const isCrit = Math.random() < 0.1;
-      const finalCritMultiplier = isCrit ? (1.5 * (1 + (ally.selfBuffs.critDmgUp || 0))) : 1.0;
+
+      // [Fix] 하드코딩된 10%/1.5배 → ally의 실제 critRate/critDmg(% 단위) 사용
+      const critRatePct = ally.critRate || 0; 
+      const critDmgPct = ally.critDmg || 0;   
+      const isCrit = Math.random() * 100 < critRatePct;
+      const finalCritMultiplier = isCrit 
+          ? (1 + critDmgPct / 100) * (1 + (ally.selfBuffs.critDmgUp || 0)) 
+          : 1.0;
       
       const hasDmgUp = ally.memoryEffects && ally.memoryEffects.some(e => e.id === 'DMG_UP');
       const hasHealUp = ally.memoryEffects && ally.memoryEffects.some(e => e.id === 'HEAL_UP');

@@ -159,8 +159,10 @@ export default function App() {
   };
 
   const initialParty = useMemo(() => 
-    data.partyList.map(p => data.roster.find(r => r.id === p.id)), 
-    [data.partyList, data.roster]
+    data.partyList
+      .map(p => data.getFinalStats(p.id))
+      .filter(Boolean), 
+    [data.partyList, data.getFinalStats]
   );
 
   const battleState = { 

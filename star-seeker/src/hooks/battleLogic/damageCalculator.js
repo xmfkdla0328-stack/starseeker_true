@@ -1,7 +1,13 @@
 // 데미지 계산 및 상태 변화를 예측하여 반환하는 순수 함수
 export const calculateDamage = (attacker, defender, rawDamage, buffs) => {
+    // [NEW] 0. 공격자의 치명타 판정 (적이든 아군이든 attacker.critRate/critDmg 사용)
+    const critRatePct = (attacker && attacker.critRate) || 0;
+    const critDmgPct  = (attacker && attacker.critDmg)  || 0;
+    const isCrit = Math.random() * 100 < critRatePct;
+    const damageWithCrit = isCrit ? rawDamage * (1 + critDmgPct / 100) : rawDamage;
+
     // 1. 방어력 적용 (최소 데미지 1)
-    let finalDamage = Math.max(1, rawDamage - (defender.def || 0));
+    let finalDamage = Math.max(1, damageWithCrit - (defender.def || 0));
 
     // 2. 데미지 감소 버프 확인 (active 상태일 때만)
     if (buffs && buffs.damageReduction && buffs.damageReduction.active) {
@@ -41,7 +47,7 @@ export const calculateDamage = (attacker, defender, rawDamage, buffs) => {
         finalDamage: damageToHp,       // HP 감소량
         blockedByShield: damageToShield, // 쉴드 감소량
         remainingShield: remainingShield, // 남은 쉴드량
-        isCrit: false,                 // (추후 구현)
+        isCrit: isCrit,                
         type: 'normal'                 // (추후 속성 등 확장 가능)
     };
 };
