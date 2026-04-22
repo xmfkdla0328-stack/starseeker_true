@@ -15,6 +15,14 @@ export default function App() {
   const [battleRewards, setBattleRewards] = useState([]);
   
   const [nextEventId, setNextEventId] = useState(null);
+
+  // [Fix] BattleScreen이 'active' ↔ 'win'/'lose' 전환 시 언마운트되지 않아
+  //       인트로 effect가 재실행되지 않고 startBattle()이 호출되지 않는 문제 해결.
+  //       전투를 새로 시작할 때마다 이 값을 증가시켜 React key로 강제 리마운트한다.
+  const [battleSessionId, setBattleSessionId] = useState(0);
+  const startNewBattleSession = useCallback(() => {
+    setBattleSessionId(prev => prev + 1);
+  }, []);
   
   // [NEW] 지금 유저가 진입한 진짜 노드 ID (예: 'node_start')를 기억해둡니다.
   const [currentNodeId, setCurrentNodeId] = useState(null); 
@@ -38,6 +46,7 @@ export default function App() {
       setCurrentEnemyId(enemyId);
       setBattleType(newBattleType);
       setNextEventId(null); 
+      startNewBattleSession();
       nav.goBattle();
   };
 
@@ -111,6 +120,7 @@ export default function App() {
             setCurrentEnemyId(enemyId);
             setBattleType('story'); 
             setNextEventId(nextEvtId); 
+            startNewBattleSession();
             nav.goBattle(); 
         } 
         else if (nextAction === 'story_node_select') {
@@ -132,6 +142,7 @@ export default function App() {
   };
 
   const handleRetryBattle = () => {
+      startNewBattleSession();
       nav.goBattle();
   };
 
@@ -169,7 +180,8 @@ export default function App() {
       currentEnemyId, 
       battleType, 
       battleRewards,
-      isStoryChain: !!nextEventId 
+      isStoryChain: !!nextEventId,
+      battleSessionId 
   };
   
   const handlers = {

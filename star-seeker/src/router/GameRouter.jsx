@@ -25,7 +25,7 @@ export default function GameRouter({
   initialParty,
   activeEventId 
 }) {
-  const { currentEnemyId, battleType, battleRewards, isStoryChain } = battleState;
+  const { currentEnemyId, battleType, battleRewards, isStoryChain, battleSessionId } = battleState;
   
   const {
     handleContentSelect,
@@ -146,6 +146,7 @@ export default function GameRouter({
       
       {(nav.gameState === 'active' || nav.gameState === 'win' || nav.gameState === 'lose') && (
         <BattleScreen 
+            key={`battle-${battleSessionId}`}
             userStats={data.userStats} 
             hpMultiplier={data.hpMultiplier} 
             initialParty={initialParty} 
