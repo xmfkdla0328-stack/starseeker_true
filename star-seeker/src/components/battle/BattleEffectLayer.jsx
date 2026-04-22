@@ -26,13 +26,13 @@ const getColor = (type, isCrit) => {
 
 const DamageText = styled.div`
   position: absolute;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-weight: 900; 
-  font-style: italic; 
-  letter-spacing: -0.5px; 
+  font-family: 'Times New Roman', 'Noto Serif KR', Batang, serif;
+  font-weight: ${props => props.$isCrit ? 900 : 700};
+  font-style: normal;
+  letter-spacing: -0.3px;
   font-size: ${props => props.$isCrit ? '1.8rem' : '1.3rem'};
   color: ${props => getColor(props.$type, props.$isCrit)};
-  text-shadow: 0 0 2px white, 0 0 8px ${props => getColor(props.$type, props.$isCrit)}, 2px 2px 0px rgba(0,0,0,1); 
+  text-shadow: 0 0 2px rgba(0,0,0,0.8), 2px 2px 0px rgba(0,0,0,0.9)${props => props.$isCrit ? `, 0 0 12px ${getColor(props.$type, props.$isCrit)}` : ''}; 
   
   /* [Fix] 애니메이션 지속 시간을 0.8초에서 1.5초로 넉넉하게 늘렸습니다 */
   animation: ${floatUp} 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;

@@ -81,7 +81,7 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
 
   useEffect(() => {
     if (battleEvents.length > 0) {
-      const hasImpact = battleEvents.some(e => e.isCrit === true);
+      const hasImpact = battleEvents.some(e => e.isCrit === true || e.isUltimate === true);
       if (hasImpact) {
         setIsShaking(true);
         const timer = setTimeout(() => setIsShaking(false), 300);

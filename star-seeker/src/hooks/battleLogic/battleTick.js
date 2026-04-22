@@ -99,13 +99,16 @@ export function processBattleTick({
 }
 
   // 컷신 트리거 발생 시, 적 피격 이펙트 미리 생성
+  // [Fix] 필살기는 더 이상 시각적으로 '치명타'로 표시하지 않음 (isCrit 제거).
+  //       대신 isUltimate 플래그로 화면 흔들림 등 연출만 분리해서 트리거.
   if (triggeredSkillInfo && damageToEnemyTotal > 0) {
       tickEvents.push({
           id: `evt_ult_${Date.now()}`,
           targetId: `enemy-target-main`,
           value: damageToEnemyTotal,
           type: 'damage',
-          isCrit: true 
+          isCrit: false,
+          isUltimate: true
       });
   } 
   // 일반 턴에서 적 피격 처리
