@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Activity, Shield, Zap, Heart, Crosshair, Cpu, 
   Book, Utensils, Search, MessageSquare, ShieldCheck, 
-  Wrench, ZapOff, Sparkles, Flame, Eye, Calculator 
+  Wrench, ZapOff, Sparkles, Flame, Eye, Calculator, Swords 
 } from 'lucide-react';
 import EquipmentSlot from './EquipmentSlot';
 import EquipmentModal from './EquipmentModal';
@@ -83,6 +83,25 @@ export default function StatusPanel({
 
       <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent w-full my-2"></div>
 
+      {/* [NEW] 전투 스킬 섹션 (일반 공격 + 필살기) */}
+      <div className="mb-6">
+        <h3 className="text-rose-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+          <Swords size={14} /> 전투 스킬
+        </h3>
+        <div className="flex flex-col gap-2">
+          <CombatSkillRow 
+            kind="normal"
+            skill={character.combatSkills?.normal}
+          />
+          <CombatSkillRow 
+            kind="ultimate"
+            skill={character.combatSkills?.ultimate}
+          />
+        </div>
+      </div>
+
+      <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent w-full my-2"></div>
+
       {/* [NEW] 2. 스토리 스킬 섹션 */}
       <div className="mb-6">
         <h3 className="text-amber-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
@@ -156,3 +175,40 @@ const StatRow = ({ icon, label, value, colorClass }) => (
     <span className="text-white font-mono font-bold text-sm drop-shadow-md">{value}</span>
   </div>
 );
+
+// 전투 스킬 카드 (일반 공격 / 필살기)
+const CombatSkillRow = ({ kind, skill }) => {
+  const isUlt = kind === 'ultimate';
+  const labelText = isUlt ? '필살기' : '일반 공격';
+  const Icon = isUlt ? Flame : Swords;
+
+  // 색상: 평타 = 시안, 필살기 = 금색  (전투 화면 색 규칙과 일치)
+  const accent = isUlt
+    ? { border: 'border-amber-500/30', bg: 'bg-amber-900/10', label: 'text-amber-300', name: 'text-amber-100', icon: 'text-amber-400' }
+    : { border: 'border-cyan-500/30',  bg: 'bg-cyan-900/10',  label: 'text-cyan-300',  name: 'text-cyan-100',  icon: 'text-cyan-400' };
+
+  if (!skill) {
+    return (
+      <div className={`p-3 rounded-lg border ${accent.border} ${accent.bg}`}>
+        <div className={`flex items-center gap-1.5 text-[10px] font-bold tracking-wider ${accent.label}`}>
+          <Icon size={12} className={accent.icon} /> <span>{labelText}</span>
+        </div>
+        <div className="text-slate-500 text-[11px] italic mt-1">정보 없음</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`p-3 rounded-lg border ${accent.border} ${accent.bg} transition-all hover:bg-white/5`}>
+      <div className="flex items-center justify-between mb-1.5">
+        <div className={`flex items-center gap-1.5 text-[10px] font-bold tracking-wider ${accent.label}`}>
+          <Icon size={12} className={accent.icon} /> <span>{labelText}</span>
+        </div>
+        <span className={`font-bold text-sm ${accent.name} drop-shadow-md`}>{skill.name}</span>
+      </div>
+      <p className="text-slate-300 text-[11px] leading-relaxed pl-0.5">
+        {skill.desc || '효과 정보가 없습니다.'}
+      </p>
+    </div>
+  );
+};
