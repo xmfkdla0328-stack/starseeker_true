@@ -58,6 +58,7 @@ export const ALL_CHARACTERS = [
   { 
     id: 4, name: "아다드", role: "SUSTAINER", 
     baseHp: 650, baseAtk: 50, baseDef: 8, baseSpd: 10, 
+    critRate: 5, critDmg: 20,
     color: "from-emerald-600 to-emerald-800", desc: "풍요는 존재의 증명이 될 수 있는가?",
     efficiency: 1.0, star: 5,
     image: "/images/characters/mainImage/list/adardList.png",
@@ -76,6 +77,7 @@ export const ALL_CHARACTERS = [
   { 
     id: 5, name: "람만", role: "SUSTAINER", 
     baseHp: 600, baseAtk: 130, baseDef: 5, baseSpd: 35, 
+    critRate: 5, critDmg: 20,
     color: "from-amber-600 to-amber-800", desc: "절제 없는 소비는 인간의 본성",
     efficiency: 0.8, star: 4,
     image: "/images/characters/mainImage/list/rammanList.png",
