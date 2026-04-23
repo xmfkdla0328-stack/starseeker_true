@@ -5,7 +5,8 @@ import { ENEMIES, ENEMY_TEMPLATE } from '../../data/enemyData';
 export default function useBattleState(initialParty, userStats, hpMultiplier, enemyId) { 
   const [logs, setLogs] = useState([]);
   const [allies, setAllies] = useState([]);
-  const [enemy, setEnemy] = useState(null);
+  // [Refactor] 다중 적 지원: enemy(단수) → enemies(배열). 현재는 항상 1마리.
+  const [enemies, setEnemies] = useState([]);
   const [playerCausality, setPlayerCausality] = useState(0);
   const [enemyWarning, setEnemyWarning] = useState(false);
   
@@ -78,11 +79,11 @@ export default function useBattleState(initialParty, userStats, hpMultiplier, en
     });
     setAllies(initializedAllies);
 
-    // 2. 적 초기화
+    // 2. 적 초기화 (배열로 통일. 현재는 1마리만 들어감)
     const targetEnemyData = (enemyId && ENEMIES[enemyId]) ? ENEMIES[enemyId] : ENEMY_TEMPLATE;
     
     if (targetEnemyData) {
-        setEnemy({
+        setEnemies([{
             ...targetEnemyData,
             hp: targetEnemyData.initialHp || targetEnemyData.maxHp, 
             actionGauge: 0,
@@ -91,7 +92,7 @@ export default function useBattleState(initialParty, userStats, hpMultiplier, en
             isCharging: false,
             chargeTimer: 0,
             chargingSkill: null
-        });
+        }]);
     }
     
     // [Log] 적 출현 (시스템)
@@ -100,7 +101,7 @@ export default function useBattleState(initialParty, userStats, hpMultiplier, en
   }, [initialParty, userStats, hpMultiplier, addLog, enemyId]);
 
   return {
-    logs, allies, setAllies, enemy, setEnemy, 
+    logs, allies, setAllies, enemies, setEnemies, 
     playerCausality, setPlayerCausality,
     enemyWarning, setEnemyWarning, 
     buffs, setBuffs, 

@@ -6,12 +6,16 @@ import { processBattleTick } from './battleTick';
 export default function useBattle(initialParty, userStats, hpMultiplier, onGameEnd, enemyId) {
   // 1. 기본 상태 관리 Hook 사용
   const {
-    logs, allies, setAllies, enemy, setEnemy, 
+    logs, allies, setAllies, enemies, setEnemies, 
     playerCausality, setPlayerCausality,
     enemyWarning, setEnemyWarning, 
     buffs, setBuffs, 
     addLog, gainCausality
   } = useBattleState(initialParty, userStats, hpMultiplier, enemyId);
+
+  // [Backward-compat] 외부(BattleScreen)와 일부 화면 코드에는 단일 enemy를 노출.
+  //                   다중 적 UI는 step 3에서 도입 예정.
+  const enemy = enemies && enemies.length > 0 ? enemies[0] : null;
 
   // 2. 전투 제어 상태
   const [isBattleStarted, setIsBattleStarted] = useState(false);
@@ -24,21 +28,23 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
   const onGameEndRef = useRef(onGameEnd);
   const alliesRef = useRef(allies);
   const buffsRef = useRef(buffs);
-  const enemyRef = useRef(enemy);
+  const enemiesRef = useRef(enemies);
+  // 전투 종료(승/패) 한 번만 트리거되도록 보장
+  const battleEndedRef = useRef(false);
 
   useEffect(() => { onGameEndRef.current = onGameEnd; }, [onGameEnd]);
   
   // [Ref 동기화] 렌더링 시점마다 즉시 최신값 반영 (useEffect 의존성 제거 트릭)
   alliesRef.current = allies;
   buffsRef.current = buffs;
-  enemyRef.current = enemy;
+  enemiesRef.current = enemies;
 
   // ----------------------------------------------------------
   // [Helper] 전투 결과(Next State)를 실제 State에 반영하고 승패를 판정하는 함수
   // 중복 코드를 제거하기 위해 별도 함수로 분리함
   // ----------------------------------------------------------
   const applyBattleResult = useCallback((result) => {
-    const { nextAllies, nextEnemy, tickEvents, nextBuffs } = result;
+    const { nextAllies, nextEnemies, tickEvents, nextBuffs } = result;
 
     // 1. 이펙트 출력
     if (tickEvents && tickEvents.length > 0) {
@@ -49,27 +55,33 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
     setAllies(nextAllies);
     if (nextBuffs) setBuffs(nextBuffs);
     
-    if (nextEnemy) {
-        setEnemy(nextEnemy);
-        setEnemyWarning(nextEnemy.isCharging);
+    if (nextEnemies && nextEnemies.length > 0) {
+        setEnemies(nextEnemies);
+        // 어느 적이든 충전 중이면 경고 표시 (step 5에서 보스 단위로 재설계)
+        setEnemyWarning(nextEnemies.some(e => e.isCharging));
     }
 
-    // 3. 승패 판정
-    // (1) 승리
-    if (nextEnemy && nextEnemy.hp <= 0 && !nextEnemy.isDead) {
-        addLog("적을 처치했습니다! 승리!", "system");
-        if (onGameEndRef.current) onGameEndRef.current('win');
-        setEnemy(e => ({ ...e, isDead: true }));
-        setIsBattleStarted(false); // 전투 종료 처리
+    // 3. 승패 판정 (한 틱에 양쪽 KO 발생 시 승리 우선; 종료 콜백은 1회만)
+    if (!battleEndedRef.current) {
+      const allEnemiesDead = nextEnemies && nextEnemies.length > 0 
+          && nextEnemies.every(e => e.hp <= 0);
+      const allAlliesDead = nextAllies.length > 0 
+          && nextAllies.every(a => a.hp <= 0);
+      
+      if (allEnemiesDead) {
+          battleEndedRef.current = true;
+          addLog("적을 처치했습니다! 승리!", "system");
+          if (onGameEndRef.current) onGameEndRef.current('win');
+          setEnemies(prev => prev.map(e => ({ ...e, isDead: true })));
+          setIsBattleStarted(false);
+      } else if (allAlliesDead) {
+          battleEndedRef.current = true;
+          addLog("패배...", "system");
+          if (onGameEndRef.current) onGameEndRef.current('lose');
+          setIsBattleStarted(false);
+      }
     }
-    
-    // (2) 패배
-    if (nextAllies.length > 0 && nextAllies.every(a => a.hp <= 0)) {
-        addLog("패배...", "system");
-        if (onGameEndRef.current) onGameEndRef.current('lose');
-        setIsBattleStarted(false); // 전투 종료 처리
-    }
-  }, [setAllies, setBuffs, setEnemy, setEnemyWarning, addLog]);
+  }, [setAllies, setBuffs, setEnemies, setEnemyWarning, addLog]);
 
 
   // ----------------------------------------------------------
@@ -98,7 +110,7 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
       const result = processBattleTick({
           currentAllies: alliesRef.current,
           currentBuffs: buffsRef.current,
-          currentEnemy: enemyRef.current,
+          currentEnemies: enemiesRef.current,
           addLog,
           gainCausality
       });
@@ -156,11 +168,12 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
   const startBattle = () => {
     setIsBattleStarted(true);
     setIsPaused(false); 
+    battleEndedRef.current = false; // 새 전투 시작 시 종료 트리거 리셋
     addLog("--- 전투가 시작됩니다 ---", "system");
   };
 
   return { 
-    logs, allies, enemy, playerCausality, enemyWarning, buffs, 
+    logs, allies, enemy, enemies, playerCausality, enemyWarning, buffs, 
     useSkill, startBattle, isBattleStarted,
     isPaused, togglePause,
     battleEvents,
