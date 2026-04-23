@@ -190,10 +190,15 @@ const CombatSkillRow = ({ kind, skill }) => {
   if (!skill) {
     return (
       <div className={`p-3 rounded-lg border ${accent.border} ${accent.bg}`}>
-        <div className={`flex items-center gap-1.5 text-[10px] font-bold tracking-wider ${accent.label}`}>
-          <Icon size={12} className={accent.icon} /> <span>{labelText}</span>
+        <div className="flex items-center justify-between">
+          <div className={`flex items-center gap-1.5 ${accent.label}`}>
+            <Icon size={14} className={accent.icon} />
+            <span className={`font-bold text-sm ${accent.name} drop-shadow-md`}>정보 없음</span>
+          </div>
+          <span className={`text-[10px] font-bold tracking-wider ${accent.label} opacity-80`}>
+            {labelText}
+          </span>
         </div>
-        <div className="text-slate-500 text-[11px] italic mt-1">정보 없음</div>
       </div>
     );
   }
@@ -201,10 +206,13 @@ const CombatSkillRow = ({ kind, skill }) => {
   return (
     <div className={`p-3 rounded-lg border ${accent.border} ${accent.bg} transition-all hover:bg-white/5`}>
       <div className="flex items-center justify-between mb-1.5">
-        <div className={`flex items-center gap-1.5 text-[10px] font-bold tracking-wider ${accent.label}`}>
-          <Icon size={12} className={accent.icon} /> <span>{labelText}</span>
+        <div className={`flex items-center gap-1.5 ${accent.label}`}>
+          <Icon size={14} className={accent.icon} />
+          <span className={`font-bold text-sm ${accent.name} drop-shadow-md`}>{skill.name}</span>
         </div>
-        <span className={`font-bold text-sm ${accent.name} drop-shadow-md`}>{skill.name}</span>
+        <span className={`text-[10px] font-bold tracking-wider ${accent.label} opacity-80`}>
+          {labelText}
+        </span>
       </div>
       <p className="text-slate-300 text-[11px] leading-relaxed pl-0.5">
         {skill.desc || '효과 정보가 없습니다.'}
