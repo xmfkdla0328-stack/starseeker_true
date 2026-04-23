@@ -18,12 +18,14 @@ export function executeUltimateSkill(ally, skill, { finalAtk, finalCritMultiplie
     setBuffs(b => ({ ...b, damageReduction: { active: true, val: skill.buffVal || 0.2, timeLeft: 10000 } }));
     addLog(`✨ [${ally.name}] ${skill.name}!${logSuffix} (DMG: ${damageDealt})`, 'ally_ult');
   }
-  // [시에]
+  // [시에] 본인 critDmg 버프 적용 + 본인 실제 critDmg 사용 (하드코딩 1.5배 제거)
   else if (ally.id === 2) {
     newSelfBuffs = { ...ally.selfBuffs, critDmgUp: skill.buffVal || 0.4, buffTime: 10000 };
-    const boostedCritMult = 1 + (skill.buffVal || 0.4);
-    const currentCritMultiplier = isCrit ? (1.5 * boostedCritMult) : 1.0;
-    
+    // 이번 턴 효과: 본인 실제 critDmg 기반 finalCritMultiplier 위에 이 ult의 buffVal(40%)을 추가로 적용
+    const currentCritMultiplier = isCrit
+      ? finalCritMultiplier * (1 + (skill.buffVal || 0.4))
+      : 1.0;
+
     damageDealt = Math.floor(finalAtk * skill.mult * currentCritMultiplier);
     addLog(`✨ [${ally.name}] ${skill.name}! (치명피해 증가) (DMG: ${damageDealt})`, 'ally_ult');
   }
@@ -91,7 +93,8 @@ export function executeNormalSkill(ally, skill, { finalAtk, finalCritMultiplier,
     });
     if (targetIdx === -1) targetIdx = currentAllies.findIndex(a => a.id === ally.id); 
 
-    const healAmount = Math.floor(finalAtk * skill.mult * (isCrit ? 1.5 : 1.0) * healMultiplier);
+    // [Fix] 하드코딩 1.5배 제거 → 아다드 본인 실제 critDmg 기반의 finalCritMultiplier 사용
+    const healAmount = Math.floor(finalAtk * skill.mult * finalCritMultiplier * healMultiplier);
     
     alliesToModify = (allies) => allies.map((a, idx) => {
         if(idx === targetIdx) {

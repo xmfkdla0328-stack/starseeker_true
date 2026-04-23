@@ -109,6 +109,16 @@ export function handleAllyActions({
         if (damageDealt > 0) {
             addLog(`${ally.name}: [${ally.combatSkills.ultimate.name}]! (💥 ${damageDealt})`, 'skill');
             totalEnemyDamage += damageDealt;
+
+            // [NEW] 아군별 개별 적 피격 팝업 이벤트 (필살기 - 크리 시 금색 + 화면 흔들림)
+            allyTickEvents.push({
+                id: `evt_dmg_ult_${ally.id}_${Date.now()}_${Math.random()}`,
+                targetId: 'enemy-target-main',
+                value: damageDealt,
+                type: 'damage',
+                isCrit: isCrit,
+                isUltimate: true,
+            });
         }
         
         if (alliesToHeal && typeof alliesToHeal === 'function') {
@@ -157,6 +167,15 @@ export function handleAllyActions({
         if (damageDealt > 0) {
             addLog(`${ally.name}의 [${skillName}]!`, 'damage');
             totalEnemyDamage += damageDealt;
+
+            // [NEW] 아군별 개별 적 피격 팝업 이벤트 (일반 공격 - 크리 시 금색)
+            allyTickEvents.push({
+                id: `evt_dmg_${ally.id}_${Date.now()}_${Math.random()}`,
+                targetId: 'enemy-target-main',
+                value: damageDealt,
+                type: 'damage',
+                isCrit: isCrit,
+            });
         }
         
         if (alliesToModify && typeof alliesToModify === 'function') {

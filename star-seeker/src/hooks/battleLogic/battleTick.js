@@ -98,28 +98,10 @@ export function processBattleTick({
     tickEvents.push(...allyResult.allyTickEvents);
 }
 
-  // 컷신 트리거 발생 시, 적 피격 이펙트 미리 생성
-  // [Fix] 필살기는 더 이상 시각적으로 '치명타'로 표시하지 않음 (isCrit 제거).
-  //       대신 isUltimate 플래그로 화면 흔들림 등 연출만 분리해서 트리거.
-  if (triggeredSkillInfo && damageToEnemyTotal > 0) {
-      tickEvents.push({
-          id: `evt_ult_${Date.now()}`,
-          targetId: `enemy-target-main`,
-          value: damageToEnemyTotal,
-          type: 'damage',
-          isCrit: false,
-          isUltimate: true
-      });
-  } 
-  // 일반 턴에서 적 피격 처리
-  else if (damageToEnemyTotal > 0 && nextEnemy) {
-      tickEvents.push({
-          id: `evt_${Date.now()}_${Math.random()}`,
-          targetId: `enemy-target-main`,
-          value: damageToEnemyTotal,
-          type: 'damage',
-          isCrit: false
-      });
+  // [Refactor] 적 피격 팝업 이벤트는 actionManager가 아군별로 개별 발행함
+  //           (각 이벤트가 자기 isCrit/isUltimate 플래그를 가짐 → 진짜 크리만 금색)
+  //           여기서는 합산 데미지를 적 HP에서 차감만 처리.
+  if (damageToEnemyTotal > 0 && nextEnemy) {
       nextEnemy.hp = Math.max(0, nextEnemy.hp - damageToEnemyTotal);
   }
 
