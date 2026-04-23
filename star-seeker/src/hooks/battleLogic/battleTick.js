@@ -25,7 +25,6 @@ export function processBattleTick({
   
   // 결과 반환용 변수
   let triggeredSkillInfo = null;
-  let damageToEnemyTotal = 0;
 
   // 1. 버프 관리
   const { updatedBuffs, shieldJustExpired, hasChanged } = manageBuffs(nextBuffs, addLog);
@@ -101,10 +100,11 @@ export function processBattleTick({
     });
   }
 
-  // 3. 아군의 행동 (Ally Action)
+  // 3. 아군의 행동 (Ally Action) — enemies를 넘겨서 AOE 스킬이 적별로 데미지 배포
   const allyResult = handleAllyActions({
       allies: nextAllies, 
       buffs: nextBuffs,
+      enemies: nextEnemies,
       shieldJustExpired,
       setBuffs: (newBuffs) => { nextBuffs = newBuffs; }, // 콜백을 통해 로컬 변수 업데이트
       addLog,
@@ -112,25 +112,26 @@ export function processBattleTick({
   });
 
   nextAllies = allyResult.updatedAllies;
-  damageToEnemyTotal = allyResult.damageToEnemy;
   triggeredSkillInfo = allyResult.triggeredSkillInfo;
 
   if (allyResult.allyTickEvents && allyResult.allyTickEvents.length > 0) {
     tickEvents.push(...allyResult.allyTickEvents);
-}
+  }
 
-  // [Refactor] 적 피격 팝업 이벤트는 actionManager가 아군별로 개별 발행함
-  //           (각 이벤트가 자기 isCrit/isUltimate 플래그를 가짐 → 진짜 크리만 금색)
-  //           여기서는 합산 데미지를 첫 번째 살아있는 적의 HP에서 차감.
-  //           [TODO step 4] 다중 적 + 자동 타겟팅 시 데미지 분배 로직 필요.
-  if (damageToEnemyTotal > 0 && nextEnemies.length > 0) {
-      const targetIdx = nextEnemies.findIndex(e => e && e.hp > 0);
-      if (targetIdx >= 0) {
-          nextEnemies[targetIdx] = {
-              ...nextEnemies[targetIdx],
-              hp: Math.max(0, nextEnemies[targetIdx].hp - damageToEnemyTotal)
-          };
-      }
+  // [Refactor step 2] 적별 데미지 적용
+  // damageToEnemies = [{ targetEnemyIdx, amount, isCrit, isUltimate }, ...]
+  // 같은 적이 한 틱에 여러 번 맞을 수 있으므로 누적 차감
+  if (allyResult.damageToEnemies && allyResult.damageToEnemies.length > 0) {
+      allyResult.damageToEnemies.forEach(d => {
+          const idx = d.targetEnemyIdx;
+          const target = nextEnemies[idx];
+          if (target && target.hp > 0) {
+              nextEnemies[idx] = {
+                  ...target,
+                  hp: Math.max(0, target.hp - d.amount)
+              };
+          }
+      });
   }
 
   return {
@@ -139,7 +140,6 @@ export function processBattleTick({
     nextEnemies,
     tickEvents,
     triggeredSkillInfo,
-    damageToEnemyTotal,
     buffsChanged: hasChanged || allyResult.buffsChanged
   };
 }

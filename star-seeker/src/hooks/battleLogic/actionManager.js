@@ -4,13 +4,20 @@ import { executeUltimateSkill, executeNormalSkill } from './skillExecutor';
 export function handleAllyActions({
   allies,
   buffs,
+  enemies,
   shieldJustExpired,
   setBuffs,
   addLog,
   gainCausality
 }) {
   let nextAllies = [...allies];
-  let totalEnemyDamage = 0;
+  // [Refactor step 2] 단일 totalEnemyDamage 대신 적별 데미지 배열로 처리.
+  // 각 항목: { targetEnemyIdx, amount, isCrit, isUltimate }
+  const damageToEnemies = [];
+  // 살아있는 적의 인덱스 목록 (AOE/단일타겟 결정용)
+  const aliveEnemyIndices = (enemies || [])
+    .map((e, idx) => (e && e.hp > 0) ? idx : -1)
+    .filter(idx => idx >= 0);
   
   let triggeredSkillInfo = null;
   const allyTickEvents = []; 
@@ -106,18 +113,32 @@ export function handleAllyActions({
             damageDealt = Math.floor(damageDealt * 1.1);
         }
 
-        if (damageDealt > 0) {
-            addLog(`${ally.name}: [${ally.combatSkills.ultimate.name}]! (💥 ${damageDealt})`, 'skill');
-            totalEnemyDamage += damageDealt;
+        if (damageDealt > 0 && aliveEnemyIndices.length > 0) {
+            const ultSkill = ally.combatSkills.ultimate;
+            // AOE이면 모든 살아있는 적, 아니면 첫 번째 살아있는 적만 타격
+            const targetIndices = ultSkill.isAoe 
+                ? aliveEnemyIndices 
+                : [aliveEnemyIndices[0]];
+            const multiSuffix = targetIndices.length > 1 ? ` x ${targetIndices.length}` : '';
+            
+            addLog(`${ally.name}: [${ultSkill.name}]! (💥 ${damageDealt}${multiSuffix})`, 'skill');
 
-            // [NEW] 아군별 개별 적 피격 팝업 이벤트 (필살기 - 크리 시 금색 + 화면 흔들림)
-            allyTickEvents.push({
-                id: `evt_dmg_ult_${ally.id}_${Date.now()}_${Math.random()}`,
-                targetId: 'enemy-target-main',
-                value: damageDealt,
-                type: 'damage',
-                isCrit: isCrit,
-                isUltimate: true,
+            targetIndices.forEach(enemyIdx => {
+                damageToEnemies.push({
+                    targetEnemyIdx: enemyIdx,
+                    amount: damageDealt,
+                    isCrit: isCrit,
+                    isUltimate: true
+                });
+                // 적 피격 팝업 (현재 DOM은 'enemy-target-main' 단일. step 3에서 적별 DOM으로 변경 예정)
+                allyTickEvents.push({
+                    id: `evt_dmg_ult_${ally.id}_${enemyIdx}_${Date.now()}_${Math.random()}`,
+                    targetId: 'enemy-target-main',
+                    value: damageDealt,
+                    type: 'damage',
+                    isCrit: isCrit,
+                    isUltimate: true,
+                });
             });
         }
         
@@ -164,17 +185,30 @@ export function handleAllyActions({
             damageDealt = Math.floor(damageDealt * 1.1);
         }
 
-        if (damageDealt > 0) {
-            addLog(`${ally.name}의 [${skillName}]!`, 'damage');
-            totalEnemyDamage += damageDealt;
+        if (damageDealt > 0 && aliveEnemyIndices.length > 0) {
+            const normalSkill = ally.combatSkills.normal;
+            // 일반공격도 isAoe를 지원하지만 현재 모든 일반공격은 단일타겟
+            const targetIndices = normalSkill.isAoe 
+                ? aliveEnemyIndices 
+                : [aliveEnemyIndices[0]];
+            const multiSuffix = targetIndices.length > 1 ? ` x ${targetIndices.length}` : '';
+            
+            addLog(`${ally.name}의 [${skillName}]!${multiSuffix ? ' (광역)' : ''}`, 'damage');
 
-            // [NEW] 아군별 개별 적 피격 팝업 이벤트 (일반 공격 - 크리 시 금색)
-            allyTickEvents.push({
-                id: `evt_dmg_${ally.id}_${Date.now()}_${Math.random()}`,
-                targetId: 'enemy-target-main',
-                value: damageDealt,
-                type: 'damage',
-                isCrit: isCrit,
+            targetIndices.forEach(enemyIdx => {
+                damageToEnemies.push({
+                    targetEnemyIdx: enemyIdx,
+                    amount: damageDealt,
+                    isCrit: isCrit,
+                    isUltimate: false
+                });
+                allyTickEvents.push({
+                    id: `evt_dmg_${ally.id}_${enemyIdx}_${Date.now()}_${Math.random()}`,
+                    targetId: 'enemy-target-main',
+                    value: damageDealt,
+                    type: 'damage',
+                    isCrit: isCrit,
+                });
             });
         }
         
@@ -208,5 +242,5 @@ export function handleAllyActions({
     nextAllies[i] = ally;
   }
 
-  return { updatedAllies: nextAllies, damageToEnemy: totalEnemyDamage, triggeredSkillInfo, allyTickEvents };
+  return { updatedAllies: nextAllies, damageToEnemies, triggeredSkillInfo, allyTickEvents };
 }

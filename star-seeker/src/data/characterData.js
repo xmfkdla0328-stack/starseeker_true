@@ -10,7 +10,7 @@ export const ALL_CHARACTERS = [
     skills: ['요리', '채집', '관찰'],
     combatSkills: {
         normal: { name: "강타", desc: "방어력의 100% 위력으로 단일 적을 공격합니다.", mult: 1.0 },
-        ultimate: { name: "신장의 맹세", desc: "방어력의 150% 위력으로 모든 적을 공격하고, 전체 아군이 받는 피해를 20% 감소시킵니다.", mult: 1.5, buffVal: 0.2 }
+        ultimate: { name: "신장의 맹세", desc: "방어력의 150% 위력으로 모든 적을 공격하고, 전체 아군이 받는 피해를 20% 감소시킵니다.", mult: 1.5, buffVal: 0.2, isAoe: true }
     },
     profile: { age: "20대(GP-A1기준)", height: "186cm", hobby: "고기 요리", like: "모닥불", dislike: "축축한 것" },
     bondStories: [
@@ -47,7 +47,7 @@ export const ALL_CHARACTERS = [
     skills: ['관찰', '계산'],
     combatSkills: {
         normal: { name: "연타", desc: "공격력의 80% 위력으로 단일 적을 공격합니다.", mult: 0.8 },
-        ultimate: { name: "기록자의 증명", desc: "공격력의 200% 위력으로 모든 적을 공격합니다.", mult: 2.0 }
+        ultimate: { name: "기록자의 증명", desc: "공격력의 200% 위력으로 모든 적을 공격합니다.", mult: 2.0, isAoe: true }
     },
     profile: { age: "10대 후반(GP-A1기준)", height: "172cm", hobby: "글 읽기", like: "활자", dislike: "후회" },
     bondStories: [
@@ -84,7 +84,7 @@ export const ALL_CHARACTERS = [
     skills: ['화술', '유혹'],
     combatSkills: {
         normal: { name: "머니건", desc: "공격력의 90% 위력으로 적을 공격합니다.", mult: 0.9 },
-        ultimate: { name: "무절제한 소비의 낙원으로", desc: "공격력의 120%의 위력으로 모든 적을 공격하고, 공격력의 200% 위력으로 아군 전체의 생명력을 회복시킵니다.", mult: 1.2, healMult: 2.0 }
+        ultimate: { name: "무절제한 소비의 낙원으로", desc: "공격력의 120%의 위력으로 모든 적을 공격하고, 공격력의 200% 위력으로 아군 전체의 생명력을 회복시킵니다.", mult: 1.2, healMult: 2.0, isAoe: true }
     },
     profile: { age: "30대(안테α기준)", height: "182cm", hobby: "축제", like: "시끌벅적한 것", dislike: "인내, 절제" },
     bondStories: [
@@ -102,7 +102,7 @@ export const ALL_CHARACTERS = [
     skills: ['괴력'],
     combatSkills: {
         normal: { name: "일점 찌르기", desc: "공격력의 110% 위력으로 적을 공격합니다.", mult: 1.1 },
-        ultimate: { name: "들리기에 응하였으니", desc: "자신의 공격력을 20% 상승시키고, 공격력의 200% 위력으로 모든 적을 공격합니다.", mult: 2.0 }
+        ultimate: { name: "들리기에 응하였으니", desc: "자신의 공격력을 20% 상승시키고, 공격력의 200% 위력으로 모든 적을 공격합니다.", mult: 2.0, isAoe: true }
     },
     profile: { age: "31(신강 기준)", height: "179cm", hobby: "명상", like: "검 손질, 간식", dislike: "강약약강" },
     bondStories: [
@@ -120,7 +120,7 @@ export const ALL_CHARACTERS = [
     skills: ['만능', '제조', '수호'],
     combatSkills: {
         normal: { name: "코드 입력: 7AD0N", desc: "공격력의 100% 위력으로 적을 공격합니다.", mult: 1.0 },
-        ultimate: { name: "오퍼레이션: N03L", desc: "공격력의 200% 위력으로 모든 적을 공격합니다.", mult: 2.0 }
+        ultimate: { name: "오퍼레이션: N03L", desc: "공격력의 200% 위력으로 모든 적을 공격합니다.", mult: 2.0, isAoe: true }
     },
     profile: { age: "알 수 없음", height: "알 수 없음", hobby: "헤페리스 청소", like: "청결, 바보", dislike: "불결함, 미련한 것" },
     bondStories: [
