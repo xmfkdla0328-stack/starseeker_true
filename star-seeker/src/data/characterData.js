@@ -3,6 +3,7 @@ export const ALL_CHARACTERS = [
   { 
     id: 1, name: "서주목", role: "Keeper", 
     baseHp: 1200, baseAtk: 55, baseDef: 25, baseSpd: 8, 
+    critRate: 10, critDmg: 30,
     color: "from-blue-600 to-blue-800", desc: "삶의 증명을 위하여 싸우는 남겨진 자",
     efficiency: 1.1, star: 5,
     image: "/images/characters/mainImage/list/sujumokList.png",
@@ -21,6 +22,7 @@ export const ALL_CHARACTERS = [
   { 
     id: 2, name: "시에", role: "EXECUTOR", 
     baseHp: 850, baseAtk: 95, baseDef: 12, baseSpd: 10, 
+    critRate: 20, critDmg: 50,
     color: "from-rose-600 to-rose-800", desc: "죽음을 등진 이방인",
     efficiency: 0.95, star: 5,
     image: "/images/characters/mainImage/list/sieList.png",
@@ -38,6 +40,7 @@ export const ALL_CHARACTERS = [
   { 
     id: 3, name: "성시하", role: "PATHFINDER", 
     baseHp: 700, baseAtk: 140, baseDef: 8, baseSpd: 12, 
+    critRate: 15, critDmg: 40,
     color: "from-violet-600 to-violet-800", desc: "바라보는 것은 동경의 뒷면",
     efficiency: 1.5, star: 4,
     image: "/images/characters/mainImage/list/sungsihaList.png",
@@ -90,6 +93,7 @@ export const ALL_CHARACTERS = [
   { 
     id: 6, name: "천백", role: "EXECUTOR", 
     baseHp: 1100, baseAtk: 55, baseDef: 10, baseSpd: 30, 
+    critRate: 20, critDmg: 50,
     color: "from-orange-600 to-red-700", desc: "모르고도 행함은 무엇을 위함인가?",
     efficiency: 1.2, star: 4,
     image: "/images/characters/mainImage/list/chunbackList.png",
@@ -107,6 +111,7 @@ export const ALL_CHARACTERS = [
    { 
     id: 7, name: "에키드나", role: "PATHFINDER", 
     baseHp: 600, baseAtk: 130, baseDef: 5, baseSpd: 45, 
+    critRate: 15, critDmg: 40,
     color: "from-amber-600 to-amber-800", desc: "구세주의 귀환을 기다리는 사과 나무의 뱀",
     efficiency: 0.8, star: 5,
     image: "/images/characters/mainImage/list/ekidnaList.png",
