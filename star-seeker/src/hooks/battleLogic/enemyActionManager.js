@@ -70,14 +70,17 @@ export function handleEnemyActions(context) {
         if (newActionGauge >= ACTION_THRESHOLD) {
             newActionGauge = 0;
 
-            if (newCausality >= ENEMY_CAUSALITY_TRIGGER) {
+            // [Step 3b 픽스] 스킬 존재 여부 가드.
+            // 잡몹은 causality/ultimate 스킬이 없을 수 있으므로
+            // 해당 스킬이 정의된 경우에만 차징 분기 진입. 아니면 일반 공격으로 폴백.
+            if (newCausality >= ENEMY_CAUSALITY_TRIGGER && enemy.skills.causality) {
                 const skillData = enemy.skills.causality;
                 isCharging = true;
                 chargingSkill = 'causality';
                 chargeTimer = skillData.chargeTime || 3000;
                 addLog(`⚠️ ${enemy.name}이(가) [${skillData.name}]을(를) 준비합니다...`, 'system');
             } 
-            else if (newUltGauge >= enemy.maxUltGauge) {
+            else if (newUltGauge >= enemy.maxUltGauge && enemy.skills.ultimate) {
                 const skillData = enemy.skills.ultimate;
                 isCharging = true;
                 chargingSkill = 'ultimate';
@@ -88,7 +91,7 @@ export function handleEnemyActions(context) {
                 const skillData = enemy.skills.normal;
                 const target = selectRandomAlly(allies);
                 
-                if (target) {
+                if (target && skillData) {
                     const dmg = Math.floor(enemy.baseAtk * skillData.mult);
                     // [수정] 로그에 데미지 포함
                     addLog(`⚔️ ${enemy.name}의 [${skillData.name}] -> ${target.name} (💥 ${dmg})`, 'damage');
@@ -96,6 +99,15 @@ export function handleEnemyActions(context) {
                     
                     newUltGauge += (skillData.gaugeGain || 0);
                     newCausality += (skillData.causalityGain || 0);
+                }
+
+                // [Step 3b 픽스] 임계점 도달했지만 해당 스킬이 없는 적은 게이지를 클램프.
+                // (매 틱 임계점 재체크 → 폴백 무한 반복을 막기 위함)
+                if (!enemy.skills.causality && newCausality >= ENEMY_CAUSALITY_TRIGGER) {
+                    newCausality = ENEMY_CAUSALITY_TRIGGER - 1;
+                }
+                if (!enemy.skills.ultimate && newUltGauge >= enemy.maxUltGauge) {
+                    newUltGauge = enemy.maxUltGauge - 1;
                 }
             }
         }
