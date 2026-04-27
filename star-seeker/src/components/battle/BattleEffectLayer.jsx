@@ -54,7 +54,11 @@ export default function BattleEffectLayer({ events }) {
     const newParticles = events.map(event => {
       let targetEl = document.getElementById(event.targetId);
       if (!targetEl) targetEl = document.getElementById(`ally-target-${event.targetId}`);
-      if (!targetEl && String(event.targetId).includes('enemy')) targetEl = document.getElementById('enemy-target-main');
+      // [Step 3b] 적 타겟 fallback: 정확한 슬롯이 없으면 보스 슬롯(0번) 또는 레거시 타겟으로
+      if (!targetEl && String(event.targetId).includes('enemy')) {
+        targetEl = document.getElementById('enemy-slot-0')
+                || document.getElementById('enemy-target-main');
+      }
 
       if (!targetEl) return null;
 

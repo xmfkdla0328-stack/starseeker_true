@@ -130,10 +130,10 @@ export function handleAllyActions({
                     isCrit: isCrit,
                     isUltimate: true
                 });
-                // 적 피격 팝업 (현재 DOM은 'enemy-target-main' 단일. step 3에서 적별 DOM으로 변경 예정)
+                // 적 피격 팝업: 슬롯 기반 DOM id로 per-enemy 타겟팅 (step 3b)
                 allyTickEvents.push({
                     id: `evt_dmg_ult_${ally.id}_${enemyIdx}_${Date.now()}_${Math.random()}`,
-                    targetId: 'enemy-target-main',
+                    targetId: `enemy-slot-${enemyIdx}`,
                     value: damageDealt,
                     type: 'damage',
                     isCrit: isCrit,
@@ -204,7 +204,7 @@ export function handleAllyActions({
                 });
                 allyTickEvents.push({
                     id: `evt_dmg_${ally.id}_${enemyIdx}_${Date.now()}_${Math.random()}`,
-                    targetId: 'enemy-target-main',
+                    targetId: `enemy-slot-${enemyIdx}`,
                     value: damageDealt,
                     type: 'damage',
                     isCrit: isCrit,

@@ -10,7 +10,7 @@ import { ENEMY_CAUSALITY_TRIGGER } from '../../data/gameData';
  * step 3b에서 다중 적 레이아웃이 추가되어도 보스 1마리 단독 케이스에서는
  * 이 컴포넌트만 그대로 사용해 기존 콘텐츠 시각이 100% 보존됨.
  */
-export default function BossEnemyDisplay({ enemy, enemyWarning, showStatus = true }) {
+export default function BossEnemyDisplay({ enemy, enemyWarning, showStatus = true, slotId = 'enemy-target-main' }) {
   const [circleActive, setCircleActive] = useState(false);
 
   useEffect(() => {
@@ -42,7 +42,7 @@ export default function BossEnemyDisplay({ enemy, enemyWarning, showStatus = tru
 
       {/* 2. 원형 감옥 이펙트 */}
       <div className={`relative w-full flex items-center justify-center transition-all duration-500 z-0 ${enemy.hp <= 0 ? 'opacity-0 scale-95 blur-sm' : 'opacity-100 scale-100'} ${circleActive ? 'opacity-100' : 'opacity-0'}`}>
-         <div id="enemy-target-main" className="relative w-64 h-64 flex items-center justify-center mt-4">
+         <div id={slotId} className="relative w-64 h-64 flex items-center justify-center mt-4">
             
             {/* 후광 효과 (Aura) */}
             <div className={`absolute inset-8 bg-rose-500/20 blur-3xl rounded-full animate-pulse ${enemyWarning ? 'bg-fuchsia-500/40' : ''}`} />
