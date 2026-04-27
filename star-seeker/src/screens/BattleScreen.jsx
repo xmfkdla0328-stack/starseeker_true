@@ -49,7 +49,7 @@ const ControlArea = styled.div`
 
 function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetreat, enemyId }) {
   const { 
-    logs, allies, enemy, playerCausality, enemyWarning, buffs,
+    logs, allies, enemies, playerCausality, enemyWarning, buffs,
     useSkill, startBattle, isBattleStarted, isPaused, togglePause,
     battleEvents, 
     cutInInfo, 
@@ -119,9 +119,9 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
       )}
 
       <EnemyArea className={introStep === 0 ? 'intro-hidden' : 'intro-slide-up'}>
-        {enemy && (
+        {enemies && enemies.length > 0 && (
             <BattleEnemyZone 
-                enemy={enemy} 
+                enemies={enemies} 
                 enemyWarning={enemyWarning} 
                 showStatus={introStep >= 3} 
             />
