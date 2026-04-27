@@ -1,6 +1,31 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CAUSALITY_MAX } from '../../data/gameData';
-import { ENEMIES, ENEMY_TEMPLATE } from '../../data/enemyData'; 
+import { ENEMIES, ENEMY_TEMPLATE, MAX_ENEMIES_PER_BATTLE } from '../../data/enemyData'; 
+
+/**
+ * enemyId 파라미터를 정규화하여 적 인스턴스 데이터 ID 목록을 반환.
+ * 지원 형태:
+ *   - string                          : 단일 적 (기존 호환)
+ *   - string[]                        : 각 항목 하나당 1 인스턴스
+ *   - Array<{id, count?}>             : 같은 적을 count만큼 복제
+ *   - Array<string | {id, count?}>   : 위 두 가지 혼합
+ *   - null/undefined                  : 빈 배열 (호출부가 fallback 처리)
+ */
+function resolveEnemyLineup(enemyId) {
+  if (!enemyId) return [];
+  if (typeof enemyId === 'string') return [enemyId];
+  if (Array.isArray(enemyId)) {
+    return enemyId.flatMap(entry => {
+      if (typeof entry === 'string') return [entry];
+      if (entry && typeof entry === 'object' && entry.id) {
+        const n = Math.max(1, Math.floor(entry.count || 1));
+        return Array(n).fill(entry.id);
+      }
+      return [];
+    });
+  }
+  return [];
+}
 
 export default function useBattleState(initialParty, userStats, hpMultiplier, enemyId) { 
   const [logs, setLogs] = useState([]);
@@ -79,24 +104,66 @@ export default function useBattleState(initialParty, userStats, hpMultiplier, en
     });
     setAllies(initializedAllies);
 
-    // 2. 적 초기화 (배열로 통일. 현재는 1마리만 들어감)
-    const targetEnemyData = (enemyId && ENEMIES[enemyId]) ? ENEMIES[enemyId] : ENEMY_TEMPLATE;
-    
-    if (targetEnemyData) {
-        setEnemies([{
-            ...targetEnemyData,
-            hp: targetEnemyData.initialHp || targetEnemyData.maxHp, 
-            actionGauge: 0,
-            ultGauge: 0,
-            causality: 0,
-            isCharging: false,
-            chargeTimer: 0,
-            chargingSkill: null
-        }]);
+    // 2. 적 초기화 (배열로 통일. 단일/다중 모두 지원)
+    //    instanceId: 같은 종류 적이 여러 마리 있을 때 React key/DOM id로 사용 (예: 'recorder_page#0')
+    const lineupIds = resolveEnemyLineup(enemyId).slice(0, MAX_ENEMIES_PER_BATTLE);
+    // 같은 id가 여러 마리인 경우만 actionGauge를 살짝 분산 (동시 행동 방지)
+    // 이렇게 하면 단일 적/혼합 편성의 단독 인스턴스는 기존처럼 actionGauge=0으로 시작 → 백워드 호환 유지
+    const idCounts = lineupIds.reduce((acc, id) => {
+      acc[id] = (acc[id] || 0) + 1;
+      return acc;
+    }, {});
+    let enemyInstances = lineupIds
+      .map((id, idx) => {
+        const data = ENEMIES[id];
+        if (!data) return null;
+        const isDuplicate = idCounts[id] > 1;
+        return {
+          ...data,
+          instanceId: `${data.id}#${idx}`,
+          hp: data.initialHp || data.maxHp,
+          actionGauge: isDuplicate ? Math.random() * 200 : 0,
+          ultGauge: 0,
+          causality: 0,
+          isCharging: false,
+          chargeTimer: 0,
+          chargingSkill: null
+        };
+      })
+      .filter(Boolean);
+
+    // Fallback: 라인업이 비었으면 기본 템플릿 1마리
+    if (enemyInstances.length === 0 && ENEMY_TEMPLATE) {
+      enemyInstances = [{
+        ...ENEMY_TEMPLATE,
+        instanceId: `${ENEMY_TEMPLATE.id}#0`,
+        hp: ENEMY_TEMPLATE.initialHp || ENEMY_TEMPLATE.maxHp,
+        actionGauge: 0,
+        ultGauge: 0,
+        causality: 0,
+        isCharging: false,
+        chargeTimer: 0,
+        chargingSkill: null
+      }];
     }
-    
-    // [Log] 적 출현 (시스템)
-    addLog(`⚠️ 강적 [${targetEnemyData.name}] 출현!`, "system");
+
+    setEnemies(enemyInstances);
+
+    // [Log] 같은 종류는 묶어서 출현 알림 (보스는 ⚠️ 강조)
+    const groups = new Map(); // id → { name, isBoss, count }
+    enemyInstances.forEach(e => {
+      const g = groups.get(e.id) || { name: e.name, isBoss: !!e.isBoss, count: 0 };
+      g.count++;
+      groups.set(e.id, g);
+    });
+    groups.forEach(g => {
+      const suffix = g.count > 1 ? ` x${g.count}` : '';
+      if (g.isBoss) {
+        addLog(`⚠️ 강적 [${g.name}]${suffix} 출현!`, 'system');
+      } else {
+        addLog(`적 [${g.name}]${suffix} 출현.`, 'system');
+      }
+    });
 
   }, [initialParty, userStats, hpMultiplier, addLog, enemyId]);
 
