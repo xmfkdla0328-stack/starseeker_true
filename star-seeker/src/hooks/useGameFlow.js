@@ -38,7 +38,11 @@ export default function useGameFlow(nav, data) {
   };
 
   const handleStartMiningBattle = (type) => {
+    // [Step 3b] 채굴 미션별 적 라인업 매핑.
+    // 'chip'(데이터 응집체 추출)은 멀티-적 라인업 프리셋을 사용.
+    // 'stone'/'gear'는 향후 정식 컨텐츠 도입 전까지 단일 보스 임시 사용.
     let enemyId = 'guardian';
+    if (type === 'chip') enemyId = 'data_aggregate_extraction';
 
     let newBattleType = 'mining_chip';
     if (type === 'stone') newBattleType = 'mining_stone';

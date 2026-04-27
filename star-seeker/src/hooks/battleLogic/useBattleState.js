@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CAUSALITY_MAX } from '../../data/gameData';
-import { ENEMIES, ENEMY_TEMPLATE, MAX_ENEMIES_PER_BATTLE } from '../../data/enemyData'; 
+import { ENEMIES, ENEMY_TEMPLATE, MAX_ENEMIES_PER_BATTLE, ENEMY_LINEUPS } from '../../data/enemyData'; 
 
 /**
  * enemyId 파라미터를 정규화하여 적 인스턴스 데이터 ID 목록을 반환.
@@ -13,7 +13,14 @@ import { ENEMIES, ENEMY_TEMPLATE, MAX_ENEMIES_PER_BATTLE } from '../../data/enem
  */
 function resolveEnemyLineup(enemyId) {
   if (!enemyId) return [];
-  if (typeof enemyId === 'string') return [enemyId];
+  if (typeof enemyId === 'string') {
+    // [Step 3b] 라인업 프리셋 키가 들어오면 ENEMY_LINEUPS에서 펼쳐 재귀 처리.
+    // (ex. 'data_aggregate_extraction' → [recorder_page x4, recorder_bookmark x1])
+    if (ENEMY_LINEUPS && ENEMY_LINEUPS[enemyId]) {
+      return resolveEnemyLineup(ENEMY_LINEUPS[enemyId]);
+    }
+    return [enemyId];
+  }
   if (Array.isArray(enemyId)) {
     return enemyId.flatMap(entry => {
       if (typeof entry === 'string') return [entry];
