@@ -119,6 +119,13 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
     if (!isBattleStarted || isPaused || cutInInfo || !initialParty || initialParty.length === 0) return;
 
     const interval = setInterval(() => {
+      // [Step 5-2b-ii 픽스] React state 업데이트 race guard.
+      // setCutInInfo는 비동기. setInterval 콜백이 여러 번 fire되면 React 커밋/useEffect
+      // cleanup 전에 다음 틱이 돌아 pendingResultRef와 cutInInfo를 덮어씀.
+      // 결과: 이전 컷인이 잠깐 떴다 새 컷인으로 갈아치워지고 이전 result 손실.
+      // pendingResultRef가 살아있으면 = 큐 재생 중 = 새 틱 스킵 (동기 가드).
+      if (pendingResultRef.current) return;
+
       // 1. 순수 로직 계산 (battleTick.js)
       const result = processBattleTick({
           currentAllies: alliesRef.current,
