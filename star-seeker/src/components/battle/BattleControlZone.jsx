@@ -76,8 +76,8 @@ export default function BattleControlZone({ playerCausality, buffs, userStats, o
               : 'border-white/15 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10'}`}
         >
           {battleMode === 'manual'
-            ? <><Hand size={13} /><span>MANUAL</span></>
-            : <><Bot size={13} /><span>AUTO</span></>}
+            ? <><Hand size={13} /><span>수동</span></>
+            : <><Bot size={13} /><span>자동</span></>}
         </button>
       </div>
 
