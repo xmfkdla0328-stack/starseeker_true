@@ -10,8 +10,17 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
     playerCausality, setPlayerCausality,
     enemyWarning, setEnemyWarning, 
     buffs, setBuffs, 
-    addLog, gainCausality
+    addLog, gainCausality,
+    battleMode, setBattleMode
   } = useBattleState(initialParty, userStats, hpMultiplier, enemyId);
+
+  // [Step 7-b] 모드 토글 — useSkill과 동일한 정책: 컷인 진행 중에는 무시 (사용자 입력 일관성).
+  // cutInInfo는 아래에서 선언되므로 함수 내부에서 closure로 참조하지 않고, 호출 시점의 ref로 체크.
+  const cutInInfoRef = useRef(null);
+  const toggleBattleMode = useCallback(() => {
+    if (cutInInfoRef.current) return;
+    setBattleMode(prev => prev === 'auto' ? 'manual' : 'auto');
+  }, [setBattleMode]);
 
   // [Backward-compat] 외부(BattleScreen)와 일부 화면 코드에는 단일 enemy를 노출.
   //                   다중 적 UI는 step 3에서 도입 예정.
@@ -32,6 +41,9 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
   const alliesRef = useRef(allies);
   const buffsRef = useRef(buffs);
   const enemiesRef = useRef(enemies);
+  // [Step 7-b] battleMode도 setInterval tick에서 분기 시 stale closure를 피하려면 ref 동기화 필수.
+  // 7-c (우선 타겟 마킹) / 7-d (ult 자동 발동 차단)에서 이 ref를 읽어 분기.
+  const battleModeRef = useRef(battleMode);
   // 전투 종료(승/패) 한 번만 트리거되도록 보장
   const battleEndedRef = useRef(false);
 
@@ -41,6 +53,8 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
   alliesRef.current = allies;
   buffsRef.current = buffs;
   enemiesRef.current = enemies;
+  battleModeRef.current = battleMode;
+  cutInInfoRef.current = cutInInfo;
 
   // ----------------------------------------------------------
   // [Helper] 전투 결과(Next State)를 실제 State에 반영하고 승패를 판정하는 함수
@@ -202,6 +216,7 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
     isPaused, togglePause,
     battleEvents,
     cutInInfo, 
-    handleCutInComplete 
+    handleCutInComplete,
+    battleMode, toggleBattleMode
   };
 }

@@ -57,7 +57,8 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
     useSkill, startBattle, isBattleStarted, isPaused, togglePause,
     battleEvents, 
     cutInInfo, 
-    handleCutInComplete 
+    handleCutInComplete,
+    battleMode, toggleBattleMode
   } = useBattle(initialParty, userStats, hpMultiplier, onGameEnd, enemyId);
 
   const [introStep, setIntroStep] = useState(0);
@@ -147,6 +148,8 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
           buffs={buffs} 
           userStats={userStats} 
           onUseSkill={useSkill}
+          battleMode={battleMode}
+          onToggleBattleMode={toggleBattleMode}
         />
       </ControlArea>
 

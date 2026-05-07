@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sword, Shield, Zap, Sparkles, Brain, Heart, X } from 'lucide-react';
+import { Sword, Shield, Zap, Sparkles, Brain, Heart, X, Bot, Hand } from 'lucide-react';
 
 const STAT_INFO = {
   str: {
@@ -36,7 +36,7 @@ const STAT_INFO = {
 
 const STAT_ORDER = ['str', 'agi', 'int', 'wil', 'chr'];
 
-export default function BattleControlZone({ playerCausality, buffs, userStats, onUseSkill }) {
+export default function BattleControlZone({ playerCausality, buffs, userStats, onUseSkill, battleMode = 'auto', onToggleBattleMode }) {
   const [activeStat, setActiveStat] = useState(null);
 
   const handleStatClick = (e, key) => {
@@ -53,19 +53,32 @@ export default function BattleControlZone({ playerCausality, buffs, userStats, o
       className="p-3 flex flex-col z-20 backdrop-blur-md bg-[#0f172a]/80 border-t border-white/10 rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.3)] min-h-0"
       onClick={() => setActiveStat(null)}
     >
-      {/* 인과력 게이지 */}
-      <div className="flex items-center justify-between mb-3 px-1 flex-shrink-0">
+      {/* 인과력 게이지 + [Step 7-b] 모드 토글 */}
+      <div className="flex items-center justify-between mb-3 px-1 flex-shrink-0 gap-2">
         <div className="flex items-center gap-2 text-cyan-300 font-bold tracking-wider text-sm drop-shadow-md">
           <Sparkles size={14} className="animate-pulse" />
           <span>CAUSALITY</span>
         </div>
-        <div className="flex-1 mx-3 h-3 bg-slate-800/50 rounded-sm overflow-hidden border border-white/10 relative group">
+        <div className="flex-1 mx-1 h-3 bg-slate-800/50 rounded-sm overflow-hidden border border-white/10 relative group">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNCIgaGVpZ2h0PSI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik0xIDFoMXYxSDF6IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiLz48L3N2Zz4=')] opacity-20"></div>
           <div className="h-full bg-gradient-to-r from-cyan-600 to-cyan-400 transition-all duration-300 relative shadow-[0_0_10px_rgba(34,211,238,0.5)]" style={{ width: `${Math.min(100, playerCausality)}%` }}>
             <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/50 blur-[1px]"></div>
           </div>
         </div>
-        <span className="text-xs font-mono text-cyan-200">{Math.floor(playerCausality)}<span className="text-slate-500">/100</span></span>
+        <span className="text-xs font-mono text-cyan-200 mr-1">{Math.floor(playerCausality)}<span className="text-slate-500">/100</span></span>
+        {/* [Step 7-b] 자동/수동 모드 토글. 7-d에서 ult 자동 발동을 차단하고 7-c에서 우선 타겟 마킹을 활성화. */}
+        <button
+          onClick={(e) => { e.stopPropagation(); if (onToggleBattleMode) onToggleBattleMode(); }}
+          title={battleMode === 'auto' ? '자동 전투 — 탭하여 수동 전환' : '수동 전투 — 탭하여 자동 전환'}
+          className={`flex items-center gap-1 px-2 py-1 rounded border font-mono text-[10px] tracking-wider transition-all duration-200 active:scale-95
+            ${battleMode === 'manual'
+              ? 'border-amber-500/60 bg-amber-500/10 text-amber-200 shadow-[0_0_10px_rgba(251,191,36,0.25)]'
+              : 'border-white/15 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10'}`}
+        >
+          {battleMode === 'manual'
+            ? <><Hand size={11} /><span>MANUAL</span></>
+            : <><Bot size={11} /><span>AUTO</span></>}
+        </button>
       </div>
 
       {/* 스킬 버튼 */}
