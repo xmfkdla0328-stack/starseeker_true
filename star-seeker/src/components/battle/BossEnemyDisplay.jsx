@@ -35,26 +35,26 @@ export default function BossEnemyDisplay({ enemy, enemyWarning, showStatus = tru
   // 단계별 시각 토큰
   const stage = isCharging ? 'charging' : (isWarn ? 'warn' : 'normal');
 
-  // [Step 5-1 v2] 색상 의미 재배치: 평소=파랑(안정) → 경고=보라(위협 임박) → 차징=빨강(위험 발동)
+  // [Step 5-1 v3] 색상 의미: 평소=화이트(중립) → 경고=보라(위협 임박) → 차징=빨강(위험 발동)
   const auraClass =
     stage === 'charging' ? 'bg-rose-500/40 animate-pulse'
     : stage === 'warn'   ? 'bg-fuchsia-500/30 animate-pulse'
-    :                      'bg-sky-500/20 animate-pulse';
+    :                      'bg-white/10 animate-pulse';
 
   const borderClass =
     stage === 'charging' ? 'border-rose-500 shadow-[0_0_40px_rgba(244,63,94,0.85)] animate-[boss-shake_0.4s_ease-in-out_infinite]'
     : stage === 'warn'   ? 'border-fuchsia-500 shadow-[0_0_28px_rgba(232,121,249,0.6)] animate-pulse'
-    :                      'border-sky-500 shadow-[0_0_20px_rgba(56,189,248,0.45)]';
+    :                      'border-slate-300/70 shadow-[0_0_20px_rgba(255,255,255,0.25)]';
 
   const overlayGradientFrom =
     stage === 'charging' ? 'from-rose-900/80'
     : stage === 'warn'   ? 'from-fuchsia-900/75'
-    :                      'from-sky-900/70';
+    :                      'from-slate-700/70';
 
   const causalityBarClass =
     stage === 'charging' ? 'bg-rose-400 shadow-[0_0_10px_rgba(244,63,94,0.85)]'
     : stage === 'warn'   ? 'bg-fuchsia-400 shadow-[0_0_8px_rgba(232,121,249,0.75)]'
-    :                      'bg-sky-600';
+    :                      'bg-slate-300';
 
   return (
     <div className="relative flex-1 flex flex-col items-center justify-between gap-4 p-4 z-10 overflow-hidden">
@@ -128,7 +128,7 @@ export default function BossEnemyDisplay({ enemy, enemyWarning, showStatus = tru
              </div>
           </div>
           <div className="flex-[1] flex flex-col gap-0.5">
-             <span className={`text-[9px] font-mono text-right transition-colors duration-300 ${stage === 'charging' ? 'text-rose-300' : stage === 'warn' ? 'text-fuchsia-300' : 'text-sky-400'}`}>CAUSALITY</span>
+             <span className={`text-[9px] font-mono text-right transition-colors duration-300 ${stage === 'charging' ? 'text-rose-300' : stage === 'warn' ? 'text-fuchsia-300' : 'text-slate-300'}`}>CAUSALITY</span>
              <div className="w-full h-1 bg-slate-800/80 rounded-full overflow-hidden">
                 <div className={`h-full transition-all duration-300 ${causalityBarClass}`} style={{ width: `${Math.min(100, causalityPct)}%` }} />
              </div>
@@ -136,13 +136,13 @@ export default function BossEnemyDisplay({ enemy, enemyWarning, showStatus = tru
         </div>
       </div>
 
-      {/* [Step 5-1] 풀스크린 배너 → 카드 우상단 컴팩트 배지로 축소.
-          이 보스가 차징 중일 때만 표시. 잡몹은 이 컴포넌트를 사용하지 않으므로 자연스럽게 노출 안 됨. */}
+      {/* [Step 5-1 v3] WARNING 배지 — 보스 이미지 바로 위쪽 중앙에 띄움.
+          보스 이미지 레이어는 top-12부터 시작하므로 그 위(top-14)에 가로 중앙 정렬. */}
       {isCharging && (
-        <div className="absolute top-3 right-3 z-40 pointer-events-none">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-rose-950/90 border border-rose-500/70 shadow-[0_0_18px_rgba(244,63,94,0.6)] animate-pulse">
-            <AlertTriangle className="text-rose-300" size={12} />
-            <span className="text-rose-100 font-bold tracking-[0.2em] text-[10px]">
+        <div className="absolute top-14 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-rose-950/90 border border-rose-500/70 shadow-[0_0_24px_rgba(244,63,94,0.7)] animate-pulse">
+            <AlertTriangle className="text-rose-300" size={14} />
+            <span className="text-rose-100 font-bold tracking-[0.25em] text-[11px]">
               WARNING
             </span>
           </div>
