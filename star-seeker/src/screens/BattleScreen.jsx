@@ -105,7 +105,10 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
   return (
     <BattleScreenContainer className={isShaking ? 'shake-effect' : ''}>
       <BattleEffectLayer events={battleEvents} />
-      <BattleCutIn cutInInfo={cutInInfo} onComplete={handleCutInComplete} />
+      {/* [Step 5-2b-ii] key={cutInInfo?._id}: 큐에 다음 컷인이 들어와 cutInInfo가 갱신될 때
+          BattleCutIn을 강제 재마운트하여 styled-components 애니메이션이 새로 시작되도록 함.
+          (같은 진영 컷인이 연속될 때 키 없이는 keyframe이 처음부터 재생되지 않음) */}
+      <BattleCutIn key={cutInInfo?._id ?? 'idle'} cutInInfo={cutInInfo} onComplete={handleCutInComplete} />
 
       {isBattleStarted && !isPaused && (
         <GameHeader onPause={() => togglePause(true)} />

@@ -25,6 +25,9 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
   
   // 3. Refs (최신 상태 동기화용)
   const pendingResultRef = useRef(null); // 컷신 대기 중인 결과 저장
+  // [Step 5-2b-ii] 같은 틱에 여러 컷인이 쌓인 경우 순차 재생용 큐 (현재 표시 이후 분).
+  // 큐가 모두 빌 때까지 pendingResultRef는 보류; 큐가 끝나야 데미지/효과 일괄 적용.
+  const cutInQueueRef = useRef([]);
   const onGameEndRef = useRef(onGameEnd);
   const alliesRef = useRef(allies);
   const buffsRef = useRef(buffs);
@@ -85,11 +88,21 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
 
 
   // ----------------------------------------------------------
-  // [Handler] 컷신 종료 후 보류되었던 결과 처리
+  // [Handler] 컷신 종료 후 처리
+  // [Step 5-2b-ii] 큐에 다음 컷인이 있으면 그것을 표시 (pendingResult는 계속 보류).
+  //                큐가 비었을 때만 보류된 결과를 한 번에 일괄 적용.
   // ----------------------------------------------------------
   const handleCutInComplete = useCallback(() => {
+    if (cutInQueueRef.current.length > 0) {
+        // 다음 컷인 표시 — setCutInInfo가 새 객체로 갱신되어 BattleCutIn의
+        // useEffect가 cutInInfo 의존성으로 재실행되며 새 컷인이 시작됨.
+        const next = cutInQueueRef.current.shift();
+        setCutInInfo(next);
+        return;
+    }
+
     setCutInInfo(null);
-    
+
     if (pendingResultRef.current) {
         // 보류해뒀던 결과를 그대로 적용 (중복 로직 제거됨)
         applyBattleResult(pendingResultRef.current);
@@ -116,8 +129,12 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
       });
 
       // 2. 컷신 트리거 체크
-      if (result.triggeredSkillInfo) {
-          setCutInInfo(result.triggeredSkillInfo);
+      // [Step 5-2b-ii] cutInQueue: 0~N개. 첫 항목 즉시 표시, 나머지는 cutInQueueRef에 보관해
+      //                handleCutInComplete가 순차 소비. 큐가 빈 뒤에야 데미지 일괄 적용.
+      if (result.cutInQueue && result.cutInQueue.length > 0) {
+          const [first, ...rest] = result.cutInQueue;
+          cutInQueueRef.current = rest;
+          setCutInInfo(first);
           pendingResultRef.current = result; // 계산 결과를 Ref에 임시 저장 (화면 멈춤)
           return; // 루프의 이번 턴 반영 중단
       }
