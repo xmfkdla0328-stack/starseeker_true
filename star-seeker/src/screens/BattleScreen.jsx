@@ -29,6 +29,10 @@ const EnemyArea = styled.div`
   flex: 1; /* [수정] 로그 영역이 사라진 만큼 빈 공간을 모두 차지하도록 flex: 1로 변경 */
   min-height: 0;
   overflow: hidden;
+  /* [Step 5-1 v4] BossEnemyDisplay 내부의 flex-1 / min-h-0 가 동작하도록 자체를 flex 컨테이너로 만든다.
+     이게 없으면 보스 카드가 자연 높이로 부풀어 짧은 화면에서 게이지가 영역 밖으로 흘러나간다. */
+  display: flex;
+  flex-direction: column;
   &.intro-hidden { opacity: 0; }
 `;
 

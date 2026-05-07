@@ -57,10 +57,14 @@ export default function BossEnemyDisplay({ enemy, enemyWarning, showStatus = tru
     :                      'bg-slate-300';
 
   return (
-    <div className="relative flex-1 flex flex-col items-center justify-between gap-4 p-4 z-10 overflow-hidden">
+    /* [Step 5-1 v4] 반응형 flex 레이아웃:
+       - 헤더/게이지는 flex-shrink-0 (항상 고정 높이)
+       - 가운데 원형 감옥 영역은 flex-1 min-h-0 (남는 공간 흡수, 짧은 화면에선 시각적으로 압축)
+       이렇게 해서 EnemyArea가 짧아져도 게이지가 영역 밖(아군 UI 쪽)으로 밀려나지 않음. */
+    <div className="relative flex-1 min-h-0 flex flex-col items-center gap-4 p-4 z-10 overflow-hidden">
       
       {/* 1. 몹 이름 및 hp 표기 */}
-      <div className={`w-4/5 max-w-md z-10 transition-opacity duration-1000 ${showStatus ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`flex-shrink-0 w-4/5 max-w-md z-10 transition-opacity duration-1000 ${showStatus ? 'opacity-100' : 'opacity-0'}`}>
         <div className="flex justify-between items-end border-b border-white/20 pb-1">
           <div className="flex flex-col">
             <span className="text-[10px] text-fuchsia-300 uppercase tracking-widest mb-1">Target Entity</span>
@@ -73,8 +77,8 @@ export default function BossEnemyDisplay({ enemy, enemyWarning, showStatus = tru
         </div>
       </div>
 
-      {/* 2. 원형 감옥 이펙트 */}
-      <div className={`relative w-full flex items-center justify-center transition-all duration-500 z-0 ${enemy.hp <= 0 ? 'opacity-0 scale-95 blur-sm' : 'opacity-100 scale-100'} ${circleActive ? 'opacity-100' : 'opacity-0'}`}>
+      {/* 2. 원형 감옥 이펙트 — flex-1 min-h-0 으로 남는 세로 공간 흡수 (짧은 화면에선 시각적으로 압축됨) */}
+      <div className={`relative flex-1 min-h-0 w-full flex items-center justify-center transition-all duration-500 z-0 ${enemy.hp <= 0 ? 'opacity-0 scale-95 blur-sm' : 'opacity-100 scale-100'} ${circleActive ? 'opacity-100' : 'opacity-0'}`}>
          {/* [Step 5-1 v4] WARNING 배지 — 원형 감옥(=보스 머리 위치) 바로 위에 띄움.
              정보 행(item 1) 아래의 안전 영역. */}
          {isCharging && (
@@ -125,8 +129,8 @@ export default function BossEnemyDisplay({ enemy, enemyWarning, showStatus = tru
           </div>
       )}
 
-      {/* 3. 게이지 바 */}
-      <div className={`relative z-10 w-4/5 max-w-md space-y-2 backdrop-blur-sm bg-slate-900/50 p-3 rounded-lg border border-white/5 transition-opacity duration-1000 ${showStatus ? 'opacity-100' : 'opacity-0'} mt-2`}>
+      {/* 3. 게이지 바 — flex-shrink-0 으로 항상 고정 (영역 밖으로 절대 밀려나지 않음) */}
+      <div className={`flex-shrink-0 relative z-10 w-4/5 max-w-md space-y-2 backdrop-blur-sm bg-slate-900/50 p-3 rounded-lg border border-white/5 transition-opacity duration-1000 ${showStatus ? 'opacity-100' : 'opacity-0'}`}>
         {/* HP Bar */}
         <div className="w-full h-1.5 bg-slate-800/80 rounded-full overflow-hidden mb-1">
           <div className="h-full bg-gradient-to-r from-rose-600 via-rose-500 to-rose-400 transition-all duration-300 shadow-[0_0_10px_rgba(244,63,94,0.5)]" style={{ width: `${(enemy.hp / enemy.maxHp) * 100}%` }} />
