@@ -79,19 +79,21 @@ export default function BossEnemyDisplay({ enemy, enemyWarning, showStatus = tru
 
       {/* 2. 원형 감옥 이펙트 — flex-1 min-h-0 으로 남는 세로 공간 흡수 (짧은 화면에선 시각적으로 압축됨) */}
       <div className={`relative flex-1 min-h-0 w-full flex items-center justify-center transition-all duration-500 z-0 ${enemy.hp <= 0 ? 'opacity-0 scale-95 blur-sm' : 'opacity-100 scale-100'} ${circleActive ? 'opacity-100' : 'opacity-0'}`}>
-         {/* [Step 5-1 v4] WARNING 배지 — 원형 감옥(=보스 머리 위치) 바로 위에 띄움.
-             정보 행(item 1) 아래의 안전 영역. */}
-         {isCharging && (
-           <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
-             <div className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-rose-950/90 border border-rose-500/70 shadow-[0_0_24px_rgba(244,63,94,0.7)] animate-pulse">
-               <AlertTriangle className="text-rose-300" size={14} />
-               <span className="text-rose-100 font-bold tracking-[0.25em] text-[11px]">
-                 WARNING
-               </span>
-             </div>
-           </div>
-         )}
          <div id={slotId} className="relative w-64 h-64 flex items-center justify-center mt-4">
+            {/* [Step 5-2b-iii] WARNING 배지 — 원형 감옥(=보스 머리 위치) 바로 위에 고정.
+                이전엔 외곽 flex-1 컨테이너의 -top-3에 두어, PC처럼 세로가 긴 화면에서 감옥은
+                가운데로 내려오고 WARNING은 영역 최상단에 떠서 둘이 멀어졌다.
+                슬롯(감옥) 내부로 이동시켜 화면 높이와 무관하게 항상 감옥 위에 붙도록 변경. */}
+            {isCharging && (
+              <div className="absolute -top-7 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-rose-950/90 border border-rose-500/70 shadow-[0_0_24px_rgba(244,63,94,0.7)] animate-pulse">
+                  <AlertTriangle className="text-rose-300" size={14} />
+                  <span className="text-rose-100 font-bold tracking-[0.25em] text-[11px]">
+                    WARNING
+                  </span>
+                </div>
+              </div>
+            )}
             
             {/* 후광 효과 (Aura) — [Step 5-1] 인과율 단계별 색상 */}
             <div className={`absolute inset-8 blur-3xl rounded-full ${auraClass}`} />
@@ -117,12 +119,16 @@ export default function BossEnemyDisplay({ enemy, enemyWarning, showStatus = tru
       </div>
 
       {/* 거대 보스 이미지 레이어 */}
+      {/* [Step 5-2b-iii] PC(md+)에서 max-h 캡 추가.
+          모바일은 EnemyArea 자체가 짧아 max-h-full로 자연 스케일됨 (영향 없음).
+          PC는 컨테이너가 max-h-[900px]까지 확장되면서 보스가 거대화 → 원형 감옥(256px)과
+          비례 무너짐. md:max-h-[480px]로 보수적 캡. */}
       {enemy.image && (
           <div className="absolute inset-x-0 bottom-0 top-12 pointer-events-none flex items-end justify-center z-[5]">
               <img 
                   src={enemy.image} 
                   alt={enemy.name} 
-                  className={`w-[140%] max-h-full object-contain object-bottom drop-shadow-[0_0_30px_rgba(244,63,94,0.6)] transition-all duration-1000 ease-out origin-bottom
+                  className={`w-[140%] max-h-full md:max-h-[480px] object-contain object-bottom drop-shadow-[0_0_30px_rgba(244,63,94,0.6)] transition-all duration-1000 ease-out origin-bottom
                       ${isBreakout ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-75 translate-y-10'}
                   `}
               />
