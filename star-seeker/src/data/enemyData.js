@@ -13,6 +13,15 @@ export const ENEMIES = {
     maxHp: 3000,
     baseAtk: 50,
     baseSpd: 20,
+
+    // [Fix] 누락된 게이지/상태 초기값 보강.
+    // 없으면 maxUltGauge=undefined → 궁극기 트리거 조건이 영원히 false가 되어
+    // 차징/컷인 모두 발동하지 않고, UI 게이지가 NaN으로 풀처럼 표시되는 버그가 있었음.
+    actionGauge: 0,
+    ultGauge: 0,
+    maxUltGauge: 100,
+    causality: 0,
+
     skills: {
       normal: { name: "공허의 손톱", desc: "일반 공격", mult: 1.0, gaugeGain: 20, causalityGain: 1 },
       ultimate: { name: "심연의 포효", desc: "필살기", mult: 2.5, isAoe: true, chargeTime: 2000, causalityGain: 5 },
