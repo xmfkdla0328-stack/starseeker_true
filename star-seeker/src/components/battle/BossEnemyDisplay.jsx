@@ -75,6 +75,18 @@ export default function BossEnemyDisplay({ enemy, enemyWarning, showStatus = tru
 
       {/* 2. 원형 감옥 이펙트 */}
       <div className={`relative w-full flex items-center justify-center transition-all duration-500 z-0 ${enemy.hp <= 0 ? 'opacity-0 scale-95 blur-sm' : 'opacity-100 scale-100'} ${circleActive ? 'opacity-100' : 'opacity-0'}`}>
+         {/* [Step 5-1 v4] WARNING 배지 — 원형 감옥(=보스 머리 위치) 바로 위에 띄움.
+             정보 행(item 1) 아래의 안전 영역. */}
+         {isCharging && (
+           <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
+             <div className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-rose-950/90 border border-rose-500/70 shadow-[0_0_24px_rgba(244,63,94,0.7)] animate-pulse">
+               <AlertTriangle className="text-rose-300" size={14} />
+               <span className="text-rose-100 font-bold tracking-[0.25em] text-[11px]">
+                 WARNING
+               </span>
+             </div>
+           </div>
+         )}
          <div id={slotId} className="relative w-64 h-64 flex items-center justify-center mt-4">
             
             {/* 후광 효과 (Aura) — [Step 5-1] 인과율 단계별 색상 */}
@@ -136,18 +148,6 @@ export default function BossEnemyDisplay({ enemy, enemyWarning, showStatus = tru
         </div>
       </div>
 
-      {/* [Step 5-1 v3] WARNING 배지 — 보스 이미지 바로 위쪽 중앙에 띄움.
-          보스 이미지 레이어는 top-12부터 시작하므로 그 위(top-14)에 가로 중앙 정렬. */}
-      {isCharging && (
-        <div className="absolute top-14 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-rose-950/90 border border-rose-500/70 shadow-[0_0_24px_rgba(244,63,94,0.7)] animate-pulse">
-            <AlertTriangle className="text-rose-300" size={14} />
-            <span className="text-rose-100 font-bold tracking-[0.25em] text-[11px]">
-              WARNING
-            </span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
