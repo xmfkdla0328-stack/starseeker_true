@@ -26,7 +26,7 @@ export default function MinionEnemyDisplay({ enemy, slotId }) {
       {/* 이미지 슬롯 (팝업 타겟) */}
       <div
         id={slotId}
-        className="relative w-14 h-14 rounded-md border border-rose-700/60 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center overflow-hidden shadow-[0_0_8px_rgba(244,63,94,0.3)]"
+        className="relative w-14 h-14 rounded-md border border-slate-300/50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center overflow-hidden shadow-[0_0_8px_rgba(255,255,255,0.2)]"
       >
         {enemy.image ? (
           <img
