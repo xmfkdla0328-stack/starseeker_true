@@ -23,6 +23,38 @@ export default function BossEnemyDisplay({ enemy, enemyWarning, showStatus = tru
 
   const isBreakout = showStatus && enemy.image;
 
+  // [Step 5-1] 인과율 단계 계산: normal(<70%) → warn(70~99%) → charging(차징 중)
+  // 풀스크린 오버레이 대신 보스 카드 자체(테두리/오라/게이지바)로 단계 표현.
+  // ※ isBoss 가드: BattleEnemyZone이 보스 없는 라인업에서 첫 적을 fallback으로 이 컴포넌트에 태울 수
+  //   있으므로, "보스만 WARNING" 정책을 컴포넌트 내부에서도 강제한다.
+  const isBossEntity = !!enemy.isBoss;
+  const causalityPct = (enemy.causality || 0) / ENEMY_CAUSALITY_TRIGGER * 100;
+  const isCharging = isBossEntity && !!enemy.isCharging;
+  const isWarn = isBossEntity && !isCharging && causalityPct >= 70;
+
+  // 단계별 시각 토큰
+  const stage = isCharging ? 'charging' : (isWarn ? 'warn' : 'normal');
+
+  const auraClass =
+    stage === 'charging' ? 'bg-fuchsia-500/40 animate-pulse'
+    : stage === 'warn'   ? 'bg-amber-500/30 animate-pulse'
+    :                      'bg-rose-500/20 animate-pulse';
+
+  const borderClass =
+    stage === 'charging' ? 'border-fuchsia-500 shadow-[0_0_40px_rgba(232,121,249,0.85)] animate-[boss-shake_0.4s_ease-in-out_infinite]'
+    : stage === 'warn'   ? 'border-amber-500 shadow-[0_0_28px_rgba(245,158,11,0.55)] animate-pulse'
+    :                      'border-rose-500 shadow-[0_0_20px_rgba(244,63,94,0.4)]';
+
+  const overlayGradientFrom =
+    stage === 'charging' ? 'from-fuchsia-900/80'
+    : stage === 'warn'   ? 'from-amber-900/70'
+    :                      'from-rose-900/80';
+
+  const causalityBarClass =
+    stage === 'charging' ? 'bg-fuchsia-400 shadow-[0_0_10px_rgba(232,121,249,0.8)]'
+    : stage === 'warn'   ? 'bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.7)]'
+    :                      'bg-fuchsia-700';
+
   return (
     <div className="relative flex-1 flex flex-col items-center justify-center gap-4 p-4 z-10 overflow-hidden">
       
@@ -44,14 +76,15 @@ export default function BossEnemyDisplay({ enemy, enemyWarning, showStatus = tru
       <div className={`relative w-full flex items-center justify-center transition-all duration-500 z-0 ${enemy.hp <= 0 ? 'opacity-0 scale-95 blur-sm' : 'opacity-100 scale-100'} ${circleActive ? 'opacity-100' : 'opacity-0'}`}>
          <div id={slotId} className="relative w-64 h-64 flex items-center justify-center mt-4">
             
-            {/* 후광 효과 (Aura) */}
-            <div className={`absolute inset-8 bg-rose-500/20 blur-3xl rounded-full animate-pulse ${enemyWarning ? 'bg-fuchsia-500/40' : ''}`} />
+            {/* 후광 효과 (Aura) — [Step 5-1] 인과율 단계별 색상 */}
+            <div className={`absolute inset-8 blur-3xl rounded-full ${auraClass}`} />
             
             {/* [Fix] transform-gpu 와 isolate 를 추가하여 사각형으로 깨지는 렌더링 버그 차단 */}
+            {/* [Step 5-1] 테두리/글로우/흔들림이 인과율 단계를 표현 */}
             <div className={`absolute inset-10 rounded-full border-2 bg-black/40 backdrop-blur-sm flex items-center justify-center overflow-hidden z-10 transform-gpu isolate transition-all duration-700
-                ${isBreakout ? 'border-transparent bg-transparent shadow-none scale-125 opacity-0' : (enemyWarning ? 'border-fuchsia-500 shadow-[0_0_30px_rgba(232,121,249,0.6)]' : 'border-rose-500 shadow-[0_0_20px_rgba(244,63,94,0.4)]')}
+                ${isBreakout ? 'border-transparent bg-transparent shadow-none scale-125 opacity-0' : borderClass}
             `}>
-               <div className={`absolute inset-0 bg-gradient-to-b ${enemyWarning ? 'from-fuchsia-900/80' : 'from-rose-900/80'} to-black opacity-60 z-0`} />
+               <div className={`absolute inset-0 bg-gradient-to-b ${overlayGradientFrom} to-black opacity-60 z-0`} />
                
                {enemy.image ? (
                    <img 
@@ -94,20 +127,22 @@ export default function BossEnemyDisplay({ enemy, enemyWarning, showStatus = tru
              </div>
           </div>
           <div className="flex-[1] flex flex-col gap-0.5">
-             <span className="text-[9px] text-fuchsia-500 font-mono text-right">CAUSALITY</span>
+             <span className={`text-[9px] font-mono text-right transition-colors duration-300 ${stage === 'warn' ? 'text-amber-400' : stage === 'charging' ? 'text-fuchsia-300' : 'text-fuchsia-500'}`}>CAUSALITY</span>
              <div className="w-full h-1 bg-slate-800/80 rounded-full overflow-hidden">
-                <div className={`h-full transition-all duration-300 ${enemy.isCharging ? 'bg-fuchsia-400 shadow-[0_0_10px_rgba(232,121,249,0.8)]' : 'bg-fuchsia-700'}`} style={{ width: `${Math.min(100, (enemy.causality / ENEMY_CAUSALITY_TRIGGER) * 100)}%` }} />
+                <div className={`h-full transition-all duration-300 ${causalityBarClass}`} style={{ width: `${Math.min(100, causalityPct)}%` }} />
              </div>
           </div>
         </div>
       </div>
 
-      {enemyWarning && (
-        <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none bg-fuchsia-900/10 animate-pulse">
-          <div className="w-full py-6 flex items-center justify-center gap-4 backdrop-blur-md shadow-[0_0_40px_rgba(0,0,0,0.8)] border-y bg-fuchsia-950/80 border-fuchsia-500/50">
-            <AlertTriangle className="text-fuchsia-500 animate-bounce" size={28} />
-            <span className="text-fuchsia-200 font-black tracking-[0.3em] text-lg">
-              WARNING: HIGH CAUSALITY
+      {/* [Step 5-1] 풀스크린 배너 → 카드 우상단 컴팩트 배지로 축소.
+          이 보스가 차징 중일 때만 표시. 잡몹은 이 컴포넌트를 사용하지 않으므로 자연스럽게 노출 안 됨. */}
+      {isCharging && (
+        <div className="absolute top-3 right-3 z-40 pointer-events-none">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-fuchsia-950/90 border border-fuchsia-500/70 shadow-[0_0_18px_rgba(232,121,249,0.55)] animate-pulse">
+            <AlertTriangle className="text-fuchsia-400" size={12} />
+            <span className="text-fuchsia-100 font-bold tracking-[0.2em] text-[10px]">
+              WARNING
             </span>
           </div>
         </div>

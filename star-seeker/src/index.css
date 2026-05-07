@@ -1,3 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* [Step 5-1] 보스 차징 중 카드 흔들림 — animate-[boss-shake_0.4s_ease-in-out_infinite] 와 함께 사용 */
+@keyframes boss-shake {
+  0%, 100% { transform: translate(0, 0); }
+  20%      { transform: translate(-1.5px, 0.5px); }
+  40%      { transform: translate(1.5px, -0.5px); }
+  60%      { transform: translate(-1px, 1px); }
+  80%      { transform: translate(1px, -1px); }
+}

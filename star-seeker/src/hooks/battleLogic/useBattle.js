@@ -57,8 +57,8 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
     
     if (nextEnemies && nextEnemies.length > 0) {
         setEnemies(nextEnemies);
-        // 어느 적이든 충전 중이면 경고 표시 (step 5에서 보스 단위로 재설계)
-        setEnemyWarning(nextEnemies.some(e => e.isCharging));
+        // [Step 5-1] 보스가 충전 중일 때만 경고 표시 (잡몹 차징은 UI 알림 없음)
+        setEnemyWarning(nextEnemies.some(e => e.isBoss && e.isCharging));
     }
 
     // 3. 승패 판정 (한 틱에 양쪽 KO 발생 시 승리 우선; 종료 콜백은 1회만)
