@@ -16,9 +16,11 @@ export function handleEnemyActions(context) {
     let chargeTimer = enemy.chargeTimer;
     let chargingSkill = enemy.chargingSkill;
     let damageToAllies = [];
+    // [Step 5-2a] 보스 궁극기 발동 시 컷인 트리거. 차징 종료(=데미지 직전) 타이밍에만 발화.
+    let triggeredEnemyCutIn = null;
 
     if (enemy.hp <= 0) {
-        return { updatedEnemy: { ...enemy }, damageToAllies: [] };
+        return { updatedEnemy: { ...enemy }, damageToAllies: [], triggeredEnemyCutIn: null };
     }
     
     // 1. 충전 상태 처리
@@ -38,6 +40,17 @@ export function handleEnemyActions(context) {
                 logType = 'skill';
                 newUltGauge = 0;
                 newCausality += (skillData.causalityGain || 0);
+
+                // [Step 5-2a] 보스만, 그리고 궁극기 발동 시점에만 컷인 트리거.
+                // chargingSkill === 'causality' 분기는 5-2a에서는 컷인 없음 (사용자 검증 후 결정).
+                if (enemy.isBoss) {
+                    triggeredEnemyCutIn = {
+                        name: enemy.name,
+                        image: enemy.image,
+                        skillName: skillData.name,
+                        side: 'enemy',  // [Step 5-2b 예약] BattleCutIn에서 진영 구분 시 사용
+                    };
+                }
             }
 
             if (skillData) {
@@ -123,6 +136,7 @@ export function handleEnemyActions(context) {
             chargeTimer,
             chargingSkill
         },
-        damageToAllies
+        damageToAllies,
+        triggeredEnemyCutIn
     };
 }

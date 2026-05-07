@@ -36,12 +36,14 @@ export function processBattleTick({
   // 각 적의 결과를 enemies 배열에 반영하고, 각 적이 발생시킨 피격 데미지는 합쳐서 처리
   const allDamageToAllies = [];
   const enemyDamageSourceMap = new Map(); // hit별 가해자 추적 (크리 계산용)
+  // [Step 5-2a] 보스 궁극기 컷인. 한 틱에 두 보스가 동시 발동해도 첫 번째만 사용.
+  let enemyCutIn = null;
 
   for (let ei = 0; ei < nextEnemies.length; ei++) {
     const enemy = nextEnemies[ei];
     if (!enemy || enemy.hp <= 0) continue;
 
-    const { updatedEnemy, damageToAllies } = handleEnemyActions({ 
+    const { updatedEnemy, damageToAllies, triggeredEnemyCutIn } = handleEnemyActions({ 
         enemy, 
         allies: nextAllies, 
         addLog 
@@ -49,6 +51,10 @@ export function processBattleTick({
 
     if (updatedEnemy) {
         nextEnemies[ei] = updatedEnemy; // 게이지/충전 상태 갱신
+    }
+
+    if (triggeredEnemyCutIn && !enemyCutIn) {
+        enemyCutIn = triggeredEnemyCutIn;
     }
 
     if (damageToAllies && damageToAllies.length > 0) {
@@ -112,7 +118,9 @@ export function processBattleTick({
   });
 
   nextAllies = allyResult.updatedAllies;
-  triggeredSkillInfo = allyResult.triggeredSkillInfo;
+  // [Step 5-2a] 적 보스 컷인이 같은 틱에 같이 발생하면 적 컷인을 우선 표시.
+  // 양쪽 데미지/회복은 모두 pendingResultRef에 들어가 컷인 종료 후 동시 적용되므로 손실 없음.
+  triggeredSkillInfo = enemyCutIn || allyResult.triggeredSkillInfo;
 
   if (allyResult.allyTickEvents && allyResult.allyTickEvents.length > 0) {
     tickEvents.push(...allyResult.allyTickEvents);
