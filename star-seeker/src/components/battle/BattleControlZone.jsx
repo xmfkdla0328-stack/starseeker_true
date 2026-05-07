@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sword, Shield, Zap, Sparkles, Brain, Heart, X, Bot, Hand } from 'lucide-react';
+import { Sword, Shield, Zap, Sparkles, Brain, Heart, X } from 'lucide-react';
 
 const STAT_INFO = {
   str: {
@@ -70,14 +70,12 @@ export default function BattleControlZone({ playerCausality, buffs, userStats, o
         <button
           onClick={(e) => { e.stopPropagation(); if (onToggleBattleMode) onToggleBattleMode(); }}
           title={battleMode === 'auto' ? '자동 전투 — 탭하여 수동 전환' : '수동 전투 — 탭하여 자동 전환'}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded border font-mono text-xs font-bold tracking-wider transition-all duration-200 active:scale-95
+          className={`flex items-center justify-center min-w-[68px] px-2 py-1 rounded border font-mono text-xs font-bold tracking-wider transition-all duration-200 active:scale-95
             ${battleMode === 'manual'
               ? 'border-sky-400/70 bg-sky-500/15 text-sky-200 shadow-[0_0_10px_rgba(56,189,248,0.3)]'
               : 'border-white/15 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10'}`}
         >
-          {battleMode === 'manual'
-            ? <><Hand size={13} /><span>수동</span></>
-            : <><Bot size={13} /><span>자동</span></>}
+          {battleMode === 'manual' ? 'MANUAL' : 'AUTO'}
         </button>
       </div>
 
