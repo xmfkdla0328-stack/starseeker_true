@@ -70,14 +70,14 @@ export default function BattleControlZone({ playerCausality, buffs, userStats, o
         <button
           onClick={(e) => { e.stopPropagation(); if (onToggleBattleMode) onToggleBattleMode(); }}
           title={battleMode === 'auto' ? '자동 전투 — 탭하여 수동 전환' : '수동 전투 — 탭하여 자동 전환'}
-          className={`flex items-center gap-1 px-2 py-1 rounded border font-mono text-[10px] tracking-wider transition-all duration-200 active:scale-95
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded border font-mono text-xs font-bold tracking-wider transition-all duration-200 active:scale-95
             ${battleMode === 'manual'
-              ? 'border-amber-500/60 bg-amber-500/10 text-amber-200 shadow-[0_0_10px_rgba(251,191,36,0.25)]'
+              ? 'border-sky-400/70 bg-sky-500/15 text-sky-200 shadow-[0_0_10px_rgba(56,189,248,0.3)]'
               : 'border-white/15 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10'}`}
         >
           {battleMode === 'manual'
-            ? <><Hand size={11} /><span>MANUAL</span></>
-            : <><Bot size={11} /><span>AUTO</span></>}
+            ? <><Hand size={13} /><span>MANUAL</span></>
+            : <><Bot size={13} /><span>AUTO</span></>}
         </button>
       </div>
 
