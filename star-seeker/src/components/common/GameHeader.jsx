@@ -4,8 +4,8 @@ import { Pause } from 'lucide-react';
 
 const TopBar = styled.div`
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 10px;
+  right: 10px;
   z-index: 50; /* z-index를 넉넉하게 줌 */
   display: flex;
   gap: 12px;
