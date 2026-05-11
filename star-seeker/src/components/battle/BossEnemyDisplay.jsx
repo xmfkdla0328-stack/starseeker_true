@@ -80,12 +80,12 @@ export default function BossEnemyDisplay({ enemy, enemyWarning, showStatus = tru
       {/* 2. 원형 감옥 이펙트 — flex-1 min-h-0 으로 남는 세로 공간 흡수 (짧은 화면에선 시각적으로 압축됨) */}
       <div className={`relative flex-1 min-h-0 w-full flex items-center justify-center transition-all duration-500 z-0 ${enemy.hp <= 0 ? 'opacity-0 scale-95 blur-sm' : 'opacity-100 scale-100'} ${circleActive ? 'opacity-100' : 'opacity-0'}`}>
          <div id={slotId} className="relative w-64 h-64 flex items-center justify-center mt-4">
-            {/* [Step 5-2b-iii] WARNING 배지 — 원형 감옥(=보스 머리 위치) 바로 위에 고정.
-                이전엔 외곽 flex-1 컨테이너의 -top-3에 두어, PC처럼 세로가 긴 화면에서 감옥은
-                가운데로 내려오고 WARNING은 영역 최상단에 떠서 둘이 멀어졌다.
-                슬롯(감옥) 내부로 이동시켜 화면 높이와 무관하게 항상 감옥 위에 붙도록 변경. */}
+            {/* [Step 5-2b-iii v2] WARNING 배지 — 원형 감옥 정중앙(=보스 이미지 위)에 오버레이.
+                이전엔 -top-7로 감옥 위쪽에 띄웠는데, PC/태블릿처럼 화면이 커지면 거대 보스 이미지가
+                위로 솟아 배지와 시각적으로 어긋남. 슬롯(감옥) 정중앙에 absolute inset-0 flex로 배치하면
+                화면 크기와 무관하게 항상 보스 머리 부근(=원의 중앙)에 겹쳐 표시됨. */}
             {isCharging && (
-              <div className="absolute -top-7 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
+              <div className="absolute inset-0 z-40 pointer-events-none flex items-center justify-center">
                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-rose-950/90 border border-rose-500/70 shadow-[0_0_24px_rgba(244,63,94,0.7)] animate-pulse">
                   <AlertTriangle className="text-rose-300" size={14} />
                   <span className="text-rose-100 font-bold tracking-[0.25em] text-[11px]">
