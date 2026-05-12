@@ -292,22 +292,25 @@ function AllyZone({ variant, t, state }: { variant: Variant; t: ReturnType<typeo
               </div>
             )}
 
-            {ally.ultReady && (
-              <div className={`absolute -top-2 right-1 z-20 flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full border shadow-lg backdrop-blur-sm ${
-                ally.pending
-                  ? "text-amber-100 bg-amber-700/90 border-amber-300 animate-pulse"
-                  : "text-amber-200 bg-amber-900/90 border-amber-400/70"
-              }`}>
-                <Zap size={8} className="fill-amber-300" />
-                {ally.pending ? "QUEUED" : "READY"}
-              </div>
-            )}
-
             <div className={`w-12 h-12 rounded-full overflow-hidden mb-2 border-2 border-slate-300 shadow-[0_0_15px_rgba(255,255,255,0.2)] relative bg-slate-800 flex-shrink-0`}>
               <div className={`absolute inset-0 bg-gradient-to-br ${ally.color} opacity-70`} />
               <span className="absolute inset-0 flex items-center justify-center text-base font-black text-white/95 drop-shadow-md">
                 {ally.name.charAt(0)}
               </span>
+
+              {/* [Step 7-e] READY/QUEUED 라벨 — 초상화 하단에 검정 그라디언트 + 컬러 텍스트로 오버레이.
+                  부모 .rounded-full + .overflow-hidden 으로 자동 클리핑됨. */}
+              {ally.ultReady && (
+                <div className="absolute inset-x-0 bottom-0 z-20 flex items-center justify-center pt-2 pb-1 pointer-events-none bg-gradient-to-t from-black/95 via-black/65 to-transparent">
+                  <span className={`text-[7px] font-black tracking-[0.04em] leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)] ${
+                    ally.pending
+                      ? "text-amber-200 animate-pulse"
+                      : "text-amber-300"
+                  }`}>
+                    {ally.pending ? "QUEUED" : "READY"}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* HP */}
