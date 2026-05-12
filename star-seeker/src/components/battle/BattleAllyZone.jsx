@@ -1,13 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Shield, Zap } from 'lucide-react';
 
-const ACTION_DURATION = 450; // ms — 글로우/스케일업 효과 지속
-
-const ACTION_COLOR = {
-  ult:    { ring: '0 0 18px 4px rgba(250,204,21,0.85), 0 0 30px rgba(250,204,21,0.5)', border: '#facc15' }, // 금색
-  normal: { ring: '0 0 16px 3px rgba(34,211,238,0.8), 0 0 26px rgba(34,211,238,0.45)', border: '#22d3ee' }, // 시안
-  heal:   { ring: '0 0 16px 3px rgba(52,211,153,0.8), 0 0 26px rgba(52,211,153,0.45)', border: '#34d399' }, // 초록
-};
+const ACTION_DURATION = 450; // ms — 스케일업 효과 지속
+// [Step 7-e] 카드 글로우(빛 효과)는 'ult 준비됨' 신호 전용으로 예약.
+//   행동 중 카드는 글로우/보더 색 변경 없이 가벼운 스케일만으로 피드백.
+//   ult 발동 자체는 actionKind === 'ult' 시 살짝 더 큰 스케일로 강조.
 
 export default function BattleAllyZone({
   allies,
@@ -60,7 +57,6 @@ export default function BattleAllyZone({
       {allies.map((ally) => {
         const actionKind = activeActors[ally.id];
         const isActing = !!actionKind && ally.hp > 0;
-        const colors = isActing ? ACTION_COLOR[actionKind] : null;
 
         // [Step 7-d] 수동 모드 ult 발동 UI 상태.
         // - ultReady: 게이지 가득 차고 살아있음
@@ -70,24 +66,25 @@ export default function BattleAllyZone({
         const isPending = !!(pendingUltAllyIds && pendingUltAllyIds.has && pendingUltAllyIds.has(ally.id));
         const clickable = battleMode === 'manual' && ultReady && !!onRequestUltimate;
 
+        // [Step 7-e] 행동 중에도 글로우/보더 변경 없이 스케일만으로 피드백.
+        //   ult 발동 시에만 살짝 더 크게(1.08) 강조해 일반 공격(1.04)과 구분.
         const cellStyle = isActing ? {
-          transform: 'scale(1.06)',
-          boxShadow: colors.ring,
-          borderColor: colors.border,
-          transition: 'transform 120ms ease-out, box-shadow 120ms ease-out, border-color 120ms ease-out',
-          zIndex: 20
+          transform: actionKind === 'ult' ? 'scale(1.08)' : 'scale(1.04)',
+          transition: 'transform 120ms ease-out',
+          zIndex: 20,
         } : {
-          transition: 'transform 250ms ease-out, box-shadow 250ms ease-out, border-color 250ms ease-out'
+          transition: 'transform 250ms ease-out',
         };
 
-        // [Step 7-d] 수동 ult 상태에 따른 보더 색상 (행동 중 글로우보다 우선순위 낮음).
-        const ultBorderClass = !isActing && battleMode === 'manual'
+        // [Step 7-d/7-e] ult 준비 상태에 따른 보더+글로우.
+        //   행동 중 여부와 무관하게 적용 — 카드 글로우는 'ult 준비됨' 전용 신호로 예약.
+        const ultBorderClass = battleMode === 'manual'
           ? (isPending
               ? 'border-amber-300 shadow-[0_0_18px_rgba(252,211,77,0.6)]'
               : ultReady
                 ? 'border-amber-400/70 shadow-[0_0_12px_rgba(251,191,36,0.4)]'
                 : 'border-white/10')
-          : (!isActing ? 'border-white/10' : '');
+          : 'border-white/10';
 
         return (
           <div 
