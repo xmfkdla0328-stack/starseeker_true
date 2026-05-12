@@ -8,6 +8,20 @@ import { calculateDamage } from './damageCalculator';
  * @param {Object} params - 현재 전투 상태 및 함수들
  * @returns {Object} result - 업데이트된 상태 및 발생한 이벤트
  */
+// [Step 7-c2] 자동 인과력 스킬 정책.
+// 룰 (사용자 결정):
+//   매 틱마다 "가장 싼 비활성 스킬부터" 평가. CP 충족 시 1개 발동, 같은 스킬이 active면 건너뛰고
+//   더 비싼 스킬을 평가. 활성 중인 스킬은 절대 중복 발동 안 함 (CP 낭비 방지).
+// 의도된 비효율 (수동 모드의 가치 보장):
+//   - 보스 차징 등 "위협 인지" 없음 → SHIELD가 평타에 발동되어 정작 큰 기술 못 막음
+//   - "콤보 인지" 없음 → ATTACK 없이도 HASTE가 단독 발동 (화력 곱연산 손해 가능)
+//   - "CP 캡 안전망" 없음 → 100 캡 적립 손실 가능
+//   사용자는 수동 모드에서 직접 타이밍을 잡아 위 비효율을 피할 수 있음.
+const SKILL_ORDER = ['atk', 'shield', 'speed']; // 비용 오름차순 (10/20/30)
+const SKILL_COST = { atk: 10, shield: 20, speed: 30 };
+const SKILL_DURATION = { atk: 10000, shield: 5000, speed: 10000 };
+const SKILL_LABEL = { atk: '무력 강화', shield: '절대 방어', speed: '시간 가속' };
+
 export function processBattleTick({
   currentAllies,
   currentBuffs,
@@ -15,6 +29,8 @@ export function processBattleTick({
   // [Step 7-c] 수동 모드 + 우선 타겟 idx (단일 타겟 공격에서 잡몹 우선 정렬을 덮어씀).
   battleMode = 'auto',
   priorityTargetIdx = null,
+  // [Step 7-c2] 자동 인과력 스킬 발동 결정에 사용 (이번 틱 시작 시점 CP).
+  currentPlayerCausality = 0,
   addLog,
   gainCausality
 }) {
@@ -153,6 +169,31 @@ export function processBattleTick({
       });
   }
 
+  // [Step 7-c2] 자동 모드 인과력 스킬 자동 발동.
+  // 위치: 모든 행동/데미지 적용 후 → 이번 틱 결과 반영된 nextBuffs/nextAllies 위에서 결정.
+  // 컷인 트리거된 틱(아래 return 위)에서도 일괄 적용 시점에 buffs가 자동 갱신되어 일관됨.
+  let autoSkillCost = 0;
+  let autoSkillTriggered = null;
+  if (battleMode === 'auto') {
+    for (const skill of SKILL_ORDER) {
+      if (nextBuffs[skill]?.active) continue; // 활성 중이면 건너뛰고 다음 비싼 스킬 평가
+      if (currentPlayerCausality < SKILL_COST[skill]) continue; // CP 부족
+      // 발동
+      autoSkillTriggered = skill;
+      autoSkillCost = SKILL_COST[skill];
+      if (skill === 'shield') {
+        // SHIELD는 buff active와 더불어 살아있는 아군에게 보호막 부여 (수동 useSkill과 동일)
+        nextAllies = nextAllies.map(a => a.hp > 0 ? { ...a, shield: Math.floor(a.maxHp * 0.3) } : a);
+      }
+      nextBuffs = {
+        ...nextBuffs,
+        [skill]: { ...nextBuffs[skill], active: true, timeLeft: SKILL_DURATION[skill] }
+      };
+      addLog(`>>> [자동 인과율 개입] ${SKILL_LABEL[skill]} 활성화`, 'skill');
+      break; // 한 틱당 1개만 발동
+    }
+  }
+
   return {
     nextAllies,
     nextBuffs,
@@ -160,6 +201,9 @@ export function processBattleTick({
     tickEvents,
     // [Step 5-2b-ii] 컷인 큐 (0~N개). useBattle이 큐 비어있을 때만 데미지 일괄 적용.
     cutInQueue,
-    buffsChanged: hasChanged || allyResult.buffsChanged
+    buffsChanged: hasChanged || allyResult.buffsChanged,
+    // [Step 7-c2] 자동 발동 비용 (>0이면 useBattle이 setPlayerCausality로 차감).
+    autoSkillCost,
+    autoSkillTriggered
   };
 }

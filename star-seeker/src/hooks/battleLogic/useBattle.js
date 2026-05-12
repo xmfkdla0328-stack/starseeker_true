@@ -65,6 +65,8 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
   const battleModeRef = useRef(battleMode);
   // [Step 7-c] 우선 타겟 idx ref. tick 분기 + setPriorityTarget 클릭 가드 + applyBattleResult 사망 정리에서 사용.
   const priorityTargetIdxRef = useRef(priorityTargetIdx);
+  // [Step 7-c2] 자동 인과력 스킬 발동 결정에 이번 틱 시작 시점 CP를 정확히 전달하기 위함.
+  const playerCausalityRef = useRef(playerCausality);
   // 전투 종료(승/패) 한 번만 트리거되도록 보장
   const battleEndedRef = useRef(false);
 
@@ -76,6 +78,7 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
   enemiesRef.current = enemies;
   battleModeRef.current = battleMode;
   priorityTargetIdxRef.current = priorityTargetIdx;
+  playerCausalityRef.current = playerCausality;
   cutInInfoRef.current = cutInInfo;
 
   // ----------------------------------------------------------
@@ -93,6 +96,12 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
     // 2. 상태 업데이트
     setAllies(nextAllies);
     if (nextBuffs) setBuffs(nextBuffs);
+
+    // [Step 7-c2] 자동 모드 인과력 스킬 발동 시 CP 차감.
+    // 함수형 setter로 안전(같은 틱에 gainCausality와 race 시에도 순서 보장).
+    if (result.autoSkillCost > 0) {
+      setPlayerCausality(prev => Math.max(0, prev - result.autoSkillCost));
+    }
     
     if (nextEnemies && nextEnemies.length > 0) {
         setEnemies(nextEnemies);
@@ -126,7 +135,7 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
           setIsBattleStarted(false);
       }
     }
-  }, [setAllies, setBuffs, setEnemies, setEnemyWarning, addLog, setPriorityTargetIdx]);
+  }, [setAllies, setBuffs, setEnemies, setEnemyWarning, addLog, setPriorityTargetIdx, setPlayerCausality]);
 
 
   // ----------------------------------------------------------
@@ -176,6 +185,8 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
           // [Step 7-c] 수동 모드 + 우선 타겟이 살아있으면 단일 타겟 공격이 이쪽을 우선 노림.
           battleMode: battleModeRef.current,
           priorityTargetIdx: priorityTargetIdxRef.current,
+          // [Step 7-c2] 자동 모드 인과력 스킬 자동 발동 결정용 (이번 틱 시작 시점 CP).
+          currentPlayerCausality: playerCausalityRef.current,
           addLog,
           gainCausality
       });
