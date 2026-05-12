@@ -31,6 +31,8 @@ export function processBattleTick({
   priorityTargetIdx = null,
   // [Step 7-c2] 자동 인과력 스킬 발동 결정에 사용 (이번 틱 시작 시점 CP).
   currentPlayerCausality = 0,
+  // [Step 7-d] 수동 모드 ult 발동 요청 큐 (Set<allyId>). null/undefined면 빈 집합.
+  pendingUltAllyIds = null,
   addLog,
   gainCausality
 }) {
@@ -140,6 +142,8 @@ export function processBattleTick({
       // [Step 7-c] 우선 타겟 정보 전달 (단일 타겟 공격에 한해 적용; AOE는 영향 없음).
       battleMode,
       priorityTargetIdx,
+      // [Step 7-d] 수동 모드 ult 발동 요청 큐 전달.
+      pendingUltAllyIds,
   });
 
   nextAllies = allyResult.updatedAllies;
@@ -204,6 +208,8 @@ export function processBattleTick({
     buffsChanged: hasChanged || allyResult.buffsChanged,
     // [Step 7-c2] 자동 발동 비용 (>0이면 useBattle이 setPlayerCausality로 차감).
     autoSkillCost,
-    autoSkillTriggered
+    autoSkillTriggered,
+    // [Step 7-d] 이번 틱에 ult를 실제 발동한 아군 id 목록 (useBattle이 pending 집합에서 제거).
+    firedUltAllyIds: allyResult.firedUltAllyIds || []
   };
 }

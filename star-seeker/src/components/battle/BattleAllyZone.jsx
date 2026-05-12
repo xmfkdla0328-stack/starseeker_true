@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Shield } from 'lucide-react';
+import { Shield, Zap } from 'lucide-react';
 
 const ACTION_DURATION = 450; // ms — 글로우/스케일업 효과 지속
 
@@ -9,7 +9,14 @@ const ACTION_COLOR = {
   heal:   { ring: '0 0 16px 3px rgba(52,211,153,0.8), 0 0 26px rgba(52,211,153,0.45)', border: '#34d399' }, // 초록
 };
 
-export default function BattleAllyZone({ allies, events }) {
+export default function BattleAllyZone({
+  allies,
+  events,
+  // [Step 7-d] 수동 ult 발동 UI
+  battleMode = 'auto',
+  pendingUltAllyIds = null,
+  onRequestUltimate,
+}) {
   // 행동 중인 아군 ID → actionKind 매핑
   const [activeActors, setActiveActors] = useState({});
   const timersRef = useRef({});
@@ -55,6 +62,14 @@ export default function BattleAllyZone({ allies, events }) {
         const isActing = !!actionKind && ally.hp > 0;
         const colors = isActing ? ACTION_COLOR[actionKind] : null;
 
+        // [Step 7-d] 수동 모드 ult 발동 UI 상태.
+        // - ultReady: 게이지 가득 차고 살아있음
+        // - isPending: 사용자가 발동 요청해둔 상태 (다음 턴에 발동 예정)
+        // - clickable: 수동 모드 + ultReady → 초상화 클릭 가능 (이미 pending이어도 토글 해제용 클릭 허용)
+        const ultReady = ally.hp > 0 && ally.ultGauge >= ally.maxUltGauge;
+        const isPending = !!(pendingUltAllyIds && pendingUltAllyIds.has && pendingUltAllyIds.has(ally.id));
+        const clickable = battleMode === 'manual' && ultReady && !!onRequestUltimate;
+
         const cellStyle = isActing ? {
           transform: 'scale(1.06)',
           boxShadow: colors.ring,
@@ -65,17 +80,41 @@ export default function BattleAllyZone({ allies, events }) {
           transition: 'transform 250ms ease-out, box-shadow 250ms ease-out, border-color 250ms ease-out'
         };
 
+        // [Step 7-d] 수동 ult 상태에 따른 보더 색상 (행동 중 글로우보다 우선순위 낮음).
+        const ultBorderClass = !isActing && battleMode === 'manual'
+          ? (isPending
+              ? 'border-amber-300 shadow-[0_0_18px_rgba(252,211,77,0.6)]'
+              : ultReady
+                ? 'border-amber-400/70 shadow-[0_0_12px_rgba(251,191,36,0.4)]'
+                : 'border-white/10')
+          : (!isActing ? 'border-white/10' : '');
+
         return (
           <div 
             key={ally.id}
             id={`ally-target-${ally.id}`} 
             style={cellStyle}
-            className={`relative flex flex-col items-center p-2 rounded-xl border ${isActing ? '' : 'border-white/10'} bg-gradient-to-b from-white/10 to-black/40 shadow-lg ${ally.hp <= 0 ? 'opacity-30 grayscale' : 'hover:bg-white/10'}`}
+            onClick={clickable ? (e) => { e.stopPropagation(); onRequestUltimate(ally.id); } : undefined}
+            role={clickable ? 'button' : undefined}
+            className={`relative flex flex-col items-center p-2 rounded-xl border ${ultBorderClass} bg-gradient-to-b from-white/10 to-black/40 shadow-lg ${ally.hp <= 0 ? 'opacity-30 grayscale' : 'hover:bg-white/10'} ${clickable ? 'cursor-pointer' : ''}`}
           >
             {ally.shield > 0 && (
               <div className="absolute -top-2 z-20 flex items-center gap-0.5 text-[9px] font-bold text-cyan-200 bg-cyan-900/90 px-1.5 py-0.5 rounded-full border border-cyan-500/50 shadow-lg backdrop-blur-sm">
                 <Shield size={8} className="fill-cyan-400" />
                 {Math.floor(ally.shield)}
+              </div>
+            )}
+
+            {/* [Step 7-d] 수동 모드에서만 표시되는 ult 상태 배지.
+                READY: 클릭 가능, QUEUED: 다음 턴 발동 예정 (펄스). */}
+            {battleMode === 'manual' && ultReady && (
+              <div className={`absolute -top-2 right-1 z-20 flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full border shadow-lg backdrop-blur-sm ${
+                isPending
+                  ? 'text-amber-100 bg-amber-700/90 border-amber-300 animate-pulse'
+                  : 'text-amber-200 bg-amber-900/90 border-amber-400/70'
+              }`}>
+                <Zap size={8} className="fill-amber-300" />
+                {isPending ? 'QUEUED' : 'READY'}
               </div>
             )}
             

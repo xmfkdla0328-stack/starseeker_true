@@ -42,11 +42,18 @@ export function handleAllyActions({
   gainCausality,
   battleMode = 'auto',
   priorityTargetIdx = null,
+  // [Step 7-d] 수동 모드에서 사용자가 발동 요청한 ally id 집합 (Set).
+  // - 자동 모드: 무시 (기존대로 ultGauge 가득 차면 즉시 발동)
+  // - 수동 모드: 게이지 가득 차도 이 집합에 없으면 일반 공격으로 진행. 있으면 발동.
+  // 발동된 ally id는 firedUltAllyIds로 반환 → useBattle이 pending 집합에서 제거.
+  pendingUltAllyIds = null,
 }) {
   let nextAllies = [...allies];
   // [Refactor step 2] 단일 totalEnemyDamage 대신 적별 데미지 배열로 처리.
   // 각 항목: { targetEnemyIdx, amount, isCrit, isUltimate }
   const damageToEnemies = [];
+  // [Step 7-d] 이번 틱에 실제 ult를 발동한 아군 id 목록 (수동 모드 pending 정리용).
+  const firedUltAllyIds = [];
 
   // [Step 4] 워킹 카피: 같은 틱 내 아군 행동들 사이에 데미지를 누적 반영해
   //         "방금 잡몹이 죽었으면 다음 아군은 시체를 안 때리도록" 한다.
@@ -131,8 +138,16 @@ export function handleAllyActions({
           hasHealUp 
       };
 
-      if (ally.ultGauge >= ally.maxUltGauge) {
+      // [Step 7-d] 수동 모드일 때는 사용자가 명시적으로 발동 요청(pendingUltAllyIds)한 경우에만 ult.
+      // 그 외엔 게이지가 가득 차도 일반 공격을 수행 (게이지는 보존됨 — ult 발동 시에만 0으로 리셋).
+      const ultReady = ally.ultGauge >= ally.maxUltGauge;
+      const ultAllowed = ultReady && (
+        battleMode === 'auto'
+        || (pendingUltAllyIds && pendingUltAllyIds.has && pendingUltAllyIds.has(ally.id))
+      );
+      if (ultAllowed) {
         ally.ultGauge = 0;
+        firedUltAllyIds.push(ally.id);
 
         // [NEW] 행동 표시용 이벤트 (UI에서 칸 글로우/스케일업)
         allyTickEvents.push({
@@ -306,5 +321,5 @@ export function handleAllyActions({
     nextAllies[i] = ally;
   }
 
-  return { updatedAllies: nextAllies, damageToEnemies, triggeredSkillInfo, allyTickEvents };
+  return { updatedAllies: nextAllies, damageToEnemies, triggeredSkillInfo, allyTickEvents, firedUltAllyIds };
 }

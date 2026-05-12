@@ -23,10 +23,34 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
     setBattleMode(prev => {
       const next = prev === 'auto' ? 'manual' : 'auto';
       // [Step 7-c] 자동 모드로 돌아가면 우선 타겟 마킹은 무의미하므로 즉시 해제.
-      if (next === 'auto') setPriorityTargetIdx(null);
+      // [Step 7-d] 자동 모드에서는 ult가 즉시 발동되므로 pending 큐도 클리어.
+      if (next === 'auto') {
+        setPriorityTargetIdx(null);
+        setPendingUltAllyIds(new Set());
+      }
       return next;
     });
   }, [setBattleMode, setPriorityTargetIdx]);
+
+  // [Step 7-d] 사용자 ult 발동 요청.
+  // 정책:
+  // - 자동 모드 / 컷인 진행 중 → 무시
+  // - 죽은 아군 / ult 게이지 미충전 → 무시
+  // - 같은 ally 재요청 → 토글 (pending 해제)
+  // 발동은 즉시가 아니라, 해당 ally의 다음 턴(actionGauge >= ACTION_THRESHOLD)에 actionManager가 처리.
+  const requestUltimate = useCallback((allyId) => {
+    if (cutInInfoRef.current) return;
+    if (battleModeRef.current !== 'manual') return;
+    const ally = alliesRef.current?.find(a => a.id === allyId);
+    if (!ally || ally.hp <= 0) return;
+    if (ally.ultGauge < ally.maxUltGauge) return;
+    setPendingUltAllyIds(prev => {
+      const next = new Set(prev);
+      if (next.has(allyId)) next.delete(allyId);
+      else next.add(allyId);
+      return next;
+    });
+  }, []);
 
   // [Step 7-c] 적 슬롯 클릭 → 우선 타겟 마킹/해제.
   // 정책:
@@ -67,6 +91,11 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
   const priorityTargetIdxRef = useRef(priorityTargetIdx);
   // [Step 7-c2] 자동 인과력 스킬 발동 결정에 이번 틱 시작 시점 CP를 정확히 전달하기 위함.
   const playerCausalityRef = useRef(playerCausality);
+  // [Step 7-d] 수동 모드에서 사용자가 발동 요청한 ult ally id 집합.
+  // - state: UI 반응성 (READY/QUEUED 표시)
+  // - ref: tick 콜백에서 최신값 접근
+  const [pendingUltAllyIds, setPendingUltAllyIds] = useState(() => new Set());
+  const pendingUltAllyIdsRef = useRef(pendingUltAllyIds);
   // 전투 종료(승/패) 한 번만 트리거되도록 보장
   const battleEndedRef = useRef(false);
 
@@ -79,6 +108,7 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
   battleModeRef.current = battleMode;
   priorityTargetIdxRef.current = priorityTargetIdx;
   playerCausalityRef.current = playerCausality;
+  pendingUltAllyIdsRef.current = pendingUltAllyIds;
   cutInInfoRef.current = cutInInfo;
 
   // ----------------------------------------------------------
@@ -113,6 +143,21 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
           const t = nextEnemies[ptIdx];
           if (!t || t.hp <= 0) setPriorityTargetIdx(null);
         }
+    }
+
+    // [Step 7-d] 이번 틱에 ult가 실제 발동된 아군 + 사망한 아군은 pending 집합에서 제거.
+    // 사망 아군 정리: 수동 발동 요청해두고 발동 전에 죽으면 큐에 남으므로 명시적으로 청소.
+    const fired = result.firedUltAllyIds || [];
+    const deadAllyIds = nextAllies.filter(a => a.hp <= 0).map(a => a.id);
+    if (fired.length > 0 || deadAllyIds.length > 0) {
+      setPendingUltAllyIds(prev => {
+        if (prev.size === 0) return prev;
+        let changed = false;
+        const next = new Set(prev);
+        for (const id of fired) { if (next.delete(id)) changed = true; }
+        for (const id of deadAllyIds) { if (next.delete(id)) changed = true; }
+        return changed ? next : prev;
+      });
     }
 
     // 3. 승패 판정 (한 틱에 양쪽 KO 발생 시 승리 우선; 종료 콜백은 1회만)
@@ -187,6 +232,8 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
           priorityTargetIdx: priorityTargetIdxRef.current,
           // [Step 7-c2] 자동 모드 인과력 스킬 자동 발동 결정용 (이번 틱 시작 시점 CP).
           currentPlayerCausality: playerCausalityRef.current,
+          // [Step 7-d] 수동 모드 ult 발동 요청 큐.
+          pendingUltAllyIds: pendingUltAllyIdsRef.current,
           addLog,
           gainCausality
       });
@@ -260,6 +307,8 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
     cutInInfo, 
     handleCutInComplete,
     battleMode, toggleBattleMode,
-    priorityTargetIdx, setPriorityTarget
+    priorityTargetIdx, setPriorityTarget,
+    // [Step 7-d] 수동 ult 발동 요청 인터페이스
+    pendingUltAllyIds, requestUltimate
   };
 }

@@ -59,7 +59,8 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
     cutInInfo, 
     handleCutInComplete,
     battleMode, toggleBattleMode,
-    priorityTargetIdx, setPriorityTarget
+    priorityTargetIdx, setPriorityTarget,
+    pendingUltAllyIds, requestUltimate
   } = useBattle(initialParty, userStats, hpMultiplier, onGameEnd, enemyId);
 
   const [introStep, setIntroStep] = useState(0);
@@ -141,7 +142,13 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
       </EnemyArea>
 
       <AllyArea $visible={introStep >= 3}>
-        <BattleAllyZone allies={allies} events={battleEvents} />
+        <BattleAllyZone
+          allies={allies}
+          events={battleEvents}
+          battleMode={battleMode}
+          pendingUltAllyIds={pendingUltAllyIds}
+          onRequestUltimate={requestUltimate}
+        />
       </AllyArea>
 
       {/* [수정] 배틀 로그 영역(<LogArea>) 완전 삭제됨 */}
