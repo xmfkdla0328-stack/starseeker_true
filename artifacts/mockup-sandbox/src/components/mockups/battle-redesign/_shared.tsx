@@ -298,14 +298,14 @@ function AllyZone({ variant, t, state }: { variant: Variant; t: ReturnType<typeo
                 {ally.name.charAt(0)}
               </span>
 
-              {/* [Step 7-e] READY/QUEUED 라벨 — 초상화 하단에 검정 그라디언트 + 컬러 텍스트로 오버레이.
-                  부모 .rounded-full + .overflow-hidden 으로 자동 클리핑됨. */}
+              {/* [Step 7-e] READY/QUEUED 라벨 — 초상화 전체를 덮는 방사형 검정 오버레이 + 중앙 텍스트.
+                  READY = white, QUEUED = yellow + pulse 로 차별화. */}
               {ally.ultReady && (
-                <div className="absolute inset-x-0 bottom-0 z-20 flex items-center justify-center pt-2 pb-1 pointer-events-none bg-gradient-to-t from-black/95 via-black/65 to-transparent">
-                  <span className={`text-[7px] font-black tracking-[0.04em] leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)] ${
-                    ally.pending
-                      ? "text-amber-200 animate-pulse"
-                      : "text-amber-300"
+                <div className={`absolute inset-0 z-20 flex items-center justify-center pointer-events-none bg-[radial-gradient(circle,rgba(0,0,0,0.85)_0%,rgba(0,0,0,0.7)_70%,rgba(0,0,0,0.55)_100%)] ${
+                  ally.pending ? "animate-pulse" : ""
+                }`}>
+                  <span className={`text-[8px] font-black tracking-[0.06em] leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)] ${
+                    ally.pending ? "text-amber-300" : "text-white"
                   }`}>
                     {ally.pending ? "QUEUED" : "READY"}
                   </span>

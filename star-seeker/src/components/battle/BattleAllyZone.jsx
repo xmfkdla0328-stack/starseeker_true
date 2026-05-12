@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Shield, Zap } from 'lucide-react';
+import { Shield } from 'lucide-react';
 
 const ACTION_DURATION = 450; // ms — 스케일업 효과 지속
 // [Step 7-e] 카드 글로우(빛 효과)는 'ult 준비됨' 신호 전용으로 예약.
@@ -102,19 +102,6 @@ export default function BattleAllyZone({
               </div>
             )}
 
-            {/* [Step 7-d] 수동 모드에서만 표시되는 ult 상태 배지.
-                READY: 클릭 가능, QUEUED: 다음 턴 발동 예정 (펄스). */}
-            {battleMode === 'manual' && ultReady && (
-              <div className={`absolute -top-2 right-1 z-20 flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full border shadow-lg backdrop-blur-sm ${
-                isPending
-                  ? 'text-amber-100 bg-amber-700/90 border-amber-300 animate-pulse'
-                  : 'text-amber-200 bg-amber-900/90 border-amber-400/70'
-              }`}>
-                <Zap size={8} className="fill-amber-300" />
-                {isPending ? 'QUEUED' : 'READY'}
-              </div>
-            )}
-            
             {/* [Fix] 크기를 w-8에서 w-14(모바일) ~ w-16(태블릿)으로 대폭 확장! */}
             <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden mb-2 border-2 ${ally.hp > 0 ? 'border-slate-300 shadow-[0_0_15px_rgba(255,255,255,0.2)]' : 'border-rose-900'} relative bg-slate-800 flex-shrink-0`}>
               
@@ -127,7 +114,20 @@ export default function BattleAllyZone({
                    <span className="absolute inset-0 flex items-center justify-center text-lg font-black text-white/90 drop-shadow-md">{ally.name?.charAt(0) || ally.role?.charAt(0)}</span>
                  </>
               )}
-              
+
+              {/* [Step 7-e] 수동 모드 ult 상태 오버레이 — 초상화 전체를 덮는 검정 그라디언트 + 중앙 텍스트.
+                  READY (흰색) = 클릭 가능, QUEUED (노란색 + 펄스) = 다음 턴 발동 예정. */}
+              {battleMode === 'manual' && ultReady && (
+                <div className={`absolute inset-0 z-20 flex items-center justify-center pointer-events-none bg-[radial-gradient(circle,rgba(0,0,0,0.85)_0%,rgba(0,0,0,0.7)_70%,rgba(0,0,0,0.55)_100%)] ${
+                  isPending ? 'animate-pulse' : ''
+                }`}>
+                  <span className={`text-[9px] md:text-[10px] font-black tracking-[0.06em] leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)] ${
+                    isPending ? 'text-amber-300' : 'text-white'
+                  }`}>
+                    {isPending ? 'QUEUED' : 'READY'}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* HP Bar (두께 살짝 증가 h-1.5) */}
