@@ -53,7 +53,7 @@ export default function DirectMiningSelectScreen({ onBack, onSelectStage }) {
             </div>
         </button>
 
-        {/* 2. 인과 응집체 추출 (인과석 보상) */}
+        {/* 2. 인과석 채굴 (인과석 보상) */}
         <button 
             onClick={() => onSelectStage('stone')}
             className="group relative w-full bg-slate-900/60 backdrop-blur-sm border border-violet-500/30 hover:border-violet-400 rounded-xl p-5 text-left transition-all hover:bg-slate-800/80 active:scale-98"
@@ -64,7 +64,7 @@ export default function DirectMiningSelectScreen({ onBack, onSelectStage }) {
                         <Hexagon size={24} />
                     </div>
                     <div>
-                        <h3 className="text-lg font-bold text-white group-hover:text-violet-200">인과 응집체 추출</h3>
+                        <h3 className="text-lg font-bold text-white group-hover:text-violet-200">인과석 채굴</h3>
                         <p className="text-xs text-slate-400">Recommended Lv. 20</p>
                     </div>
                 </div>

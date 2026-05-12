@@ -21,8 +21,17 @@ import MinionEnemyDisplay from './MinionEnemyDisplay';
  *   N=4: (잡)(잡)(보스)(잡)(잡) -> left:2, right:2
  *   알고리즘: leftCount = floor(N/2), rightCount = ceil(N/2) → 우측 우선
  */
-export default function BattleEnemyZone({ enemies, enemyWarning, showStatus = true }) {
+export default function BattleEnemyZone({
+  enemies,
+  enemyWarning,
+  showStatus = true,
+  // [Step 7-c] 우선 타겟 마킹 props (수동 모드 전용. 자동 모드에서는 onSelectPriority가 noop이라 클릭 무반응).
+  battleMode = 'auto',
+  priorityTargetIdx = null,
+  onSelectPriority,
+}) {
   if (!enemies || enemies.length === 0) return null;
+  const isManual = battleMode === 'manual';
 
   // 보스 인덱스 찾기 (없으면 0번 적을 보스 자리에)
   const explicitBossIdx = enemies.findIndex(e => e && e.isBoss);
@@ -50,6 +59,9 @@ export default function BattleEnemyZone({ enemies, enemyWarning, showStatus = tr
         enemyWarning={enemyWarning}
         showStatus={showStatus}
         slotId={`enemy-slot-${bossIdx}`}
+        isManualMode={isManual}
+        isPriorityTarget={priorityTargetIdx === bossIdx}
+        onSelect={onSelectPriority ? () => onSelectPriority(bossIdx) : undefined}
       />
     );
   }
@@ -62,6 +74,9 @@ export default function BattleEnemyZone({ enemies, enemyWarning, showStatus = tr
         enemyWarning={enemyWarning}
         showStatus={showStatus}
         slotId={`enemy-slot-${bossIdx}`}
+        isManualMode={isManual}
+        isPriorityTarget={priorityTargetIdx === bossIdx}
+        onSelect={onSelectPriority ? () => onSelectPriority(bossIdx) : undefined}
       />
 
       {/* 잡몹 행: 보스 발치 (보스 게이지 위쪽)에 좌우 분배 배치 */}
@@ -78,6 +93,9 @@ export default function BattleEnemyZone({ enemies, enemyWarning, showStatus = tr
               key={enemy.instanceId || `slot-${idx}`}
               enemy={enemy}
               slotId={`enemy-slot-${idx}`}
+              isManualMode={isManual}
+              isPriorityTarget={priorityTargetIdx === idx}
+              onSelect={onSelectPriority ? () => onSelectPriority(idx) : undefined}
             />
           ))}
         </div>
@@ -92,6 +110,9 @@ export default function BattleEnemyZone({ enemies, enemyWarning, showStatus = tr
               key={enemy.instanceId || `slot-${idx}`}
               enemy={enemy}
               slotId={`enemy-slot-${idx}`}
+              isManualMode={isManual}
+              isPriorityTarget={priorityTargetIdx === idx}
+              onSelect={onSelectPriority ? () => onSelectPriority(idx) : undefined}
             />
           ))}
         </div>

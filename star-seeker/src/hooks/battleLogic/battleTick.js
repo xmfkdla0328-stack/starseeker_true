@@ -12,6 +12,9 @@ export function processBattleTick({
   currentAllies,
   currentBuffs,
   currentEnemies,
+  // [Step 7-c] 수동 모드 + 우선 타겟 idx (단일 타겟 공격에서 잡몹 우선 정렬을 덮어씀).
+  battleMode = 'auto',
+  priorityTargetIdx = null,
   addLog,
   gainCausality
 }) {
@@ -118,6 +121,9 @@ export function processBattleTick({
       setBuffs: (newBuffs) => { nextBuffs = newBuffs; }, // 콜백을 통해 로컬 변수 업데이트
       addLog,
       gainCausality,
+      // [Step 7-c] 우선 타겟 정보 전달 (단일 타겟 공격에 한해 적용; AOE는 영향 없음).
+      battleMode,
+      priorityTargetIdx,
   });
 
   nextAllies = allyResult.updatedAllies;

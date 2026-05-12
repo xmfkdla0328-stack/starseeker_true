@@ -1,4 +1,5 @@
 import React from 'react';
+import { Crosshair } from 'lucide-react';
 
 /**
  * 잡몹용 컴팩트 디스플레이.
@@ -11,11 +12,19 @@ import React from 'react';
  *
  * id={slotId} → BattleEffectLayer가 이 DOM 위에 데미지 팝업 띄움 (per-enemy)
  */
-export default function MinionEnemyDisplay({ enemy, slotId }) {
+export default function MinionEnemyDisplay({
+  enemy,
+  slotId,
+  // [Step 7-c] 우선 타겟 마킹 props
+  isManualMode = false,
+  isPriorityTarget = false,
+  onSelect,
+}) {
   if (!enemy) return null;
 
   const isDead = enemy.hp <= 0;
   const hpPercent = Math.max(0, (enemy.hp / enemy.maxHp) * 100);
+  const clickable = isManualMode && !isDead && !!onSelect;
 
   return (
     <div
@@ -23,10 +32,17 @@ export default function MinionEnemyDisplay({ enemy, slotId }) {
         isDead ? 'opacity-30 grayscale scale-90' : 'opacity-100'
       }`}
     >
-      {/* 이미지 슬롯 (팝업 타겟) */}
+      {/* 이미지 슬롯 (팝업 타겟). [Step 7-c] 수동 모드에서 클릭하면 우선 타겟 마킹 토글. */}
       <div
         id={slotId}
-        className="relative w-14 h-14 rounded-md border border-slate-300/50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center overflow-hidden shadow-[0_0_8px_rgba(255,255,255,0.2)]"
+        onClick={clickable ? (e) => { e.stopPropagation(); onSelect(); } : undefined}
+        role={clickable ? 'button' : undefined}
+        className={`relative w-14 h-14 rounded-md border bg-slate-900/70 backdrop-blur-sm flex items-center justify-center overflow-hidden transition-all
+          ${isPriorityTarget
+            ? 'border-sky-300 shadow-[0_0_14px_rgba(56,189,248,0.85)] scale-105'
+            : 'border-slate-300/50 shadow-[0_0_8px_rgba(255,255,255,0.2)]'}
+          ${clickable ? 'cursor-pointer hover:border-sky-300/70 active:scale-95' : ''}
+        `}
       >
         {enemy.image ? (
           <img
@@ -36,6 +52,12 @@ export default function MinionEnemyDisplay({ enemy, slotId }) {
           />
         ) : (
           <span className="text-2xl select-none opacity-80">👾</span>
+        )}
+        {/* [Step 7-c] 우선 타겟 십자선 오버레이 */}
+        {isPriorityTarget && (
+          <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+            <Crosshair className="text-sky-300 drop-shadow-[0_0_4px_rgba(56,189,248,0.9)]" size={24} strokeWidth={2.5} />
+          </div>
         )}
       </div>
 

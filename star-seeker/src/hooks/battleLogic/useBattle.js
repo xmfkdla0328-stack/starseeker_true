@@ -11,7 +11,8 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
     enemyWarning, setEnemyWarning, 
     buffs, setBuffs, 
     addLog, gainCausality,
-    battleMode, setBattleMode
+    battleMode, setBattleMode,
+    priorityTargetIdx, setPriorityTargetIdx
   } = useBattleState(initialParty, userStats, hpMultiplier, enemyId);
 
   // [Step 7-b] 모드 토글 — useSkill과 동일한 정책: 컷인 진행 중에는 무시 (사용자 입력 일관성).
@@ -19,8 +20,26 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
   const cutInInfoRef = useRef(null);
   const toggleBattleMode = useCallback(() => {
     if (cutInInfoRef.current) return;
-    setBattleMode(prev => prev === 'auto' ? 'manual' : 'auto');
-  }, [setBattleMode]);
+    setBattleMode(prev => {
+      const next = prev === 'auto' ? 'manual' : 'auto';
+      // [Step 7-c] 자동 모드로 돌아가면 우선 타겟 마킹은 무의미하므로 즉시 해제.
+      if (next === 'auto') setPriorityTargetIdx(null);
+      return next;
+    });
+  }, [setBattleMode, setPriorityTargetIdx]);
+
+  // [Step 7-c] 적 슬롯 클릭 → 우선 타겟 마킹/해제.
+  // 정책:
+  // - 자동 모드, 컷인 중, 전투 미시작/일시정지 → 무시
+  // - 같은 적을 다시 클릭하면 마킹 해제 (토글)
+  // - 죽은 적 클릭 무시
+  const setPriorityTarget = useCallback((idx) => {
+    if (cutInInfoRef.current) return;
+    if (battleModeRef.current !== 'manual') return;
+    const target = enemiesRef.current?.[idx];
+    if (!target || target.hp <= 0) return;
+    setPriorityTargetIdx(prev => prev === idx ? null : idx);
+  }, [setPriorityTargetIdx]);
 
   // [Backward-compat] 외부(BattleScreen)와 일부 화면 코드에는 단일 enemy를 노출.
   //                   다중 적 UI는 step 3에서 도입 예정.
@@ -44,6 +63,8 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
   // [Step 7-b] battleMode도 setInterval tick에서 분기 시 stale closure를 피하려면 ref 동기화 필수.
   // 7-c (우선 타겟 마킹) / 7-d (ult 자동 발동 차단)에서 이 ref를 읽어 분기.
   const battleModeRef = useRef(battleMode);
+  // [Step 7-c] 우선 타겟 idx ref. tick 분기 + setPriorityTarget 클릭 가드 + applyBattleResult 사망 정리에서 사용.
+  const priorityTargetIdxRef = useRef(priorityTargetIdx);
   // 전투 종료(승/패) 한 번만 트리거되도록 보장
   const battleEndedRef = useRef(false);
 
@@ -54,6 +75,7 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
   buffsRef.current = buffs;
   enemiesRef.current = enemies;
   battleModeRef.current = battleMode;
+  priorityTargetIdxRef.current = priorityTargetIdx;
   cutInInfoRef.current = cutInInfo;
 
   // ----------------------------------------------------------
@@ -76,6 +98,12 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
         setEnemies(nextEnemies);
         // [Step 5-1] 보스가 충전 중일 때만 경고 표시 (잡몹 차징은 UI 알림 없음)
         setEnemyWarning(nextEnemies.some(e => e.isBoss && e.isCharging));
+        // [Step 7-c] 우선 타겟이 사망/이탈했으면 자동 해제 (UI 마킹 정리).
+        const ptIdx = priorityTargetIdxRef.current;
+        if (ptIdx != null) {
+          const t = nextEnemies[ptIdx];
+          if (!t || t.hp <= 0) setPriorityTargetIdx(null);
+        }
     }
 
     // 3. 승패 판정 (한 틱에 양쪽 KO 발생 시 승리 우선; 종료 콜백은 1회만)
@@ -98,7 +126,7 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
           setIsBattleStarted(false);
       }
     }
-  }, [setAllies, setBuffs, setEnemies, setEnemyWarning, addLog]);
+  }, [setAllies, setBuffs, setEnemies, setEnemyWarning, addLog, setPriorityTargetIdx]);
 
 
   // ----------------------------------------------------------
@@ -145,6 +173,9 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
           currentAllies: alliesRef.current,
           currentBuffs: buffsRef.current,
           currentEnemies: enemiesRef.current,
+          // [Step 7-c] 수동 모드 + 우선 타겟이 살아있으면 단일 타겟 공격이 이쪽을 우선 노림.
+          battleMode: battleModeRef.current,
+          priorityTargetIdx: priorityTargetIdxRef.current,
           addLog,
           gainCausality
       });
@@ -217,6 +248,7 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
     battleEvents,
     cutInInfo, 
     handleCutInComplete,
-    battleMode, toggleBattleMode
+    battleMode, toggleBattleMode,
+    priorityTargetIdx, setPriorityTarget
   };
 }

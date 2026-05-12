@@ -58,7 +58,8 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
     battleEvents, 
     cutInInfo, 
     handleCutInComplete,
-    battleMode, toggleBattleMode
+    battleMode, toggleBattleMode,
+    priorityTargetIdx, setPriorityTarget
   } = useBattle(initialParty, userStats, hpMultiplier, onGameEnd, enemyId);
 
   const [introStep, setIntroStep] = useState(0);
@@ -132,6 +133,9 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
                 enemies={enemies} 
                 enemyWarning={enemyWarning} 
                 showStatus={introStep >= 3} 
+                battleMode={battleMode}
+                priorityTargetIdx={priorityTargetIdx}
+                onSelectPriority={setPriorityTarget}
             />
         )}
       </EnemyArea>

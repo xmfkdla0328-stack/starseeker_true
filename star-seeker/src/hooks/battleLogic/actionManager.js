@@ -18,6 +18,20 @@ function getAliveTargetIndices(workingEnemies) {
   return alive.map(e => e.idx);
 }
 
+/**
+ * [Step 7-c] 단일 타겟 공격에서 잡몹 우선 정렬을 우선 타겟 마킹으로 덮어씀.
+ * - 자동 모드 / 우선 타겟 없음 / 우선 타겟이 죽음·없음 → 기존 정렬(잡몹 우선) 그대로 [0] 사용.
+ * - 수동 + 우선 타겟이 살아있으면 그 idx를 alive 목록 맨 앞으로 끌어올림 (안정성: 여러 곳에서 [0]만 보면 됨).
+ */
+function applyPriorityTarget(liveIndices, battleMode, priorityTargetIdx, workingEnemies) {
+  if (battleMode !== 'manual') return liveIndices;
+  if (priorityTargetIdx == null) return liveIndices;
+  const t = workingEnemies[priorityTargetIdx];
+  if (!t || t.hp <= 0) return liveIndices;
+  if (!liveIndices.includes(priorityTargetIdx)) return liveIndices;
+  return [priorityTargetIdx, ...liveIndices.filter(i => i !== priorityTargetIdx)];
+}
+
 export function handleAllyActions({
   allies,
   buffs,
@@ -25,7 +39,9 @@ export function handleAllyActions({
   shieldJustExpired,
   setBuffs,
   addLog,
-  gainCausality
+  gainCausality,
+  battleMode = 'auto',
+  priorityTargetIdx = null,
 }) {
   let nextAllies = [...allies];
   // [Refactor step 2] 단일 totalEnemyDamage 대신 적별 데미지 배열로 처리.
@@ -140,10 +156,12 @@ export function handleAllyActions({
         }
 
         // [Step 4] 매 행동 직전에 fresh alive 인덱스 (잡몹 우선 정렬) — 시체 자동 제외
-        const ultLiveIndices = getAliveTargetIndices(workingEnemies);
+        const ultLiveIndicesRaw = getAliveTargetIndices(workingEnemies);
+        // [Step 7-c] 단일 타겟 ult도 우선 타겟 마킹을 따른다 (AOE는 영향 없음).
+        const ultLiveIndices = applyPriorityTarget(ultLiveIndicesRaw, battleMode, priorityTargetIdx, workingEnemies);
         if (damageDealt > 0 && ultLiveIndices.length > 0) {
             const ultSkill = ally.combatSkills.ultimate;
-            // AOE이면 모든 살아있는 적, 아니면 우선순위 첫 번째 (잡몹 우선)
+            // AOE이면 모든 살아있는 적, 아니면 우선순위 첫 번째 (잡몹 우선 / 수동 우선 타겟)
             const targetIndices = ultSkill.isAoe 
                 ? ultLiveIndices 
                 : [ultLiveIndices[0]];
@@ -221,7 +239,9 @@ export function handleAllyActions({
         }
 
         // [Step 4] 매 행동 직전에 fresh alive 인덱스 (잡몹 우선 정렬)
-        const normalLiveIndices = getAliveTargetIndices(workingEnemies);
+        const normalLiveIndicesRaw = getAliveTargetIndices(workingEnemies);
+        // [Step 7-c] 일반 공격도 우선 타겟 마킹을 따른다.
+        const normalLiveIndices = applyPriorityTarget(normalLiveIndicesRaw, battleMode, priorityTargetIdx, workingEnemies);
         if (damageDealt > 0 && normalLiveIndices.length > 0) {
             const normalSkill = ally.combatSkills.normal;
             // 일반공격도 isAoe를 지원하지만 현재 모든 일반공격은 단일타겟

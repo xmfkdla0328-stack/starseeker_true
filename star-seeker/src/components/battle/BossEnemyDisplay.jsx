@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, Zap } from 'lucide-react';
+import { AlertTriangle, Zap, Crosshair } from 'lucide-react';
 import { ENEMY_CAUSALITY_TRIGGER } from '../../data/gameData';
 
 /**
@@ -10,7 +10,16 @@ import { ENEMY_CAUSALITY_TRIGGER } from '../../data/gameData';
  * step 3b에서 다중 적 레이아웃이 추가되어도 보스 1마리 단독 케이스에서는
  * 이 컴포넌트만 그대로 사용해 기존 콘텐츠 시각이 100% 보존됨.
  */
-export default function BossEnemyDisplay({ enemy, enemyWarning, showStatus = true, slotId = 'enemy-target-main' }) {
+export default function BossEnemyDisplay({
+  enemy,
+  enemyWarning,
+  showStatus = true,
+  slotId = 'enemy-target-main',
+  // [Step 7-c] 우선 타겟 마킹 props
+  isManualMode = false,
+  isPriorityTarget = false,
+  onSelect,
+}) {
   const [circleActive, setCircleActive] = useState(false);
 
   useEffect(() => {
@@ -79,7 +88,14 @@ export default function BossEnemyDisplay({ enemy, enemyWarning, showStatus = tru
 
       {/* 2. 원형 감옥 이펙트 — flex-1 min-h-0 으로 남는 세로 공간 흡수 (짧은 화면에선 시각적으로 압축됨) */}
       <div className={`relative flex-1 min-h-0 w-full flex items-center justify-center transition-all duration-500 z-0 ${enemy.hp <= 0 ? 'opacity-0 scale-95 blur-sm' : 'opacity-100 scale-100'} ${circleActive ? 'opacity-100' : 'opacity-0'}`}>
-         <div id={slotId} className="relative w-64 h-64 flex items-center justify-center mt-4">
+         <div
+            id={slotId}
+            onClick={(isManualMode && enemy.hp > 0 && onSelect) ? (e) => { e.stopPropagation(); onSelect(); } : undefined}
+            role={(isManualMode && enemy.hp > 0 && onSelect) ? 'button' : undefined}
+            className={`relative w-64 h-64 flex items-center justify-center mt-4 ${
+              isManualMode && enemy.hp > 0 ? 'cursor-pointer pointer-events-auto z-30' : ''
+            }`}
+         >
             {/* [Step 5-2b-iii v2] WARNING 배지 — 원형 감옥 정중앙(=보스 이미지 위)에 오버레이.
                 이전엔 -top-7로 감옥 위쪽에 띄웠는데, PC/태블릿처럼 화면이 커지면 거대 보스 이미지가
                 위로 솟아 배지와 시각적으로 어긋남. 슬롯(감옥) 정중앙에 absolute inset-0 flex로 배치하면
@@ -92,6 +108,17 @@ export default function BossEnemyDisplay({ enemy, enemyWarning, showStatus = tru
                     WARNING
                   </span>
                 </div>
+              </div>
+            )}
+
+            {/* [Step 7-c] 우선 타겟 마킹 십자선 — 보스 머리 부근(슬롯 정중앙)에 겹쳐 표시. */}
+            {isPriorityTarget && (
+              <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center">
+                <Crosshair
+                  className="text-sky-300 drop-shadow-[0_0_10px_rgba(56,189,248,0.95)] animate-pulse"
+                  size={72}
+                  strokeWidth={2}
+                />
               </div>
             )}
             
