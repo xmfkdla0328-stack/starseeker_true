@@ -100,11 +100,12 @@ function tokens(v: Variant) {
     modePill: "border-sky-300 bg-sky-400/25 text-sky-50 font-extrabold shadow-[0_0_14px_rgba(56,189,248,0.55)] min-w-[80px]",
     modeLabel: "● MANUAL",
     modeBanner: (
-      <div className="absolute top-0 left-0 right-0 z-30 pointer-events-none">
+      <div className="flex-shrink-0 z-30 pointer-events-none">
         <div className="h-[2px] bg-gradient-to-r from-transparent via-sky-300 to-transparent" />
-        <div className="text-center text-[9px] font-mono tracking-[0.4em] text-sky-200/80 mt-0.5">
+        <div className="text-center text-[9px] font-mono tracking-[0.4em] text-sky-200/80 py-1 bg-sky-500/5">
           MANUAL CONTROL
         </div>
+        <div className="h-[1px] bg-gradient-to-r from-transparent via-sky-400/40 to-transparent" />
       </div>
     ),
     causalityBar: "from-cyan-600 to-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)]",
