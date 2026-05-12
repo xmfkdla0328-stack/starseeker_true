@@ -143,12 +143,6 @@ export function Scene({ variant, state }: { variant: Variant; state: State }) {
       >
         {t.modeBanner}
 
-        {/* Top status row (story name placeholder) */}
-        <div className="flex-shrink-0 px-3 pt-5 pb-2 text-center">
-          <div className="text-[10px] font-mono tracking-[0.3em] text-slate-500">CHAPTER 03 · NODE 07</div>
-          <div className="text-sm text-slate-300 font-light">감시탑의 균열</div>
-        </div>
-
         {/* Enemy zone */}
         <EnemyZone variant={variant} t={t} state={state} />
 
