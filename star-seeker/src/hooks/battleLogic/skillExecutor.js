@@ -20,7 +20,7 @@ export function executeUltimateSkill(ally, skill, { finalAtk, finalCritMultiplie
   }
   // [시에] 본인 critDmg 버프 적용 + 본인 실제 critDmg 사용 (하드코딩 1.5배 제거)
   else if (ally.id === 2) {
-    newSelfBuffs = { ...ally.selfBuffs, critDmgUp: skill.buffVal || 0.4, buffTime: 10000 };
+    newSelfBuffs = { ...ally.selfBuffs, critDmgUp: skill.buffVal || 0.4, buffTime: 10000, buffSourceName: skill.name };
     // 이번 턴 효과: 본인 실제 critDmg 기반 finalCritMultiplier 위에 이 ult의 buffVal(40%)을 추가로 적용
     const currentCritMultiplier = isCrit
       ? finalCritMultiplier * (1 + (skill.buffVal || 0.4))
@@ -42,7 +42,7 @@ export function executeUltimateSkill(ally, skill, { finalAtk, finalCritMultiplie
         hp: Math.min(a.maxHp, a.hp + healAmount),
         selfBuffs: {
             ...(a.selfBuffs || {}),
-            hot: { amount: dotAmount, turns: 2 } // 2턴 동안 유지
+            hot: { amount: dotAmount, turns: 2, sourceName: skill.name } // 2턴 동안 유지
         }
     }));
     
@@ -58,7 +58,7 @@ export function executeUltimateSkill(ally, skill, { finalAtk, finalCritMultiplie
   // [천백]
   else if (ally.id === 6) {
     const buffVal = skill.buffVal || 0.2;
-    newSelfBuffs = { ...ally.selfBuffs, atkUp: buffVal, buffTime: 10000 }; 
+    newSelfBuffs = { ...ally.selfBuffs, atkUp: buffVal, buffTime: 10000, buffSourceName: skill.name }; 
     const enhancedAtk = finalAtk * (1 + buffVal);
     damageDealt = Math.floor(enhancedAtk * skill.mult * finalCritMultiplier);
     addLog(`✨ [${ally.name}] ${skill.name}! (공격력 증가) (DMG: ${damageDealt})`, 'ally_ult');

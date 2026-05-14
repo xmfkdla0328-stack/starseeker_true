@@ -11,7 +11,7 @@
  *
  * Returns: Array<{
  *   id: string,           // 효과 식별자
- *   kind: 'buff'|'debuff'|'passive'|'shield'|'charging',
+ *   kind: 'buff'|'debuff'|'passive'|'shield'|'charging'|'heal',
  *   label: string,        // UI 표시명
  *   detail?: string,      // 보조 설명(수치 등)
  *   timeLeftMs?: number,  // 시간제 효과의 남은 시간 (없으면 영구/턴제)
@@ -28,13 +28,14 @@ export function getUnitStatusEffects(unit, globalBuffs, side = 'ally') {
   if (side === 'ally') {
     const sb = unit.selfBuffs || {};
 
-    // 자기 자신 일시 버프 (atkUp / critDmgUp 는 buffTime을 공유)
+    // 자기 자신 일시 버프 (atkUp / critDmgUp 는 buffTime / buffSourceName을 공유)
+    // 표기 규칙: label = 효과를 부여한 스킬(필살기) 이름, detail = 효과 상세.
     if (sb.atkUp && sb.atkUp > 0 && sb.buffTime > 0) {
       out.push({
         id: 'self-atk',
         kind: 'buff',
-        label: '공격력 강화',
-        detail: `+${Math.round(sb.atkUp * 100)}%`,
+        label: sb.buffSourceName || '공격력 강화',
+        detail: `공격력 +${Math.round(sb.atkUp * 100)}%`,
         timeLeftMs: sb.buffTime,
         source: 'self',
       });
@@ -43,20 +44,20 @@ export function getUnitStatusEffects(unit, globalBuffs, side = 'ally') {
       out.push({
         id: 'self-critdmg',
         kind: 'buff',
-        label: '치명타 피해 강화',
-        detail: `+${Math.round(sb.critDmgUp * 100)}%`,
+        label: sb.buffSourceName || '치명타 피해 강화',
+        detail: `치명타 피해 +${Math.round(sb.critDmgUp * 100)}%`,
         timeLeftMs: sb.buffTime,
         source: 'self',
       });
     }
 
-    // 지속 회복(HoT)
+    // 지속 회복(HoT) — 'heal' kind로 분리되어 인스펙터에서 + 아이콘으로 표시됨.
     if (sb.hot && sb.hot.turns > 0) {
       out.push({
         id: 'self-hot',
-        kind: 'buff',
-        label: '지속 회복',
-        detail: `턴당 +${Math.round(sb.hot.amount)}`,
+        kind: 'heal',
+        label: sb.hot.sourceName || '지속 회복',
+        detail: `턴당 지속회복 +${Math.round(sb.hot.amount)}`,
         turnsLeft: sb.hot.turns,
         source: 'self',
       });

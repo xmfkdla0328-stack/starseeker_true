@@ -3,11 +3,13 @@
 // 최대 높이 50dvh. 백드롭/외부 클릭/X 버튼/길게 누름 해제 시 닫힘.
 // 부모(BattleScreen)는 열림/닫힘에 맞춰 togglePause로 전투를 일시정지/재개한다.
 import React, { useEffect } from 'react';
-import { X, Sparkles, Shield, Zap, Heart, AlertTriangle } from 'lucide-react';
+import { X, Sparkles, Shield, Zap, Heart, AlertTriangle, Plus } from 'lucide-react';
 import { getUnitStatusEffects } from '../../hooks/battleLogic/statusEffects';
 
 const KIND_META = {
   buff:     { color: 'text-emerald-300',  bg: 'bg-emerald-900/40', border: 'border-emerald-500/40', icon: Sparkles },
+  // 회복 효과는 + 기호로 표시 — 의료/회복 표상.
+  heal:     { color: 'text-emerald-300',  bg: 'bg-emerald-900/40', border: 'border-emerald-500/40', icon: Plus },
   passive:  { color: 'text-sky-300',      bg: 'bg-sky-900/40',     border: 'border-sky-500/40',     icon: Zap },
   shield:   { color: 'text-cyan-200',     bg: 'bg-cyan-900/40',    border: 'border-cyan-500/40',    icon: Shield },
   charging: { color: 'text-rose-300',     bg: 'bg-rose-900/40',    border: 'border-rose-500/40',    icon: AlertTriangle },
@@ -43,8 +45,10 @@ export default function StatusInspector({ unit, side = 'ally', globalBuffs, onCl
   const slideDir = isAlly ? 'translate-y-0' : 'translate-y-0';
   const enterFrom = isAlly ? 'translate-y-full' : '-translate-y-full';
 
+  // absolute(부모 BattleScreenContainer 기준) — 모바일 max-w-md 컨테이너 안쪽으로만 슬라이드되어
+  // 데스크톱 미리보기에서도 좌우 검은 띠를 침범하지 않는다.
   return (
-    <div className="fixed inset-0 z-50 pointer-events-none">
+    <div className="absolute inset-0 z-50 pointer-events-none">
       {/* 백드롭 */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm pointer-events-auto animate-[fadeIn_120ms_ease-out]"
