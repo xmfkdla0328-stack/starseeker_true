@@ -1,5 +1,6 @@
 import React from 'react';
 import { Shield } from 'lucide-react';
+import useLongPress from '../../hooks/useLongPress';
 
 /**
  * 단일 아군 카드 — 초상화/HP/ult 게이지/이름/실드 배지/ult 오버레이를 렌더한다.
@@ -45,21 +46,26 @@ export default function AllyCard({
           : 'border-white/10')
     : 'border-white/10';
 
-  // 클릭 동작 우선순위: 수동 ult 요청 > 인스펙터 호출.
-  const handleClick = ultClickable
-    ? (e) => { e.stopPropagation(); onRequestUltimate(ally.id); }
-    : (onInspect && ally.hp > 0
-        ? (e) => { e.stopPropagation(); onInspect(ally.id); }
-        : undefined);
-  const isClickable = !!handleClick;
+  // 입력 정책:
+  //  - 짧은 탭(short tap): 수동 모드 + ult ready 면 ult 요청 토글, 그 외에는 무동작
+  //  - 길게 누름(long press, 500ms): 인스펙터 열림 (살아있는 카드 한정)
+  // 한 핸들러 셋으로 두 동작을 분기 처리하여 컨플릭트 없이 공존.
+  const longPressHandlers = useLongPress(
+    () => { if (onInspect && ally.hp > 0) onInspect(ally.id); },
+    {
+      delay: 500,
+      onShortTap: ultClickable ? () => onRequestUltimate(ally.id) : undefined,
+    },
+  );
+  const isInteractive = ultClickable || (!!onInspect && ally.hp > 0);
 
   return (
     <div
       id={`ally-target-${ally.id}`}
-      style={cellStyle}
-      onClick={handleClick}
-      role={isClickable ? 'button' : undefined}
-      className={`relative flex flex-col items-center p-2 rounded-xl border ${ultBorderClass} bg-gradient-to-b from-white/10 to-black/40 shadow-lg ${ally.hp <= 0 ? 'opacity-30 grayscale' : 'hover:bg-white/10'} ${isClickable ? 'cursor-pointer' : ''}`}
+      style={{ ...cellStyle, touchAction: 'manipulation', userSelect: 'none', WebkitUserSelect: 'none' }}
+      {...(isInteractive ? longPressHandlers : {})}
+      role={isInteractive ? 'button' : undefined}
+      className={`relative flex flex-col items-center p-2 rounded-xl border ${ultBorderClass} bg-gradient-to-b from-white/10 to-black/40 shadow-lg ${ally.hp <= 0 ? 'opacity-30 grayscale' : 'hover:bg-white/10'} ${isInteractive ? 'cursor-pointer' : ''}`}
     >
       {ally.shield > 0 && (
         <div className="absolute -top-2 z-20 flex items-center gap-0.5 text-[9px] font-bold text-cyan-200 bg-cyan-900/90 px-1.5 py-0.5 rounded-full border border-cyan-500/50 shadow-lg backdrop-blur-sm">

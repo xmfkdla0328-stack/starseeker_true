@@ -9,6 +9,7 @@ import BattleControlZone from '../components/battle/BattleControlZone';
 import BattleStartOverlay from '../components/battle/BattleStartOverlay';
 import BattleEffectLayer from '../components/battle/BattleEffectLayer';
 import BattleCutIn from '../components/battle/BattleCutIn';
+import StatusInspector from '../components/battle/StatusInspector';
 
 import GameHeader from '../components/common/GameHeader';
 import PauseMenu from '../components/common/PauseMenu';
@@ -68,6 +69,42 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
   const [isMuted, setIsMuted] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
 
+  // [Inspector] 길게 누른 카드의 식별자. { kind: 'ally'|'enemy', id }.
+  const [inspectorTarget, setInspectorTarget] = useState(null);
+  // 일시정지 출처: 'user'(헤더 버튼) | 'inspector' | null.
+  // PauseMenu는 'user'일 때만, StatusInspector는 inspectorTarget이 셋일 때만 렌더한다.
+  // 출처 분리 덕에 인스펙터 닫힘 시 한 프레임 PauseMenu가 깜빡이는 일이 없다.
+  const [pauseSource, setPauseSource] = useState(null);
+
+  // pauseSource → 실제 전투 루프 일시정지를 동기화.
+  useEffect(() => {
+    if (!isBattleStarted) return;
+    togglePause(pauseSource !== null);
+  }, [pauseSource, isBattleStarted, togglePause]);
+
+  const handleInspectAlly = (allyId) => {
+    setInspectorTarget({ kind: 'ally', id: allyId });
+    setPauseSource('inspector');
+  };
+  const closeInspector = () => {
+    setInspectorTarget(null);
+    setPauseSource(null);
+  };
+  const handleUserPause = () => setPauseSource('user');
+  const handleUserResume = () => setPauseSource(null);
+
+  const inspectedUnit = inspectorTarget
+    ? (inspectorTarget.kind === 'ally'
+        ? allies.find(a => a.id === inspectorTarget.id)
+        : enemies.find(e => e.id === inspectorTarget.id))
+    : null;
+
+  // 가드: 대상 유닛이 사라지면(예: 적이 처치되어 배열에서 제거) 인스펙터를 자동 닫아
+  // pause가 영구히 걸려있는 상태가 되지 않도록 한다.
+  useEffect(() => {
+    if (inspectorTarget && !inspectedUnit) closeInspector();
+  }, [inspectorTarget, inspectedUnit]);
+
   useEffect(() => {
     const t1 = setTimeout(() => setIntroStep(1), 500);
     const t2 = setTimeout(() => setIntroStep(2), 2000);
@@ -99,7 +136,7 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
 
   const handleRetreat = () => {
     if (window.confirm("전투를 포기하고 귀환하시겠습니까?")) {
-        togglePause(false); 
+        setPauseSource(null);
         if (onRetreat) onRetreat();
         else onGameEnd('lose');
     }
@@ -114,12 +151,14 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
       <BattleCutIn key={cutInInfo?._id ?? 'idle'} cutInInfo={cutInInfo} onComplete={handleCutInComplete} />
 
       {isBattleStarted && !isPaused && (
-        <GameHeader onPause={() => togglePause(true)} />
+        <GameHeader onPause={handleUserPause} />
       )}
 
-      {isPaused && !cutInInfo && (
+      {/* PauseMenu는 사용자 출처 일시정지에서만 표시.
+          인스펙터로 인한 일시정지일 때는 StatusInspector가 UI 책임을 가진다. */}
+      {pauseSource === 'user' && !cutInInfo && (
         <PauseMenu 
-          onResume={() => togglePause(false)}
+          onResume={handleUserResume}
           onRetreat={handleRetreat}
           bgmVolume={bgmVolume}
           setBgmVolume={setBgmVolume}
@@ -148,6 +187,7 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
           battleMode={battleMode}
           pendingUltAllyIds={pendingUltAllyIds}
           onRequestUltimate={requestUltimate}
+          onInspectAlly={handleInspectAlly}
         />
       </AllyArea>
 
@@ -166,6 +206,17 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
 
       {(introStep === 2 || introStep === 3) && (
           <BattleStartOverlay fading={introStep === 3} />
+      )}
+
+      {/* [Inspector] 길게 누름으로 열린 버프/디버프 패널.
+          unit이 다음 틱에 사망/제거되면 자동 닫힘 (effect로 처리). */}
+      {inspectorTarget && inspectedUnit && (
+        <StatusInspector
+          unit={inspectedUnit}
+          side={inspectorTarget.kind}
+          globalBuffs={buffs}
+          onClose={closeInspector}
+        />
       )}
     </BattleScreenContainer>
   );
