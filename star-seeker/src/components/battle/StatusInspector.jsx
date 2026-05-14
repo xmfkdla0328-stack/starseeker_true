@@ -3,17 +3,28 @@
 // 최대 높이 50dvh. 백드롭/외부 클릭/X 버튼/길게 누름 해제 시 닫힘.
 // 부모(BattleScreen)는 열림/닫힘에 맞춰 togglePause로 전투를 일시정지/재개한다.
 import React, { useEffect } from 'react';
-import { X, Sparkles, Shield, Zap, Heart, AlertTriangle, Plus } from 'lucide-react';
+import { X, Sparkles, Shield, ShieldHalf, Zap, Heart, AlertTriangle, Plus, Sword } from 'lucide-react';
 import { getUnitStatusEffects } from '../../hooks/battleLogic/statusEffects';
 
+// 시각 컨벤션 — 역할별로 색/아이콘 통일.
+//  attack          : 빨강    + 칼   (공격력/치명피해 강화)
+//  heal            : 초록    + +    (지속 회복 등 치료)
+//  shield          : 파랑    + 방패  (실드 잔량)
+//  damageReduction : 남색    + 채워진 방패 (피해 감소)
+//  causality       : 노랑    + 별   (인과력 스킬 — 오로지 이쪽만 사용)
+//  passive         : 하늘    + 번개 (영구 패시브 메모리 효과)
+//  charging        : 장미    + 경고 (적 차징)
 const KIND_META = {
-  buff:     { color: 'text-emerald-300',  bg: 'bg-emerald-900/40', border: 'border-emerald-500/40', icon: Sparkles },
-  // 회복 효과는 + 기호로 표시 — 의료/회복 표상.
-  heal:     { color: 'text-emerald-300',  bg: 'bg-emerald-900/40', border: 'border-emerald-500/40', icon: Plus },
-  passive:  { color: 'text-sky-300',      bg: 'bg-sky-900/40',     border: 'border-sky-500/40',     icon: Zap },
-  shield:   { color: 'text-cyan-200',     bg: 'bg-cyan-900/40',    border: 'border-cyan-500/40',    icon: Shield },
-  charging: { color: 'text-rose-300',     bg: 'bg-rose-900/40',    border: 'border-rose-500/40',    icon: AlertTriangle },
-  debuff:   { color: 'text-rose-300',     bg: 'bg-rose-900/40',    border: 'border-rose-500/40',    icon: AlertTriangle },
+  attack:          { color: 'text-rose-300',     bg: 'bg-rose-900/40',     border: 'border-rose-500/40',     icon: Sword },
+  heal:            { color: 'text-emerald-300',  bg: 'bg-emerald-900/40',  border: 'border-emerald-500/40',  icon: Plus },
+  shield:          { color: 'text-cyan-200',     bg: 'bg-cyan-900/40',     border: 'border-cyan-500/40',     icon: Shield },
+  damageReduction: { color: 'text-indigo-300',   bg: 'bg-indigo-900/40',   border: 'border-indigo-500/40',   icon: ShieldHalf },
+  causality:       { color: 'text-amber-300',    bg: 'bg-amber-900/40',    border: 'border-amber-500/40',    icon: Sparkles },
+  passive:         { color: 'text-sky-300',      bg: 'bg-sky-900/40',      border: 'border-sky-500/40',      icon: Zap },
+  charging:        { color: 'text-rose-300',     bg: 'bg-rose-900/40',     border: 'border-rose-500/40',     icon: AlertTriangle },
+  debuff:          { color: 'text-rose-300',     bg: 'bg-rose-900/40',     border: 'border-rose-500/40',     icon: AlertTriangle },
+  // 폴백 (이전 'buff' 카테고리 호환용)
+  buff:            { color: 'text-emerald-300',  bg: 'bg-emerald-900/40',  border: 'border-emerald-500/40',  icon: Sparkles },
 };
 
 const SOURCE_LABEL = {

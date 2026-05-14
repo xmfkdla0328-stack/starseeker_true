@@ -15,7 +15,9 @@ export function executeUltimateSkill(ally, skill, { finalAtk, finalCritMultiplie
   // [서주목]
   if (ally.id === 1) {
     damageDealt = Math.floor(ally.def * skill.mult * finalCritMultiplier);
-    setBuffs(b => ({ ...b, damageReduction: { active: true, val: skill.buffVal || 0.2, timeLeft: 10000 } }));
+    // 서주목 ult — 전역 damageReduction을 발동하되, 출처(스킬 이름)와 역할(originKind)을 같이 기록.
+    // 인스펙터는 sourceName 유무로 캐릭터 출처 vs 인과력 출처를 구분하고, originKind로 색/아이콘을 정한다.
+    setBuffs(b => ({ ...b, damageReduction: { active: true, val: skill.buffVal || 0.2, timeLeft: 10000, sourceName: skill.name, originKind: 'damageReduction' } }));
     addLog(`✨ [${ally.name}] ${skill.name}!${logSuffix} (DMG: ${damageDealt})`, 'ally_ult');
   }
   // [시에] 본인 critDmg 버프 적용 + 본인 실제 critDmg 사용 (하드코딩 1.5배 제거)
