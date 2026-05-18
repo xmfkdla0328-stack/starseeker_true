@@ -136,7 +136,14 @@ export function processBattleTick({
       buffs: nextBuffs,
       enemies: nextEnemies,
       shieldJustExpired,
-      setBuffs: (newBuffs) => { nextBuffs = newBuffs; }, // 콜백을 통해 로컬 변수 업데이트
+      // [Bugfix] React useState와 동일하게 함수형 업데이터를 지원해야 함.
+      // skillExecutor.js의 서주목 ult가 `setBuffs(b => ({ ...b, damageReduction: {...} }))` 형태로 호출하므로,
+      // 인자가 함수면 현재 nextBuffs를 넣어 평가한 결과를 새 nextBuffs로 사용한다.
+      // (이전엔 함수 그대로 nextBuffs에 대입되어 이후 `{...nextBuffs}` 시 키가 사라지고 결과 객체가
+      //  단일 키만 가진 상태로 React state에 들어가 BattleControlZone이 `buffs.atk.active`에서 크래시했음.)
+      setBuffs: (updater) => {
+        nextBuffs = typeof updater === 'function' ? updater(nextBuffs) : updater;
+      },
       addLog,
       gainCausality,
       // [Step 7-c] 우선 타겟 정보 전달 (단일 타겟 공격에 한해 적용; AOE는 영향 없음).
