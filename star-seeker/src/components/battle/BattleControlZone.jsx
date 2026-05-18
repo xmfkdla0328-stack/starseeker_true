@@ -83,17 +83,17 @@ export default function BattleControlZone({ playerCausality, buffs, userStats, o
       <div className="flex gap-3 flex-1 mb-3 min-h-0">
         <button onClick={() => onUseSkill('atk')} className={`flex-1 flex flex-col items-center justify-center rounded-lg border backdrop-blur-md transition-all duration-300 group ${buffs.atk.active ? 'border-rose-500/50 bg-rose-500/10 shadow-[0_0_15px_rgba(244,63,94,0.2)]' : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/30 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] active:scale-95'}`}>
           <Sword size={18} className={`mb-1 transition-colors ${buffs.atk.active ? 'text-rose-400' : 'text-slate-400 group-hover:text-rose-300'}`} />
-          <span className={`text-[10px] font-bold tracking-wide ${buffs.atk.active ? 'text-rose-200' : 'text-slate-300 group-hover:text-white'}`}>ATTACK</span>
+          <span className={`text-[10px] font-bold tracking-wide ${buffs.atk.active ? 'text-rose-200' : 'text-slate-300 group-hover:text-white'}`}>무력 강화</span>
           <span className="text-[9px] text-slate-500 font-mono mt-0.5">{buffs.atk.active ? `${(buffs.atk.timeLeft/1000).toFixed(1)}s` : '10 CP'}</span>
         </button>
         <button onClick={() => onUseSkill('shield')} className={`flex-1 flex flex-col items-center justify-center rounded-lg border backdrop-blur-md transition-all duration-300 group ${buffs.shield.active ? 'border-cyan-500/50 bg-cyan-500/10 shadow-[0_0_15px_rgba(34,211,238,0.2)]' : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/30 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] active:scale-95'}`}>
           <Shield size={18} className={`mb-1 transition-colors ${buffs.shield.active ? 'text-cyan-400' : 'text-slate-400 group-hover:text-cyan-300'}`} />
-          <span className={`text-[10px] font-bold tracking-wide ${buffs.shield.active ? 'text-cyan-200' : 'text-slate-300 group-hover:text-white'}`}>DEFENSE</span>
+          <span className={`text-[10px] font-bold tracking-wide ${buffs.shield.active ? 'text-cyan-200' : 'text-slate-300 group-hover:text-white'}`}>절대 방어</span>
           <span className="text-[9px] text-slate-500 font-mono mt-0.5">{buffs.shield.active ? `${(buffs.shield.timeLeft/1000).toFixed(1)}s` : '20 CP'}</span>
         </button>
         <button onClick={() => onUseSkill('speed')} className={`flex-1 flex flex-col items-center justify-center rounded-lg border backdrop-blur-md transition-all duration-300 group ${buffs.speed.active ? 'border-amber-500/50 bg-amber-500/10 shadow-[0_0_15px_rgba(251,191,36,0.2)]' : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/30 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] active:scale-95'}`}>
           <Zap size={18} className={`mb-1 transition-colors ${buffs.speed.active ? 'text-amber-400' : 'text-slate-400 group-hover:text-amber-300'}`} />
-          <span className={`text-[10px] font-bold tracking-wide ${buffs.speed.active ? 'text-amber-200' : 'text-slate-300 group-hover:text-white'}`}>HASTE</span>
+          <span className={`text-[10px] font-bold tracking-wide ${buffs.speed.active ? 'text-amber-200' : 'text-slate-300 group-hover:text-white'}`}>시간 가속</span>
           <span className="text-[9px] text-slate-500 font-mono mt-0.5">{buffs.speed.active ? `${(buffs.speed.timeLeft/1000).toFixed(1)}s` : '30 CP'}</span>
         </button>
       </div>
