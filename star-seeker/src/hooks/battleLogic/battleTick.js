@@ -2,6 +2,12 @@ import { handleAllyActions } from './actionManager';
 import { manageBuffs } from './buffManager';
 import { handleEnemyActions } from './enemyActionManager';
 import { calculateDamage } from './damageCalculator';
+import {
+  CAUSALITY_SKILLS,
+  CAUSALITY_SKILL_ORDER,
+  applySkillSideEffects,
+  autoActivateLog,
+} from '../../data/causalitySkills';
 
 /**
  * 전투의 1 프레임(Tick)을 처리하는 순수 로직 함수
@@ -17,10 +23,8 @@ import { calculateDamage } from './damageCalculator';
 //   - "콤보 인지" 없음 → ATTACK 없이도 HASTE가 단독 발동 (화력 곱연산 손해 가능)
 //   - "CP 캡 안전망" 없음 → 100 캡 적립 손실 가능
 //   사용자는 수동 모드에서 직접 타이밍을 잡아 위 비효율을 피할 수 있음.
-const SKILL_ORDER = ['atk', 'shield', 'speed']; // 비용 오름차순 (10/20/30)
-const SKILL_COST = { atk: 10, shield: 20, speed: 30 };
-const SKILL_DURATION = { atk: 10000, shield: 5000, speed: 10000 };
-const SKILL_LABEL = { atk: '무력 강화', shield: '절대 방어', speed: '시간 가속' };
+// [Refactor] 비용/지속/라벨/사이드이펙트는 data/causalitySkills.js의 단일 소스 사용.
+// CAUSALITY_SKILL_ORDER가 평가 순서(비용 오름차순)이고, 각 스킬은 CAUSALITY_SKILLS[id].
 
 export function processBattleTick({
   currentAllies,
@@ -186,21 +190,22 @@ export function processBattleTick({
   let autoSkillCost = 0;
   let autoSkillTriggered = null;
   if (battleMode === 'auto') {
-    for (const skill of SKILL_ORDER) {
-      if (nextBuffs[skill]?.active) continue; // 활성 중이면 건너뛰고 다음 비싼 스킬 평가
-      if (currentPlayerCausality < SKILL_COST[skill]) continue; // CP 부족
+    for (const skillId of CAUSALITY_SKILL_ORDER) {
+      const skill = CAUSALITY_SKILLS[skillId];
+      if (nextBuffs[skillId]?.active) continue; // 활성 중이면 건너뛰고 다음 비싼 스킬 평가
+      if (currentPlayerCausality < skill.cost) continue; // CP 부족
       // 발동
-      autoSkillTriggered = skill;
-      autoSkillCost = SKILL_COST[skill];
-      if (skill === 'shield') {
-        // SHIELD는 buff active와 더불어 살아있는 아군에게 보호막 부여 (수동 useSkill과 동일)
-        nextAllies = nextAllies.map(a => a.hp > 0 ? { ...a, shield: Math.floor(a.maxHp * 0.3) } : a);
+      autoSkillTriggered = skillId;
+      autoSkillCost = skill.cost;
+      // 사이드이펙트(SHIELD의 보호막 부여 등) — 수동 useSkill과 동일 헬퍼로 동작 일치 보장.
+      if (skill.sideEffects.length > 0) {
+        nextAllies = applySkillSideEffects(skill, nextAllies);
       }
       nextBuffs = {
         ...nextBuffs,
-        [skill]: { ...nextBuffs[skill], active: true, timeLeft: SKILL_DURATION[skill] }
+        [skillId]: { ...nextBuffs[skillId], active: true, timeLeft: skill.durationMs },
       };
-      addLog(`>>> [자동 인과율 개입] ${SKILL_LABEL[skill]} 활성화`, 'skill');
+      addLog(autoActivateLog(skillId), 'skill');
       break; // 한 틱당 1개만 발동
     }
   }

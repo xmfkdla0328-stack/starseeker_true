@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CAUSALITY_MAX } from '../../data/gameData';
 import { ENEMIES, ENEMY_TEMPLATE, MAX_ENEMIES_PER_BATTLE, ENEMY_LINEUPS } from '../../data/enemyData'; 
+import { CAUSALITY_SKILLS, CAUSALITY_SKILL_ORDER } from '../../data/causalitySkills';
 
 /**
  * enemyId 파라미터를 정규화하여 적 인스턴스 데이터 ID 목록을 반환.
@@ -50,12 +51,18 @@ export default function useBattleState(initialParty, userStats, hpMultiplier, en
   // - 단일 타겟 일반/궁(궁은 7-d에서 다룸) 공격에서 alive면 잡몹 우선 정렬을 무시하고 이쪽을 우선 타겟
   const [priorityTargetIdx, setPriorityTargetIdx] = useState(null);
   
-  const [buffs, setBuffs] = useState({
-    atk: { active: false, timeLeft: 0, val: 0.2 },
-    shield: { active: false, timeLeft: 0, val: 0 },
-    speed: { active: false, timeLeft: 0, val: 1.2 },
-    damageReduction: { active: false, timeLeft: 0, val: 0.0 },
-    regen: { active: false, timeLeft: 0, val: 0 },
+  // 초기 buffs:
+  //  - atk/shield/speed는 인과력 스킬(causalitySkills.js)에서 buffInitialVal을 끌어옴 — 단일 데이터 소스.
+  //  - damageReduction/regen은 player-invokable 스킬이 아니라 아군 ult가 setBuffs로 켜고 끄는
+  //    내부 효과라 이 모듈의 초기값으로 남겨둠.
+  const [buffs, setBuffs] = useState(() => {
+    const initial = {};
+    for (const id of CAUSALITY_SKILL_ORDER) {
+      initial[id] = { active: false, timeLeft: 0, val: CAUSALITY_SKILLS[id].buffInitialVal };
+    }
+    initial.damageReduction = { active: false, timeLeft: 0, val: 0.0 };
+    initial.regen = { active: false, timeLeft: 0, val: 0 };
+    return initial;
   });
 
   // [수정] type 파라미터 추가 및 기본값 설정

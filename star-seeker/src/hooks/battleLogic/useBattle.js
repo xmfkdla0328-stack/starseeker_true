@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { TICK_RATE } from '../../data/gameData';
+import { CAUSALITY_SKILLS, applySkillSideEffects } from '../../data/causalitySkills';
 import useBattleState from './useBattleState';
 import { processBattleTick } from './battleTick';
 
@@ -268,28 +269,31 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
     setIsPaused(prev => forceState !== undefined ? forceState : !prev);
   }, []);
 
+  // [Refactor] 모든 비용/지속/라벨/사이드이펙트는 data/causalitySkills.js에서 읽음 (SSOT).
+  // 행동 자체는 그대로: CP 차감 → 사이드이펙트(shield grant 등) → buff active+timeLeft 셋 → 로그.
   const useSkill = (type) => {
     if (!isBattleStarted || isPaused || cutInInfo) return;
 
-    const cost = { atk: 10, shield: 20, speed: 30 };
-    if (playerCausality < cost[type]) { 
-        addLog("CP(인과력)가 부족합니다.", "system"); 
-        return; 
+    const skill = CAUSALITY_SKILLS[type];
+    if (!skill) return;
+
+    if (playerCausality < skill.cost) {
+      addLog("CP(인과력)가 부족합니다.", "system");
+      return;
     }
 
-    setPlayerCausality(prev => prev - cost[type]);
+    setPlayerCausality(prev => prev - skill.cost);
 
-    if (type === 'atk') {
-      setBuffs(prev => ({ ...prev, atk: { ...prev.atk, active: true, timeLeft: 10000 } }));
-      addLog(">>> [인과율 개입] 무력 강화 활성화", "skill");
-    } else if (type === 'shield') {
-      setAllies(prev => prev.map(a => ({ ...a, shield: Math.floor(a.maxHp * 0.3) })));
-      setBuffs(prev => ({ ...prev, shield: { ...prev.shield, active: true, timeLeft: 5000 } }));
-      addLog(">>> [인과율 개입] 절대 방어 활성화", "skill");
-    } else if (type === 'speed') {
-      setBuffs(prev => ({ ...prev, speed: { ...prev.speed, active: true, timeLeft: 10000 } }));
-      addLog(">>> [인과율 개입] 시간 가속 활성화", "skill");
+    if (skill.sideEffects.length > 0) {
+      setAllies(prev => applySkillSideEffects(skill, prev));
     }
+
+    setBuffs(prev => ({
+      ...prev,
+      [type]: { ...prev[type], active: true, timeLeft: skill.durationMs },
+    }));
+
+    addLog(skill.activateLog, "skill");
   };
 
   const startBattle = () => {
