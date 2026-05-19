@@ -1,3 +1,5 @@
+import { MEMORY_EFFECT_META } from '../../data/memoryEffectMeta';
+
 /**
  * 단일 유닛(아군/적)에게 현재 적용 중인 모든 상태 효과를 단일 배열로 집계한다.
  * 인스펙터 UI는 이 함수 한 번 호출로 카드에 표시할 효과 리스트를 얻는다.
@@ -137,9 +139,3 @@ export function getUnitStatusEffects(unit, globalBuffs, side = 'ally') {
 
   return out;
 }
-
-const MEMORY_EFFECT_META = {
-  DMG_UP: { label: '피해량 증가', kind: 'passive', detail: '공격력 ↑' },
-  HEAL_UP: { label: '회복량 증가', kind: 'passive', detail: '치유 ↑' },
-  DMG_REDUCE: { label: '피해 감소', kind: 'passive', detail: '피격 -' },
-};
