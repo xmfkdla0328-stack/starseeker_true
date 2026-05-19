@@ -1,5 +1,6 @@
 import React from 'react';
 import { Crosshair } from 'lucide-react';
+import useLongPress from '../../hooks/useLongPress';
 
 /**
  * 잡몹용 컴팩트 디스플레이.
@@ -19,12 +20,25 @@ export default function MinionEnemyDisplay({
   isManualMode = false,
   isPriorityTarget = false,
   onSelect,
+  // [Step 8 Phase 2] 적 인스펙터: 길게 누름 → onInspect 호출. 모드 무관.
+  onInspect,
 }) {
   if (!enemy) return null;
 
   const isDead = enemy.hp <= 0;
   const hpPercent = Math.max(0, (enemy.hp / enemy.maxHp) * 100);
-  const clickable = isManualMode && !isDead && !!onSelect;
+  const shortTapEnabled = isManualMode && !isDead && !!onSelect;
+  const longPressEnabled = !isDead && !!onInspect;
+  const isInteractive = shortTapEnabled || longPressEnabled;
+
+  // AllyCard/BossSlot과 동일 정책: 같은 핸들러 셋이 짧은 탭/긴 누름을 분기.
+  const longPressHandlers = useLongPress(
+    longPressEnabled ? () => onInspect() : undefined,
+    {
+      delay: 500,
+      onShortTap: shortTapEnabled ? () => onSelect() : undefined,
+    },
+  );
 
   return (
     <div
@@ -32,16 +46,17 @@ export default function MinionEnemyDisplay({
         isDead ? 'opacity-30 grayscale scale-90' : 'opacity-100'
       }`}
     >
-      {/* 이미지 슬롯 (팝업 타겟). [Step 7-c] 수동 모드에서 클릭하면 우선 타겟 마킹 토글. */}
+      {/* 이미지 슬롯 (팝업 타겟). [Step 7-c] 수동 모드 짧은 탭 = 우선 타겟 토글, 길게 누름 = 인스펙터. */}
       <div
         id={slotId}
-        onClick={clickable ? (e) => { e.stopPropagation(); onSelect(); } : undefined}
-        role={clickable ? 'button' : undefined}
+        {...(isInteractive ? longPressHandlers : {})}
+        role={isInteractive ? 'button' : undefined}
+        style={isInteractive ? { touchAction: 'manipulation', userSelect: 'none', WebkitUserSelect: 'none' } : undefined}
         className={`relative w-14 h-14 rounded-md border bg-slate-900/70 backdrop-blur-sm flex items-center justify-center overflow-hidden transition-all
           ${isPriorityTarget
             ? 'border-sky-300 shadow-[0_0_14px_rgba(56,189,248,0.85)] scale-105'
             : 'border-slate-300/50 shadow-[0_0_8px_rgba(255,255,255,0.2)]'}
-          ${clickable ? 'cursor-pointer hover:border-sky-300/70 active:scale-95' : ''}
+          ${isInteractive ? 'cursor-pointer hover:border-sky-300/70 active:scale-95' : ''}
         `}
       >
         {enemy.image ? (

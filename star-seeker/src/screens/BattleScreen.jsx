@@ -86,6 +86,13 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
     setInspectorTarget({ kind: 'ally', id: allyId });
     setPauseSource('inspector');
   };
+  // [Step 8 Phase 2] 적 인스펙터.
+  // 적은 같은 종류가 다수 등장할 수 있어 enemy.id로는 식별이 모호함(같은 id 공유).
+  // useBattleState에서 부여하는 instanceId(예: 'recorder_page#0')를 기준으로 lookup.
+  const handleInspectEnemy = (enemyInstanceId) => {
+    setInspectorTarget({ kind: 'enemy', id: enemyInstanceId });
+    setPauseSource('inspector');
+  };
   const closeInspector = () => {
     setInspectorTarget(null);
     setPauseSource(null);
@@ -96,7 +103,7 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
   const inspectedUnit = inspectorTarget
     ? (inspectorTarget.kind === 'ally'
         ? allies.find(a => a.id === inspectorTarget.id)
-        : enemies.find(e => e.id === inspectorTarget.id))
+        : enemies.find(e => (e.instanceId || e.id) === inspectorTarget.id))
     : null;
 
   // 가드: 대상 유닛이 사라지면(예: 적이 처치되어 배열에서 제거) 인스펙터를 자동 닫아
@@ -176,6 +183,7 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
                 battleMode={battleMode}
                 priorityTargetIdx={priorityTargetIdx}
                 onSelectPriority={setPriorityTarget}
+                onInspectEnemy={handleInspectEnemy}
             />
         )}
       </EnemyArea>

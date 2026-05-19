@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, Zap, Crosshair } from 'lucide-react';
 import { ENEMY_CAUSALITY_TRIGGER } from '../../data/gameData';
+import useLongPress from '../../hooks/useLongPress';
 
 /**
  * 보스급 적 단일 표시 컴포넌트.
@@ -19,6 +20,10 @@ export default function BossEnemyDisplay({
   isManualMode = false,
   isPriorityTarget = false,
   onSelect,
+  // [Step 8 Phase 2] 적 인스펙터: 길게 누름으로 호출.
+  //  - 짧은 탭(수동 모드 + 살아있음): onSelect(우선 타겟 토글)
+  //  - 길게 누름(살아있으면 항상): onInspect
+  onInspect,
 }) {
   const [circleActive, setCircleActive] = useState(false);
 
@@ -88,13 +93,12 @@ export default function BossEnemyDisplay({
 
       {/* 2. 원형 감옥 이펙트 — flex-1 min-h-0 으로 남는 세로 공간 흡수 (짧은 화면에선 시각적으로 압축됨) */}
       <div className={`relative flex-1 min-h-0 w-full flex items-center justify-center transition-all duration-500 z-0 ${enemy.hp <= 0 ? 'opacity-0 scale-95 blur-sm' : 'opacity-100 scale-100'} ${circleActive ? 'opacity-100' : 'opacity-0'}`}>
-         <div
-            id={slotId}
-            onClick={(isManualMode && enemy.hp > 0 && onSelect) ? (e) => { e.stopPropagation(); onSelect(); } : undefined}
-            role={(isManualMode && enemy.hp > 0 && onSelect) ? 'button' : undefined}
-            className={`relative w-64 h-64 flex items-center justify-center mt-4 ${
-              isManualMode && enemy.hp > 0 ? 'cursor-pointer pointer-events-auto z-30' : ''
-            }`}
+         <BossSlot
+            slotId={slotId}
+            enemy={enemy}
+            isManualMode={isManualMode}
+            onSelect={onSelect}
+            onInspect={onInspect}
          >
             {/* [Step 5-2b-iii v2] WARNING 배지 — 원형 감옥 정중앙(=보스 이미지 위)에 오버레이.
                 이전엔 -top-7로 감옥 위쪽에 띄웠는데, PC/태블릿처럼 화면이 커지면 거대 보스 이미지가
@@ -142,7 +146,7 @@ export default function BossEnemyDisplay({
                    <span className="absolute text-5xl select-none grayscale opacity-80 z-10">👾</span>
                )}
             </div>
-         </div>
+         </BossSlot>
       </div>
 
       {/* 거대 보스 이미지 레이어 */}
@@ -185,6 +189,41 @@ export default function BossEnemyDisplay({
         </div>
       </div>
 
+    </div>
+  );
+}
+
+/**
+ * 보스 슬롯(원형 감옥) — 짧은 탭(우선 타겟)과 길게 누름(인스펙터)을 함께 처리하기 위해
+ * 별도 컴포넌트로 분리. useLongPress가 짧은 탭/긴 누름을 통합 분기한다.
+ *  - 짧은 탭: 수동 모드 + 살아있음에서 onSelect 호출(우선 타겟 토글)
+ *  - 길게 누름: 살아있으면 모드 무관하게 onInspect 호출
+ */
+function BossSlot({ slotId, enemy, isManualMode, onSelect, onInspect, children }) {
+  const alive = enemy.hp > 0;
+  const shortTapEnabled = isManualMode && alive && !!onSelect;
+  const longPressEnabled = alive && !!onInspect;
+
+  const longPressHandlers = useLongPress(
+    longPressEnabled ? () => onInspect() : undefined,
+    {
+      delay: 500,
+      onShortTap: shortTapEnabled ? () => onSelect() : undefined,
+    },
+  );
+  const isInteractive = shortTapEnabled || longPressEnabled;
+
+  return (
+    <div
+      id={slotId}
+      {...(isInteractive ? longPressHandlers : {})}
+      role={isInteractive ? 'button' : undefined}
+      style={isInteractive ? { touchAction: 'manipulation', userSelect: 'none', WebkitUserSelect: 'none' } : undefined}
+      className={`relative w-64 h-64 flex items-center justify-center mt-4 ${
+        isInteractive ? 'cursor-pointer pointer-events-auto z-30' : ''
+      }`}
+    >
+      {children}
     </div>
   );
 }

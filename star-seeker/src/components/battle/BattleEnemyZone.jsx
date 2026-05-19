@@ -29,6 +29,9 @@ export default function BattleEnemyZone({
   battleMode = 'auto',
   priorityTargetIdx = null,
   onSelectPriority,
+  // [Step 8 Phase 2] 적 인스펙터 props. 길게 누름 → onInspectEnemy(enemy.instanceId).
+  // 우선 타겟 마킹(짧은 탭)과 공존하며, 자동 모드에서도 인스펙터는 항상 열 수 있다.
+  onInspectEnemy,
 }) {
   if (!enemies || enemies.length === 0) return null;
   const isManual = battleMode === 'manual';
@@ -62,6 +65,7 @@ export default function BattleEnemyZone({
         isManualMode={isManual}
         isPriorityTarget={priorityTargetIdx === bossIdx}
         onSelect={onSelectPriority ? () => onSelectPriority(bossIdx) : undefined}
+        onInspect={onInspectEnemy ? () => onInspectEnemy(primary.instanceId || primary.id) : undefined}
       />
     );
   }
@@ -77,6 +81,7 @@ export default function BattleEnemyZone({
         isManualMode={isManual}
         isPriorityTarget={priorityTargetIdx === bossIdx}
         onSelect={onSelectPriority ? () => onSelectPriority(bossIdx) : undefined}
+        onInspect={onInspectEnemy ? () => onInspectEnemy(primary.instanceId || primary.id) : undefined}
       />
 
       {/* 잡몹 행: 보스 발치 (보스 게이지 위쪽)에 좌우 분배 배치 */}
@@ -96,6 +101,7 @@ export default function BattleEnemyZone({
               isManualMode={isManual}
               isPriorityTarget={priorityTargetIdx === idx}
               onSelect={onSelectPriority ? () => onSelectPriority(idx) : undefined}
+              onInspect={onInspectEnemy ? () => onInspectEnemy(enemy.instanceId || enemy.id) : undefined}
             />
           ))}
         </div>
@@ -113,6 +119,7 @@ export default function BattleEnemyZone({
               isManualMode={isManual}
               isPriorityTarget={priorityTargetIdx === idx}
               onSelect={onSelectPriority ? () => onSelectPriority(idx) : undefined}
+              onInspect={onInspectEnemy ? () => onInspectEnemy(enemy.instanceId || enemy.id) : undefined}
             />
           ))}
         </div>
