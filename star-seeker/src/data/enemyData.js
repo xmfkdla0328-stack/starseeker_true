@@ -149,14 +149,18 @@ export const ENEMIES = {
         mult: 2.8,
         isAoe: true,
         chargeTime: 2500,
-        causalityGain: 8
+        causalityGain: 8,
+        // [enemyEffects] 발동 시 자기 진영(보스+잡몹)에 '결말 확인'(spd +20%, 5s) 자버프 부여.
+        effect: 'ending_confirmed'
       },
       causality: {
         name: "기록의 말소",
         desc: "표적의 기록 자체를 지워낸다.",
         mult: 5.5,
         isAoe: true,
-        chargeTime: 4000
+        chargeTime: 4000,
+        // [enemyEffects] 발동 시 아군 전원에게 '완결 거부'(spd -20%, 5s) 디버프 부여.
+        effect: 'closure_denial'
       }
     }
   }

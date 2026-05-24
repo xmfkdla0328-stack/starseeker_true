@@ -121,7 +121,10 @@ export default function useBattleState(initialParty, userStats, hpMultiplier, en
         maxUltGauge: 100,
         shield: 0,
         efficiency: char.efficiency || 1.0,
-        selfBuffs: { atkUp: 0, critDmgUp: 0, buffTime: 0 }
+        selfBuffs: { atkUp: 0, critDmgUp: 0, buffTime: 0 },
+        // [enemyEffects] 적에게서 받은 디버프(또는 후일 아군 자버프) 슬롯.
+        // 항목: { effectId, timeLeft }. 데이터(이름/효과량)는 ENEMY_EFFECTS[effectId]에서 조회.
+        statusEffects: []
       };
     });
     setAllies(initializedAllies);
@@ -149,7 +152,9 @@ export default function useBattleState(initialParty, userStats, hpMultiplier, en
           causality: 0,
           isCharging: false,
           chargeTimer: 0,
-          chargingSkill: null
+          chargingSkill: null,
+          // [enemyEffects] 자기 진영 자버프(예: '결말 확인') 슬롯.
+          statusEffects: []
         };
       })
       .filter(Boolean);
@@ -165,7 +170,8 @@ export default function useBattleState(initialParty, userStats, hpMultiplier, en
         causality: 0,
         isCharging: false,
         chargeTimer: 0,
-        chargingSkill: null
+        chargingSkill: null,
+        statusEffects: []
       }];
     }
 

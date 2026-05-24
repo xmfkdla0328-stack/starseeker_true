@@ -8,6 +8,11 @@ import {
   applySkillSideEffects,
   autoActivateLog,
 } from '../../data/causalitySkills';
+import {
+  ENEMY_EFFECTS,
+  applyEnemyEffect,
+  tickStatusEffects,
+} from '../../data/enemyEffects';
 
 /**
  * 전투의 1 프레임(Tick)을 처리하는 순수 로직 함수
@@ -59,16 +64,24 @@ export function processBattleTick({
     nextBuffs = updatedBuffs;
   }
 
+  // [enemyEffects] 1-b. 상태이상(아군 디버프 / 적 자버프) 시간 감소 및 만료 처리.
+  // 데미지/행동 처리 전에 미리 1틱 차감하여, 만료된 효과가 이번 틱 행동에 영향을 주지 않도록 함.
+  nextAllies = nextAllies.map(a => tickStatusEffects(a, addLog));
+  nextEnemies = nextEnemies.map(e => tickStatusEffects(e, addLog));
+
   // 2. 적의 행동 (Enemy Action) — 살아있는 모든 적이 각자 행동
   // 각 적의 결과를 enemies 배열에 반영하고, 각 적이 발생시킨 피격 데미지는 합쳐서 처리
   const allDamageToAllies = [];
   const enemyDamageSourceMap = new Map(); // hit별 가해자 추적 (크리 계산용)
 
+  // [enemyEffects] 이 틱에 적군 스킬로 인해 부여될 상태이상 큐 (데미지 적용 후 일괄 처리).
+  const pendingEffects = [];
+
   for (let ei = 0; ei < nextEnemies.length; ei++) {
     const enemy = nextEnemies[ei];
     if (!enemy || enemy.hp <= 0) continue;
 
-    const { updatedEnemy, damageToAllies, triggeredEnemyCutIn } = handleEnemyActions({ 
+    const { updatedEnemy, damageToAllies, triggeredEnemyCutIn, effectsToApply } = handleEnemyActions({ 
         enemy, 
         allies: nextAllies, 
         addLog 
@@ -91,6 +104,22 @@ export function processBattleTick({
             // 크리 계산은 가해자 stat 기반이므로 누가 때렸는지 기억해둠
             enemyDamageSourceMap.set(d, updatedEnemy || enemy);
         });
+    }
+
+    if (effectsToApply && effectsToApply.length > 0) {
+        pendingEffects.push(...effectsToApply);
+    }
+  }
+
+  // [enemyEffects] 적 스킬 데미지 처리 직전에 상태이상 부여 (데미지와 동시 적용 의도).
+  // 부여 후에는 nextAllies/nextEnemies가 새 참조를 갖게 되므로, 이어지는 데미지 적용은 갱신된 배열로 진행.
+  if (pendingEffects.length > 0) {
+    for (const { effectId, sourceName } of pendingEffects) {
+      const effect = ENEMY_EFFECTS[effectId];
+      if (!effect) continue;
+      const result = applyEnemyEffect(effect, nextAllies, nextEnemies, sourceName, addLog);
+      nextAllies = result.allies;
+      nextEnemies = result.enemies;
     }
   }
 

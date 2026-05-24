@@ -1,5 +1,6 @@
 import { ACTION_THRESHOLD, TICK_RATE } from '../../data/gameData';
 import { executeUltimateSkill, executeNormalSkill } from './skillExecutor';
+import { getStatusModifier } from '../../data/enemyEffects';
 
 /**
  * [Step 4] 살아있는 적 인덱스를 잡몹 우선 → 보스 순으로 반환.
@@ -84,7 +85,9 @@ export function handleAllyActions({
     }
 
     const speedMultiplier = buffs.speed.active ? buffs.speed.val : 1;
-    ally.actionGauge += (ally.spd * speedMultiplier * (1 + Math.random() * 0.1));
+    // [enemyEffects] 적에게서 받은 spd 디버프 적용. 효과 없으면 1.
+    const statusSpdMult = getStatusModifier(ally, 'spd');
+    ally.actionGauge += (ally.spd * speedMultiplier * statusSpdMult * (1 + Math.random() * 0.1));
 
     // [Fix] 5. 행동 실행 (게이지 100% 도달하여 "내 턴"이 되었을 때!)
     if (ally.actionGauge >= ACTION_THRESHOLD) {

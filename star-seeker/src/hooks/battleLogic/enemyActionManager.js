@@ -1,4 +1,5 @@
 import { ACTION_THRESHOLD, TICK_RATE, ENEMY_CAUSALITY_TRIGGER } from '../../data/gameData';
+import { getStatusModifier } from '../../data/enemyEffects';
 
 function selectRandomAlly(allies) {
   const aliveAllies = allies.filter(a => a.hp > 0);
@@ -18,9 +19,12 @@ export function handleEnemyActions(context) {
     let damageToAllies = [];
     // [Step 5-2a] 보스 궁극기 발동 시 컷인 트리거. 차징 종료(=데미지 직전) 타이밍에만 발화.
     let triggeredEnemyCutIn = null;
+    // [enemyEffects] 이번 행동에서 부여할 효과들 (battleTick이 일괄 적용).
+    // 항목: { effectId, sourceName }
+    let effectsToApply = [];
 
     if (enemy.hp <= 0) {
-        return { updatedEnemy: { ...enemy }, damageToAllies: [], triggeredEnemyCutIn: null };
+        return { updatedEnemy: { ...enemy }, damageToAllies: [], triggeredEnemyCutIn: null, effectsToApply: [] };
     }
     
     // 1. 충전 상태 처리
@@ -56,7 +60,13 @@ export function handleEnemyActions(context) {
             if (skillData) {
                 // [수정] 스킬 발동 로그 (데미지는 광역일 수 있어 여기서 합치기 애매하므로 발동 로그만 강조)
                 addLog(`☄️ ${enemy.name}의 [${skillData.name}] 발동!`, logType);
-                
+
+                // [enemyEffects] 스킬에 effect 필드가 있으면 부여 효과를 큐에 추가.
+                // 데미지와 동시 적용 (battleTick이 데미지 적용 직전에 effectsToApply 일괄 처리).
+                if (skillData.effect) {
+                    effectsToApply.push({ effectId: skillData.effect, sourceName: enemy.name });
+                }
+
                 if (skillData.isAoe) {
                     allies.forEach(ally => {
                         if (ally.hp > 0) {
@@ -78,7 +88,9 @@ export function handleEnemyActions(context) {
     }
     // 2. 일반 상태
     else {
-        newActionGauge += (enemy.baseSpd * (1 + Math.random() * 0.1));
+        // [enemyEffects] 자버프(예: '결말 확인' spd +20%) 적용. 효과 없으면 1.
+        const statusSpdMult = getStatusModifier(enemy, 'spd');
+        newActionGauge += (enemy.baseSpd * statusSpdMult * (1 + Math.random() * 0.1));
 
         if (newActionGauge >= ACTION_THRESHOLD) {
             newActionGauge = 0;
@@ -137,6 +149,8 @@ export function handleEnemyActions(context) {
             chargingSkill
         },
         damageToAllies,
-        triggeredEnemyCutIn
+        triggeredEnemyCutIn,
+        // [enemyEffects] 이 적이 이번 틱에 발생시킨 상태이상 부여 요청.
+        effectsToApply
     };
 }
