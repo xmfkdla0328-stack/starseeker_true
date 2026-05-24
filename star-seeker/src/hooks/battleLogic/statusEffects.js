@@ -1,4 +1,27 @@
 import { MEMORY_EFFECT_META } from '../../data/memoryEffectMeta';
+import { ENEMY_EFFECTS } from '../../data/enemyEffects';
+
+// unit.statusEffects(적 스킬이 부여하는 디버프/자버프)를 인스펙터 항목으로 변환.
+// 아군: kind='debuff'(빨강+경고 아이콘), 적: kind='buff'(초록+반짝 아이콘) — KIND_META의 폴백 사용.
+function pushUnitStatusEffects(out, unit, side) {
+  if (!unit || !Array.isArray(unit.statusEffects)) return;
+  for (const eff of unit.statusEffects) {
+    const meta = ENEMY_EFFECTS[eff.effectId];
+    if (!meta) continue;
+    // 표시 상세: 스탯 보정량을 사람이 읽기 쉬운 % 형태로.
+    const sign = meta.mult >= 0 ? '+' : '';
+    const statLabel = meta.stat === 'spd' ? '행동 속도' : meta.stat;
+    out.push({
+      id: `status-${eff.effectId}`,
+      // side 기준이 아니라 효과 본연의 kind로 분류 (디버프=빨강, 버프=초록)
+      kind: meta.kind === 'debuff' ? 'debuff' : 'buff',
+      label: meta.name,
+      detail: `${statLabel} ${sign}${Math.round(meta.mult * 100)}%`,
+      timeLeftMs: eff.timeLeft,
+      source: 'self',
+    });
+  }
+}
 
 /**
  * 단일 유닛(아군/적)에게 현재 적용 중인 모든 상태 효과를 단일 배열로 집계한다.
@@ -125,6 +148,9 @@ export function getUnitStatusEffects(unit, globalBuffs, side = 'ally') {
       { causalityLabel: '피해 감소', detailFn: (v) => `피해 감소 -${Math.round((v || 0) * 100)}%` });
     pushGlobalBuff(out, 'global-regen',       gb.regen,
       { causalityLabel: '재생', detailFn: (v) => v ? `재생 +${Math.round(v)}/턴` : undefined });
+
+    // [enemyEffects] 적 스킬로 받은 디버프(예: 완결 거부).
+    pushUnitStatusEffects(out, unit, side);
   } else if (side === 'enemy') {
     if (unit.isCharging) {
       out.push({
@@ -134,7 +160,8 @@ export function getUnitStatusEffects(unit, globalBuffs, side = 'ally') {
         source: 'self',
       });
     }
-    // 향후 enemy debuff 시스템 도입 시 여기에 추가
+    // [enemyEffects] 적 자버프(예: 결말 확인). 보스/잡몹 공통.
+    pushUnitStatusEffects(out, unit, side);
   }
 
   return out;
