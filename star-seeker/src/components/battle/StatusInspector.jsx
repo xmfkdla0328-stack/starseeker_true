@@ -6,25 +6,25 @@ import React, { useEffect } from 'react';
 import { X, Sparkles, Shield, ShieldHalf, Zap, Heart, AlertTriangle, Plus, Sword } from 'lucide-react';
 import { getUnitStatusEffects } from '../../hooks/battleLogic/statusEffects';
 
-// 시각 컨벤션 — 역할별로 색/아이콘 통일.
-//  attack          : 빨강    + 칼   (공격력/치명피해 강화)
-//  heal            : 초록    + +    (지속 회복 등 치료)
-//  shield          : 파랑    + 방패  (실드 잔량)
-//  damageReduction : 남색    + 채워진 방패 (피해 감소)
-//  causality       : 노랑    + 별   (인과력 스킬 — 오로지 이쪽만 사용)
-//  passive         : 하늘    + 번개 (영구 패시브 메모리 효과)
-//  charging        : 장미    + 경고 (적 차징)
+// 시각 컨벤션 — 외곽선으로만 카테고리 구분 (중립적인 시각 처리).
+//  일반 버프(attack/heal/shield/damageReduction/passive/buff) : 흰 외곽선 + 반투명 회색, 아이콘만 약하게 역할 색.
+//  인과력(causality) : 노란 외곽선 + 노란 라벨/아이콘.
+//  디버프(debuff/charging) : 빨간 외곽선 + 빨간 라벨/아이콘.
+// 아이콘은 카테고리 직관을 위해 유지하되, 색은 외곽선/라벨이 주도한다.
+const NEUTRAL  = { color: 'text-slate-200', labelColor: 'text-slate-100', bg: 'bg-white/5',  border: 'border-white/25' };
+const CAUSAL   = { color: 'text-amber-300', labelColor: 'text-amber-200', bg: 'bg-white/5',  border: 'border-amber-400/70' };
+const NEGATIVE = { color: 'text-rose-300',  labelColor: 'text-rose-200',  bg: 'bg-white/5',  border: 'border-rose-500/70' };
+
 const KIND_META = {
-  attack:          { color: 'text-rose-300',     bg: 'bg-rose-900/40',     border: 'border-rose-500/40',     icon: Sword },
-  heal:            { color: 'text-emerald-300',  bg: 'bg-emerald-900/40',  border: 'border-emerald-500/40',  icon: Plus },
-  shield:          { color: 'text-cyan-200',     bg: 'bg-cyan-900/40',     border: 'border-cyan-500/40',     icon: Shield },
-  damageReduction: { color: 'text-indigo-300',   bg: 'bg-indigo-900/40',   border: 'border-indigo-500/40',   icon: ShieldHalf },
-  causality:       { color: 'text-amber-300',    bg: 'bg-amber-900/40',    border: 'border-amber-500/40',    icon: Sparkles },
-  passive:         { color: 'text-sky-300',      bg: 'bg-sky-900/40',      border: 'border-sky-500/40',      icon: Zap },
-  charging:        { color: 'text-rose-300',     bg: 'bg-rose-900/40',     border: 'border-rose-500/40',     icon: AlertTriangle },
-  debuff:          { color: 'text-rose-300',     bg: 'bg-rose-900/40',     border: 'border-rose-500/40',     icon: AlertTriangle },
-  // 폴백 (이전 'buff' 카테고리 호환용)
-  buff:            { color: 'text-emerald-300',  bg: 'bg-emerald-900/40',  border: 'border-emerald-500/40',  icon: Sparkles },
+  attack:          { ...NEUTRAL, icon: Sword },
+  heal:            { ...NEUTRAL, icon: Plus },
+  shield:          { ...NEUTRAL, icon: Shield },
+  damageReduction: { ...NEUTRAL, icon: ShieldHalf },
+  passive:         { ...NEUTRAL, icon: Zap },
+  buff:            { ...NEUTRAL, icon: Sparkles },
+  causality:       { ...CAUSAL,  icon: Sparkles },
+  charging:        { ...NEGATIVE, icon: AlertTriangle },
+  debuff:          { ...NEGATIVE, icon: AlertTriangle },
 };
 
 const SOURCE_LABEL = {
@@ -128,7 +128,7 @@ export default function StatusInspector({ unit, side = 'ally', globalBuffs, onCl
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className={`text-sm font-bold ${meta.color}`}>{eff.label}</span>
+                      <span className={`text-sm font-bold ${meta.labelColor || meta.color}`}>{eff.label}</span>
                       {eff.source && SOURCE_LABEL[eff.source] && (
                         <span className="text-[9px] tracking-wider uppercase text-slate-400 bg-white/5 px-1.5 py-0.5 rounded">
                           {SOURCE_LABEL[eff.source]}
