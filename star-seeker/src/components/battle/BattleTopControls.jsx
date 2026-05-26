@@ -18,18 +18,21 @@ export default function BattleTopControls({
 
   return (
     <div className="absolute top-[76px] right-3 z-30 pointer-events-none">
-      <div className="pointer-events-auto inline-flex items-center gap-0">
+      {/* [정렬 픽스] 모든 자식을 동일 height(h-7)의 flex 박스에 넣고 items-center로 통일.
+          기존엔 아이콘(SVG, 가운데 정렬)과 슬래시(텍스트 baseline)가 서로 다른 기준으로
+          정렬되어 시각적으로 위아래로 어긋났음. h-7 컨테이너 + 각 셀에 items-center 강제. */}
+      <div className="pointer-events-auto inline-flex items-center h-7 gap-0">
         {/* 자동(∞) / 수동(∞ 흐림) */}
         <button
           type="button"
           onClick={onToggleBattleMode}
           title={isManual ? '수동 전투 — 탭하여 자동 전환' : '자동 전투 — 탭하여 수동 전환'}
-          className="pl-2 pr-1 py-1 rounded-full transition-colors duration-200 active:scale-95"
+          className="h-7 pl-2 pr-1 inline-flex items-center justify-center rounded-full transition-colors duration-200 active:scale-95"
         >
           <InfinityIcon
             size={22}
             strokeWidth={2.25}
-            className={`transition-all duration-200 ${
+            className={`block transition-all duration-200 ${
               isManual
                 ? 'text-slate-500/50'
                 : 'text-sky-300 drop-shadow-[0_0_8px_rgba(56,189,248,0.7)]'
@@ -37,21 +40,26 @@ export default function BattleTopControls({
           />
         </button>
 
-        {/* 옅은 슬래시 구분자 */}
-        <span aria-hidden className="text-slate-200 font-mono text-base font-bold select-none drop-shadow-[0_0_4px_rgba(0,0,0,0.8)]">/</span>
+        {/* 슬래시 구분자 — 같은 h-7 안에서 가운데 정렬 + leading-none로 baseline 영향 제거. */}
+        <span
+          aria-hidden
+          className="h-7 inline-flex items-center text-slate-200 font-mono text-base font-bold leading-none select-none drop-shadow-[0_0_4px_rgba(0,0,0,0.8)]"
+        >
+          /
+        </span>
 
         {/* 1배(▶) / 2배(▶▶) — 단일 토글 */}
         <button
           type="button"
           onClick={onToggleBattleSpeed}
           title={isFast ? '2배속 — 탭하여 1배속 전환' : '1배속 — 탭하여 2배속 전환'}
-          className="pl-1 pr-2 py-1 rounded-full transition-colors duration-200 active:scale-95"
+          className="h-7 pl-1 pr-2 inline-flex items-center justify-center rounded-full transition-colors duration-200 active:scale-95"
         >
           <span className="inline-flex items-center">
             <ChevronRight
-              size={20}
+              size={22}
               strokeWidth={2.5}
-              className={`transition-all duration-200 ${
+              className={`block transition-all duration-200 ${
                 isFast
                   ? 'text-amber-300 drop-shadow-[0_0_6px_rgba(251,191,36,0.7)]'
                   : 'text-slate-300'
@@ -59,9 +67,9 @@ export default function BattleTopControls({
             />
             {isFast && (
               <ChevronRight
-                size={20}
+                size={22}
                 strokeWidth={2.5}
-                className="text-amber-300 drop-shadow-[0_0_6px_rgba(251,191,36,0.7)] -ml-3"
+                className="block text-amber-300 drop-shadow-[0_0_6px_rgba(251,191,36,0.7)] -ml-3"
               />
             )}
           </span>
