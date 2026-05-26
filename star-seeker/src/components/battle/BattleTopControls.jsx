@@ -29,7 +29,7 @@ export default function BattleTopControls({
               ? 'text-sky-300 drop-shadow-[0_0_6px_rgba(56,189,248,0.5)]'
               : 'text-slate-300 hover:text-white'}`}
         >
-          {isManual ? 'MANUAL' : 'AUTO'}
+          {isManual ? '수동' : '자동'}
         </button>
 
         {/* 옅은 슬래시 구분자 */}
