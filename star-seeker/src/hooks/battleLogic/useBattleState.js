@@ -42,9 +42,10 @@ export default function useBattleState(initialParty, userStats, hpMultiplier, en
   const [enemies, setEnemies] = useState([]);
   const [playerCausality, setPlayerCausality] = useState(0);
   const [enemyWarning, setEnemyWarning] = useState(false);
-  // [Step 7-b] 전투 모드: 'auto' (자동, 기본) | 'manual' (수동 — ult만 사용자 발동, 우선 타겟 마킹).
-  // 이 단계에서는 state/토글만 깔아두고, 실제 분기 로직은 7-c (우선 타겟) / 7-d (ult 수동 발동)에서 추가.
-  const [battleMode, setBattleMode] = useState('auto');
+  // [Step 7-b] 전투 모드: 'auto' (자동) | 'manual' (수동 — ult만 사용자 발동, 우선 타겟 마킹).
+  // [7-e 폴리시] 기본값을 'manual'로 변경 — 전투 진입 시 사용자가 통제권을 갖고 시작하며,
+  // 자동 진행을 원하면 BattleControlZone의 토글 버튼을 직접 눌러 'auto'로 전환.
+  const [battleMode, setBattleMode] = useState('manual');
   // [Step 7-c] 수동 모드의 우선 타겟 마킹 (enemies 배열의 idx, 또는 null).
   // - 자동 모드에서는 무시 (사용 안 함)
   // - 적 사망/이탈 시 useBattle에서 자동 null로 정리
