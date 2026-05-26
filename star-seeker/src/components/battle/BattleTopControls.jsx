@@ -18,7 +18,7 @@ export default function BattleTopControls({
 
   return (
     <div className="absolute top-[88px] right-3 z-30 pointer-events-none">
-      <div className="pointer-events-auto inline-flex items-center gap-1 rounded-full bg-slate-900/45 backdrop-blur-md px-2 py-1 shadow-[0_4px_18px_rgba(0,0,0,0.35)]">
+      <div className="pointer-events-auto inline-flex items-center gap-1">
         {/* MANUAL / AUTO */}
         <button
           type="button"
@@ -33,7 +33,7 @@ export default function BattleTopControls({
         </button>
 
         {/* 옅은 슬래시 구분자 */}
-        <span aria-hidden className="text-slate-500/70 font-mono text-sm select-none">/</span>
+        <span aria-hidden className="text-slate-200 font-mono text-base font-bold select-none drop-shadow-[0_0_4px_rgba(0,0,0,0.8)]">/</span>
 
         {/* 1x / 2x — 단일 토글 */}
         <button
