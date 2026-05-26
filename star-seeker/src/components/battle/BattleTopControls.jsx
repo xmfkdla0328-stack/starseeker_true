@@ -17,14 +17,14 @@ export default function BattleTopControls({
   const isFast = battleSpeed === 2;
 
   return (
-    <div className="absolute top-[64px] right-3 z-30 pointer-events-none">
+    <div className="absolute top-[76px] right-3 z-30 pointer-events-none">
       <div className="pointer-events-auto inline-flex items-center gap-0">
         {/* MANUAL / AUTO */}
         <button
           type="button"
           onClick={onToggleBattleMode}
           title={isManual ? '수동 전투 — 탭하여 자동 전환' : '자동 전투 — 탭하여 수동 전환'}
-          className={`pl-2 pr-1 py-1 rounded-full font-mono text-sm font-bold tracking-wider transition-colors duration-200 active:scale-95
+          className={`pl-2 pr-1 py-1 rounded-full text-sm font-light uppercase tracking-[0.25em] transition-colors duration-200 active:scale-95
             ${isManual
               ? 'text-sky-300 drop-shadow-[0_0_6px_rgba(56,189,248,0.5)]'
               : 'text-slate-300 hover:text-white'}`}
@@ -33,14 +33,14 @@ export default function BattleTopControls({
         </button>
 
         {/* 옅은 슬래시 구분자 */}
-        <span aria-hidden className="text-slate-200 font-mono text-base font-bold select-none drop-shadow-[0_0_4px_rgba(0,0,0,0.8)]">/</span>
+        <span aria-hidden className="text-slate-200 text-base font-light select-none drop-shadow-[0_0_4px_rgba(0,0,0,0.8)]">/</span>
 
         {/* 1x / 2x — 단일 토글 */}
         <button
           type="button"
           onClick={onToggleBattleSpeed}
           title={isFast ? '2배속 — 탭하여 1배속 전환' : '1배속 — 탭하여 2배속 전환'}
-          className={`pl-1 pr-2 py-1 rounded-full font-mono text-sm font-bold tracking-wider transition-colors duration-200 active:scale-95
+          className={`pl-1 pr-2 py-1 rounded-full text-sm font-light uppercase tracking-[0.25em] transition-colors duration-200 active:scale-95
             ${isFast
               ? 'text-amber-300 drop-shadow-[0_0_6px_rgba(251,191,36,0.55)]'
               : 'text-slate-300 hover:text-white'}`}
