@@ -24,7 +24,7 @@ export default function BattleTopControls({
           type="button"
           onClick={onToggleBattleMode}
           title={isManual ? '수동 전투 — 탭하여 자동 전환' : '자동 전투 — 탭하여 수동 전환'}
-          style={{ fontFamily: '"Batang", "바탕", "Nanum Myeongjo", "Noto Serif KR", serif' }}
+          style={{ fontFamily: '"Dotum", "돋움", "Malgun Gothic", "맑은 고딕", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif' }}
           className={`pl-2 pr-1 py-1 rounded-full text-base font-semibold tracking-wider transition-colors duration-200 active:scale-95
             ${isManual
               ? 'text-sky-300 drop-shadow-[0_0_6px_rgba(56,189,248,0.5)]'
@@ -41,7 +41,7 @@ export default function BattleTopControls({
           type="button"
           onClick={onToggleBattleSpeed}
           title={isFast ? '2배속 — 탭하여 1배속 전환' : '1배속 — 탭하여 2배속 전환'}
-          className={`pl-1 pr-2 py-1 rounded-full font-mono text-sm font-bold tracking-wider transition-colors duration-200 active:scale-95
+          className={`pl-1 pr-2 py-1 rounded-full font-mono text-base font-bold tracking-wider transition-colors duration-200 active:scale-95
             ${isFast
               ? 'text-amber-300 drop-shadow-[0_0_6px_rgba(251,191,36,0.55)]'
               : 'text-slate-300 hover:text-white'}`}
