@@ -13,8 +13,15 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
     buffs, setBuffs, 
     addLog, gainCausality,
     battleMode, setBattleMode,
+    battleSpeed, setBattleSpeed,
     priorityTargetIdx, setPriorityTargetIdx
   } = useBattleState(initialParty, userStats, hpMultiplier, enemyId);
+
+  // [속도 조절] 1x ↔ 2x 토글. 컷인 진행 중에는 무시 (사용자 입력 일관성).
+  const toggleBattleSpeed = useCallback(() => {
+    if (cutInInfoRef.current) return;
+    setBattleSpeed(prev => (prev === 1 ? 2 : 1));
+  }, [setBattleSpeed]);
 
   // [Step 7-b] 모드 토글 — useSkill과 동일한 정책: 컷인 진행 중에는 무시 (사용자 입력 일관성).
   // cutInInfo는 아래에서 선언되므로 함수 내부에서 closure로 참조하지 않고, 호출 시점의 ref로 체크.
@@ -253,12 +260,16 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
       // 3. 일반 진행: 계산 결과 즉시 반영
       applyBattleResult(result);
 
-    }, TICK_RATE);
+      // [속도 조절] 1x = TICK_RATE * 2 (느림, 기본), 2x = TICK_RATE (이전 속도).
+      // setInterval 주기만 바꾸고 TICK_RATE 상수는 유지하므로 게임 내 시간 단위는 불변.
+    }, TICK_RATE * (2 / battleSpeed));
 
     return () => clearInterval(interval);
   }, [
-    isBattleStarted, isPaused, cutInInfo, initialParty, 
-    addLog, gainCausality, applyBattleResult
+    isBattleStarted, isPaused, cutInInfo, initialParty,
+    addLog, gainCausality, applyBattleResult,
+    // 속도 변경 시 setInterval 재생성 — useEffect 의존성에 포함.
+    battleSpeed,
   ]);
 
 
@@ -311,6 +322,7 @@ export default function useBattle(initialParty, userStats, hpMultiplier, onGameE
     cutInInfo, 
     handleCutInComplete,
     battleMode, toggleBattleMode,
+    battleSpeed, toggleBattleSpeed,
     priorityTargetIdx, setPriorityTarget,
     // [Step 7-d] 수동 ult 발동 요청 인터페이스
     pendingUltAllyIds, requestUltimate

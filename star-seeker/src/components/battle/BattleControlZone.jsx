@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Sword, Shield, Zap, Sparkles, Brain, Heart, X } from 'lucide-react';
+// [속도 조절] AUTO/MANUAL 토글은 BattleTopControls(우상단 floating)로 이전됨.
 import { CAUSALITY_SKILLS } from '../../data/causalitySkills';
 
 const STAT_INFO = {
@@ -37,7 +38,7 @@ const STAT_INFO = {
 
 const STAT_ORDER = ['str', 'agi', 'int', 'wil', 'chr'];
 
-export default function BattleControlZone({ playerCausality, buffs, userStats, onUseSkill, battleMode = 'auto', onToggleBattleMode }) {
+export default function BattleControlZone({ playerCausality, buffs, userStats, onUseSkill }) {
   const [activeStat, setActiveStat] = useState(null);
 
   const handleStatClick = (e, key) => {
@@ -54,7 +55,7 @@ export default function BattleControlZone({ playerCausality, buffs, userStats, o
       className="p-3 flex flex-col z-20 backdrop-blur-md bg-[#0f172a]/80 border-t border-white/10 rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.3)] min-h-0"
       onClick={() => setActiveStat(null)}
     >
-      {/* 인과력 게이지 + [Step 7-b] 모드 토글 */}
+      {/* 인과력 게이지 — AUTO/MANUAL 토글은 BattleTopControls(우상단)로 이전됨. */}
       <div className="flex items-center justify-between mb-3 px-1 flex-shrink-0 gap-2">
         <div className="flex items-center gap-2 text-cyan-300 font-bold tracking-wider text-sm drop-shadow-md">
           <Sparkles size={14} className="animate-pulse" />
@@ -66,18 +67,7 @@ export default function BattleControlZone({ playerCausality, buffs, userStats, o
             <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/50 blur-[1px]"></div>
           </div>
         </div>
-        <span className="text-xs font-mono text-cyan-200 mr-1">{Math.floor(playerCausality)}<span className="text-slate-500">/100</span></span>
-        {/* [Step 7-b] 자동/수동 모드 토글. 7-d에서 ult 자동 발동을 차단하고 7-c에서 우선 타겟 마킹을 활성화. */}
-        <button
-          onClick={(e) => { e.stopPropagation(); if (onToggleBattleMode) onToggleBattleMode(); }}
-          title={battleMode === 'auto' ? '자동 전투 — 탭하여 수동 전환' : '수동 전투 — 탭하여 자동 전환'}
-          className={`flex items-center justify-center min-w-[68px] px-2 py-1 rounded border font-mono text-xs font-bold tracking-wider transition-all duration-200 active:scale-95
-            ${battleMode === 'manual'
-              ? 'border-sky-400/70 bg-sky-500/15 text-sky-200 shadow-[0_0_10px_rgba(56,189,248,0.3)]'
-              : 'border-white/15 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10'}`}
-        >
-          {battleMode === 'manual' ? 'MANUAL' : 'AUTO'}
-        </button>
+        <span className="text-xs font-mono text-cyan-200">{Math.floor(playerCausality)}<span className="text-slate-500">/100</span></span>
       </div>
 
       {/* 스킬 버튼 */}

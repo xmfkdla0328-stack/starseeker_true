@@ -46,6 +46,11 @@ export default function useBattleState(initialParty, userStats, hpMultiplier, en
   // [7-e 폴리시] 기본값을 'manual'로 변경 — 전투 진입 시 사용자가 통제권을 갖고 시작하며,
   // 자동 진행을 원하면 BattleControlZone의 토글 버튼을 직접 눌러 'auto'로 전환.
   const [battleMode, setBattleMode] = useState('manual');
+  // [속도 조절] 전투 진행 속도. 1 = 기본(현재 속도의 절반) | 2 = 빠른 모드(이전 속도).
+  // setInterval 주기를 TICK_RATE * (2/battleSpeed)로 스케일링 — TICK_RATE 상수와 그에
+  // 의존하는 buffManager/actionManager/enemyActionManager/enemyEffects의 감소량은 유지하므로
+  // "5초 디버프"는 1x에서 10초 실시간, 2x에서 5초 실시간이 된다 (틱 단위 게임 시간은 동일).
+  const [battleSpeed, setBattleSpeed] = useState(1);
   // [Step 7-c] 수동 모드의 우선 타겟 마킹 (enemies 배열의 idx, 또는 null).
   // - 자동 모드에서는 무시 (사용 안 함)
   // - 적 사망/이탈 시 useBattle에서 자동 null로 정리
@@ -203,6 +208,7 @@ export default function useBattleState(initialParty, userStats, hpMultiplier, en
     buffs, setBuffs, 
     addLog, gainCausality,
     battleMode, setBattleMode,
+    battleSpeed, setBattleSpeed,
     priorityTargetIdx, setPriorityTargetIdx
   };
 }

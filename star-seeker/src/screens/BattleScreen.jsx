@@ -10,6 +10,7 @@ import BattleStartOverlay from '../components/battle/BattleStartOverlay';
 import BattleEffectLayer from '../components/battle/BattleEffectLayer';
 import BattleCutIn from '../components/battle/BattleCutIn';
 import StatusInspector from '../components/battle/StatusInspector';
+import BattleTopControls from '../components/battle/BattleTopControls';
 
 import GameHeader from '../components/common/GameHeader';
 import PauseMenu from '../components/common/PauseMenu';
@@ -60,6 +61,7 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
     cutInInfo, 
     handleCutInComplete,
     battleMode, toggleBattleMode,
+    battleSpeed, toggleBattleSpeed,
     priorityTargetIdx, setPriorityTarget,
     pendingUltAllyIds, requestUltimate
   } = useBattle(initialParty, userStats, hpMultiplier, onGameEnd, enemyId);
@@ -161,6 +163,17 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
         <GameHeader onPause={handleUserPause} />
       )}
 
+      {/* [속도 조절] 우상단 floating: MANUAL/AUTO + 1x/2x.
+          전투 진입 후·일시정지 아닐 때만 표시 (헤더와 동일 조건). */}
+      {isBattleStarted && !isPaused && !cutInInfo && (
+        <BattleTopControls
+          battleMode={battleMode}
+          onToggleBattleMode={toggleBattleMode}
+          battleSpeed={battleSpeed}
+          onToggleBattleSpeed={toggleBattleSpeed}
+        />
+      )}
+
       {/* PauseMenu는 사용자 출처 일시정지에서만 표시.
           인스펙터로 인한 일시정지일 때는 StatusInspector가 UI 책임을 가진다. */}
       {pauseSource === 'user' && !cutInInfo && (
@@ -207,8 +220,6 @@ function BattleScreen({ initialParty, userStats, hpMultiplier, onGameEnd, onRetr
           buffs={buffs} 
           userStats={userStats} 
           onUseSkill={useSkill}
-          battleMode={battleMode}
-          onToggleBattleMode={toggleBattleMode}
         />
       </ControlArea>
 
