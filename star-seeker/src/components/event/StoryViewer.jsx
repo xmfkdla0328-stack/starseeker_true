@@ -13,8 +13,8 @@ const STAT_CONFIG = [
 
 // 포트레이트가 bg존과 대사창 경계에 걸쳐 나오는 사이즈 (px)
 const PORTRAIT_SIZE = 88;
-// bg존 높이 비율 (33%)
-const BG_RATIO = 0.33;
+// bg존 높이 비율 (일러스트/배경을 더 크게 보이도록 상향)
+const BG_RATIO = 0.45;
 
 export default function StoryViewer({ script, history, onNext, paused, userStats, partySkills }) {
   const hasPortrait = !!(script.characterImage && script.bg !== 'black' && !script.hideUI);
