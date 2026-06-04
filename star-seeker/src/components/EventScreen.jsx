@@ -4,6 +4,7 @@ import { Scroll, ArrowLeft } from 'lucide-react';
 // Sub Components
 import StoryViewer from './event/StoryViewer';
 import ChoicePanel from './event/ChoicePanel';
+import CodeNameInput from './event/CodeNameInput';
 import KeywordToast from './event/KeywordToast'; // [New] 분리된 컴포넌트 import
 
 // Hooks & Data
@@ -14,6 +15,20 @@ import useEventBGM from '../hooks/event/useEventBGM';
 import GameHeader from "./common/GameHeader"; 
 import PauseMenu from "./common/PauseMenu";
 
+// 씬 타입에 따른 화면 단계(phase) 결정
+const phaseForScene = (scene) => {
+  if (!scene) return 'story';
+  if (scene.type === 'choice') return 'choice';
+  if (scene.type === 'input') return 'input';
+  return 'story';
+};
+
+// 텍스트 내 {name} 플레이스홀더를 코드 네임(닉네임)으로 치환
+const applyNickname = (text, nickname) => {
+  if (!text) return text;
+  return text.replace(/\{name\}/g, nickname || '관측자');
+};
+
 export default function EventScreen({ 
   activeEventId = 'prologue', 
   onOptionSelected, 
@@ -22,6 +37,8 @@ export default function EventScreen({
   collectedKeywords, 
   userStats,
   partyList,
+  nickname,
+  onSetNickname,
   navigate 
 }) {
   // --- State ---
@@ -54,7 +71,7 @@ export default function EventScreen({
     if (data) {
       setEventData(data);
       setCurrentSceneIndex(0);
-      setPhase(data.scenes[0].type === 'choice' ? 'choice' : 'story');
+      setPhase(phaseForScene(data.scenes[0]));
     } else {
       setPhase('error');
     }
@@ -81,7 +98,11 @@ export default function EventScreen({
     if (isPaused) return;
 
     if ((currentScene.type === 'script' || currentScene.type === 'monologue' || currentScene.type === 'question') && currentScene.text) {
-        setHistory(prev => [...prev, currentScene]);
+        setHistory(prev => [...prev, {
+          ...currentScene,
+          text: applyNickname(currentScene.text, nickname),
+          speaker: applyNickname(currentScene.speaker, nickname),
+        }]);
     }
 
     if (currentScene.isEnd) {
@@ -92,8 +113,26 @@ export default function EventScreen({
     if (currentSceneIndex < eventData.scenes.length - 1) {
         const nextIdx = currentSceneIndex + 1;
         setCurrentSceneIndex(nextIdx);
-        const nextScene = eventData.scenes[nextIdx];
-        setPhase(nextScene.type === 'choice' ? 'choice' : 'story');
+        setPhase(phaseForScene(eventData.scenes[nextIdx]));
+    } else {
+        onEventComplete();
+    }
+  };
+
+  // 코드 네임 입력 완료 → 전역 닉네임 연동 후 다음 씬으로 진행
+  const handleCodeNameSubmit = (name) => {
+    if (onSetNickname) onSetNickname(name);
+    setHistory(prev => [...prev, { type: 'system', text: `[코드 네임 등록] ${name}`, speaker: 'Player' }]);
+
+    if (currentScene?.isEnd) {
+      onEventComplete(currentScene.nextAction);
+      return;
+    }
+
+    if (currentSceneIndex < eventData.scenes.length - 1) {
+        const nextIdx = currentSceneIndex + 1;
+        setCurrentSceneIndex(nextIdx);
+        setPhase(phaseForScene(eventData.scenes[nextIdx]));
     } else {
         onEventComplete();
     }
@@ -109,7 +148,7 @@ export default function EventScreen({
         const nextIndex = eventData.scenes.findIndex(s => s.id === choice.nextSceneId);
         if (nextIndex !== -1) {
             setCurrentSceneIndex(nextIndex);
-            setPhase(eventData.scenes[nextIndex].type === 'choice' ? 'choice' : 'story');
+            setPhase(phaseForScene(eventData.scenes[nextIndex]));
         } else {
             onEventComplete();
         }
@@ -175,6 +214,14 @@ export default function EventScreen({
                     paused={isPaused}
                     userStats={userStats}
                     partySkills={partySkills}
+                    nickname={nickname}
+                />
+            )}
+            {phase === 'input' && (
+                <CodeNameInput 
+                    key={currentScene.id}
+                    script={currentScene} 
+                    onSubmit={handleCodeNameSubmit} 
                 />
             )}
             {phase === 'choice' && (

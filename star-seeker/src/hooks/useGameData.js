@@ -16,6 +16,7 @@ export default function useGameData() {
   // [Fix] levelInfo, addExp, 그리고 누락되었던 clearedNodes와 completeStoryNode를 제대로 받아옵니다!
   const { 
     userStats, hpMultiplier, collectedKeywords, clearedNodes, levelInfo, 
+    nickname, setNickname,
     unlockKeyword, updateOption, completeStoryNode, addExp 
   } = usePlayer();
   
@@ -130,6 +131,7 @@ export default function useGameData() {
     equipmentList, 
     clearedNodes, // [Fix] 추가 완료
     levelInfo,    // [NEW] 레벨 데이터 내보내기 완료
+    nickname, setNickname, // [NEW] 코드 네임(닉네임) 연동
     setInventory, setRoster, setPartyList,
     handleUnlockNode, 
     handleOptionSelected: updateOption,

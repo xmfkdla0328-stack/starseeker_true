@@ -16,11 +16,20 @@ const PORTRAIT_SIZE = 88;
 // bg존 높이 비율 (일러스트/배경을 더 크게 보이도록 상향)
 const BG_RATIO = 0.45;
 
-export default function StoryViewer({ script, history, onNext, paused, userStats, partySkills }) {
+// 텍스트 내 {name} 플레이스홀더를 플레이어 코드 네임(닉네임)으로 치환
+const applyNickname = (text, nickname) => {
+  if (!text) return text;
+  return text.replace(/\{name\}/g, nickname || '관측자');
+};
+
+export default function StoryViewer({ script, history, onNext, paused, userStats, partySkills, nickname }) {
   const hasPortrait = !!(script.characterImage && script.bg !== 'black' && !script.hideUI);
   const [showLog, setShowLog] = useState(false);
-  
-  const { displayedText, isTyping, forceComplete } = useTypewriter(script.text || "");
+
+  const resolvedText = applyNickname(script.text || "", nickname);
+  const resolvedSpeaker = applyNickname(script.speaker, nickname);
+
+  const { displayedText, isTyping, forceComplete } = useTypewriter(resolvedText);
   const effectKey = `${script.id}-${script.effect}`;
 
   useEffect(() => {
@@ -179,13 +188,13 @@ export default function StoryViewer({ script, history, onNext, paused, userStats
               <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
               {/* 화자 이름 */}
-              {script.speaker && script.speaker !== '???' && (
+              {resolvedSpeaker && resolvedSpeaker !== '???' && (
                 <div
                   className="flex-shrink-0 px-4 pt-3 pb-1"
                   style={hasPortrait ? { paddingLeft: `${PORTRAIT_SIZE + 20}px` } : {}}
                 >
                   <span className="text-amber-400 text-xs font-bold tracking-widest font-mono">
-                    {script.speaker}
+                    {resolvedSpeaker}
                   </span>
                   <div className="mt-0.5 h-[1px] bg-gradient-to-r from-amber-400/30 to-transparent" />
                 </div>

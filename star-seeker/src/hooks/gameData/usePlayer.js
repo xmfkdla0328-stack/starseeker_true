@@ -5,6 +5,9 @@ export default function usePlayer() {
   const [userStats, setUserStats] = useState(INITIAL_USER_STATS);
   const [hpMultiplier, setHpMultiplier] = useState(1.0);
   const [collectedKeywords, setCollectedKeywords] = useState([]);
+
+  // 플레이어가 스토리 중 입력하는 코드 네임 (전역 닉네임)
+  const [nickname, setNickname] = useState('관측자');
   
   // [Fix] 초기 상태를 완전히 비워진 배열로 수정합니다! (아무것도 클리어하지 않은 태초의 상태)
   const [clearedNodes, setClearedNodes] = useState([]);
@@ -53,6 +56,8 @@ export default function usePlayer() {
     collectedKeywords,
     clearedNodes,       
     levelInfo,        
+    nickname,
+    setNickname,
     unlockKeyword,
     updateOption,
     completeStoryNode,  

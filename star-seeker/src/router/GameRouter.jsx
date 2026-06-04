@@ -140,6 +140,8 @@ export default function GameRouter({
             collectedKeywords={data.collectedKeywords}
             userStats={data.userStats}
             partyList={data.partyList}
+            nickname={data.nickname}
+            onSetNickname={data.setNickname}
             navigate={nav.goHome} 
         />
       )}
