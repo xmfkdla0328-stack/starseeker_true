@@ -1,9 +1,10 @@
 import React from 'react';
-import { Clock, Layers, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 // [속도 조절 + 모드 토글] 전투 화면 우상단의 floating chip.
-//  - 자동/수동: 단일 pill 토글. 탭할 때마다 AUTO ↔ MANUAL 전환.
-//      MANUAL = sky 글로우 + Layers 아이콘, AUTO = 중립 슬레이트 + Clock 아이콘.
+//  - 하나의 외곽선이 [자동/수동] + [속도] 두 버튼을 함께 감싸고, 가운데 세로선으로 양분.
+//  - 자동/수동: 텍스트 단일 pill 토글. 탭할 때마다 AUTO ↔ MANUAL 전환 (아이콘 없음).
+//      MANUAL = 더 밝게 빛나는 흰색 외곽선, AUTO = 중립 슬레이트 톤.
 //  - 1x/2x:   ▶ 아이콘. 1x = 단일·중립 톤, 2x = 두 개 겹친 빨리감기 + amber 글로우.
 //
 // 위치: 보스 이름/HP 헤더의 border-b 줄 아래로 살짝 내려 둠.
@@ -18,36 +19,44 @@ export default function BattleTopControls({
 
   return (
     <div className="absolute top-[76px] right-3 z-30 pointer-events-none">
-      <div className="pointer-events-auto inline-flex items-center h-7 gap-2">
-        {/* 자동/수동 — 단일 pill 토글. 탭하면 AUTO ↔ MANUAL 전환. */}
+      {/* 두 버튼을 함께 감싸는 단일 외곽선 컨테이너. MANUAL이면 흰색 글로우. */}
+      <div
+        className={`pointer-events-auto inline-flex items-center h-7 rounded-full border transition-all duration-300 ${
+          isManual
+            ? 'border-white/80 bg-slate-900/50 shadow-[0_0_14px_rgba(255,255,255,0.55)]'
+            : 'border-slate-600/50 bg-slate-800/70'
+        }`}
+      >
+        {/* 자동/수동 — 텍스트 단일 토글. 탭하면 AUTO ↔ MANUAL 전환. */}
         <button
           type="button"
           onClick={onToggleBattleMode}
           title={isManual ? '수동 전투 — 탭하여 자동 전환' : '자동 전투 — 탭하여 수동 전환'}
-          className={`h-7 inline-flex items-center gap-1.5 pl-2.5 pr-3 rounded-full border text-[11px] font-bold tracking-wider transition-all duration-300 active:scale-95 ${
-            isManual
-              ? 'bg-sky-500/15 border-sky-400/50 text-sky-200 shadow-[0_0_16px_rgba(56,189,248,0.25),inset_0_1px_0_rgba(56,189,248,0.15)]'
-              : 'bg-slate-800/70 border-slate-600/50 text-slate-300'
+          className={`h-7 pl-3 pr-3 inline-flex items-center justify-center rounded-l-full text-[11px] font-bold tracking-wider transition-colors duration-300 active:scale-95 ${
+            isManual ? 'text-white' : 'text-slate-300'
           }`}
         >
-          {isManual ? (
-            <Layers size={13} strokeWidth={2.5} className="block" />
-          ) : (
-            <Clock size={13} strokeWidth={2.5} className="block" />
-          )}
           {isManual ? 'MANUAL' : 'AUTO'}
         </button>
+
+        {/* 두 버튼을 양분하는 세로 구분선 */}
+        <span
+          aria-hidden
+          className={`w-px h-4 transition-colors duration-300 ${
+            isManual ? 'bg-white/40' : 'bg-slate-500/50'
+          }`}
+        />
 
         {/* 1배(▶) / 2배(▶▶) — 단일 토글 */}
         <button
           type="button"
           onClick={onToggleBattleSpeed}
           title={isFast ? '2배속 — 탭하여 1배속 전환' : '1배속 — 탭하여 2배속 전환'}
-          className="h-7 pl-1 pr-2 inline-flex items-center justify-center rounded-full transition-colors duration-200 active:scale-95"
+          className="h-7 pl-2 pr-2.5 inline-flex items-center justify-center rounded-r-full transition-colors duration-200 active:scale-95"
         >
           <span className="inline-flex items-center">
             <ChevronRight
-              size={22}
+              size={20}
               strokeWidth={2.5}
               className={`block transition-all duration-200 ${
                 isFast
@@ -57,9 +66,9 @@ export default function BattleTopControls({
             />
             {isFast && (
               <ChevronRight
-                size={22}
+                size={20}
                 strokeWidth={2.5}
-                className="block text-amber-300 drop-shadow-[0_0_6px_rgba(251,191,36,0.7)] -ml-3"
+                className="block text-amber-300 drop-shadow-[0_0_6px_rgba(251,191,36,0.7)] -ml-2.5"
               />
             )}
           </span>
