@@ -22,7 +22,7 @@ export default function BattleTopControls({
           MANUAL = 약간 회색빛 도는 흰색 외곽선(글로우 없음, AUTO보단 밝게). */}
       <div
         className={`pointer-events-auto inline-flex items-center h-8 border border-r-0 transition-all duration-300 ${
-          isManual ? 'border-slate-300/55' : 'border-slate-600/50'
+          isManual ? 'border-slate-500/55' : 'border-slate-600/50'
         }`}
       >
         {/* 자동/수동 — 텍스트 단일 토글. 너비는 MANUAL 기준으로 고정. */}
