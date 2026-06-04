@@ -1,10 +1,10 @@
 import React from "react";
 import {
   Sword, Shield, Zap, Sparkles, Brain, Heart,
-  AlertTriangle, Crosshair,
+  Crosshair,
 } from "lucide-react";
 
-export type Variant = "current" | "disciplined" | "mode-aware";
+export type Variant = "current" | "disciplined" | "mode-aware" | "neon-floating" | "segmented" | "holographic";
 
 export const scenarioState = {
   battleMode: "manual" as const,
@@ -91,41 +91,120 @@ function tokens(v: Variant) {
       statTrayBold: false,
     };
   }
-  // mode-aware
+  if (v === "mode-aware") {
+    return {
+      pageBg: "bg-slate-950",
+      // Sky inner-vignette around whole scene → MANUAL mode is unmistakable
+      vignette: "shadow-[inset_0_0_80px_rgba(56,189,248,0.18)] ring-1 ring-inset ring-sky-400/15",
+      // Mode pill upgraded to a labeled banner+pill
+      modePill: "border-sky-300 bg-sky-400/25 text-sky-50 font-extrabold shadow-[0_0_14px_rgba(56,189,248,0.55)] min-w-[80px]",
+      modeLabel: "● MANUAL",
+      modeBanner: (
+        <div className="flex-shrink-0 z-30 pointer-events-none">
+          <div className="h-[2px] bg-gradient-to-r from-transparent via-sky-300 to-transparent" />
+          <div className="text-center text-[9px] font-mono tracking-[0.4em] text-sky-200/80 py-1 bg-sky-500/5">
+            MANUAL CONTROL
+          </div>
+          <div className="h-[1px] bg-gradient-to-r from-transparent via-sky-400/40 to-transparent" />
+        </div>
+      ),
+      causalityBar: "from-cyan-600 to-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)]",
+      causalityLabel: "text-cyan-300",
+      skillActionableHint: true,
+      allyReadyBorder: "border-amber-300 shadow-[0_0_16px_rgba(251,191,36,0.65)] animate-[ult-ready-pulse_1.6s_ease-in-out_infinite]",
+      allyQueuedBorder: "border-amber-200 shadow-[0_0_24px_rgba(252,211,77,0.95)] ring-2 ring-amber-200/70",
+      allyUltBar: "from-amber-300 via-amber-200 to-amber-300 shadow-[0_0_8px_rgba(252,211,77,0.85)]",
+      crosshairColor: "text-sky-200 drop-shadow-[0_0_14px_rgba(56,189,248,1)]",
+      bossPriorityRing: "ring-2 ring-sky-300 ring-offset-2 ring-offset-slate-950 shadow-[0_0_30px_rgba(56,189,248,0.4)]",
+      statTrayBold: true,
+    };
+  }
+
+  // NEW AUTO/MANUAL TOGGLE VARIANTS
+  if (v === "neon-floating") return NEON_FLOATING;
+  if (v === "segmented") return SEGMENTED;
+  if (v === "holographic") return HOLOGRAPHIC;
+
+  // fallback
   return {
     pageBg: "bg-slate-950",
-    // Sky inner-vignette around whole scene → MANUAL mode is unmistakable
-    vignette: "shadow-[inset_0_0_80px_rgba(56,189,248,0.18)] ring-1 ring-inset ring-sky-400/15",
-    // Mode pill upgraded to a labeled banner+pill
-    modePill: "border-sky-300 bg-sky-400/25 text-sky-50 font-extrabold shadow-[0_0_14px_rgba(56,189,248,0.55)] min-w-[80px]",
-    modeLabel: "● MANUAL",
-    modeBanner: (
-      <div className="flex-shrink-0 z-30 pointer-events-none">
-        <div className="h-[2px] bg-gradient-to-r from-transparent via-sky-300 to-transparent" />
-        <div className="text-center text-[9px] font-mono tracking-[0.4em] text-sky-200/80 py-1 bg-sky-500/5">
-          MANUAL CONTROL
-        </div>
-        <div className="h-[1px] bg-gradient-to-r from-transparent via-sky-400/40 to-transparent" />
-      </div>
-    ),
+    vignette: "",
+    modePill: "hidden",
+    modeLabel: "",
+    modeBanner: null,
     causalityBar: "from-cyan-600 to-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)]",
     causalityLabel: "text-cyan-300",
     skillActionableHint: true,
-    allyReadyBorder: "border-amber-300 shadow-[0_0_16px_rgba(251,191,36,0.65)] animate-[ult-ready-pulse_1.6s_ease-in-out_infinite]",
-    allyQueuedBorder: "border-amber-200 shadow-[0_0_24px_rgba(252,211,77,0.95)] ring-2 ring-amber-200/70",
-    allyUltBar: "from-amber-300 via-amber-200 to-amber-300 shadow-[0_0_8px_rgba(252,211,77,0.85)]",
-    crosshairColor: "text-sky-200 drop-shadow-[0_0_14px_rgba(56,189,248,1)]",
-    bossPriorityRing: "ring-2 ring-sky-300 ring-offset-2 ring-offset-slate-950 shadow-[0_0_30px_rgba(56,189,248,0.4)]",
-    statTrayBold: true,
+    allyReadyBorder: "border-amber-400 shadow-[0_0_14px_rgba(251,191,36,0.55)]",
+    allyQueuedBorder: "border-amber-200 shadow-[0_0_22px_rgba(252,211,77,0.85)] ring-1 ring-amber-200/60",
+    allyUltBar: "from-amber-400 to-amber-300 shadow-[0_0_6px_rgba(252,211,77,0.7)]",
+    crosshairColor: "text-sky-300 drop-shadow-[0_0_12px_rgba(56,189,248,1)]",
+    bossPriorityRing: "ring-2 ring-sky-300/70 ring-offset-2 ring-offset-slate-950",
+    statTrayBold: false,
   };
 }
+
+// --- NEW AUTO/MANUAL TOGGLE VARIANTS ---
+// These inherit the disciplined battle scene but replace the toggle UI
+
+export const NEON_FLOATING: ReturnType<typeof tokens> = {
+  pageBg: "bg-slate-950",
+  vignette: "",
+  modePill: "hidden",
+  modeLabel: "",
+  modeBanner: null,
+  causalityBar: "from-cyan-600 to-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)]",
+  causalityLabel: "text-cyan-300",
+  skillActionableHint: true,
+  allyReadyBorder: "border-amber-400 shadow-[0_0_14px_rgba(251,191,36,0.55)]",
+  allyQueuedBorder: "border-amber-200 shadow-[0_0_22px_rgba(252,211,77,0.85)] ring-1 ring-amber-200/60",
+  allyUltBar: "from-amber-400 to-amber-300 shadow-[0_0_6px_rgba(252,211,77,0.7)]",
+  crosshairColor: "text-sky-300 drop-shadow-[0_0_12px_rgba(56,189,248,1)]",
+  bossPriorityRing: "ring-2 ring-sky-300/70 ring-offset-2 ring-offset-slate-950",
+  statTrayBold: false,
+};
+
+export const SEGMENTED: ReturnType<typeof tokens> = {
+  pageBg: "bg-slate-950",
+  vignette: "",
+  modePill: "hidden",
+  modeLabel: "",
+  modeBanner: null,
+  causalityBar: "from-cyan-600 to-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)]",
+  causalityLabel: "text-cyan-300",
+  skillActionableHint: true,
+  allyReadyBorder: "border-amber-400 shadow-[0_0_14px_rgba(251,191,36,0.55)]",
+  allyQueuedBorder: "border-amber-200 shadow-[0_0_22px_rgba(252,211,77,0.85)] ring-1 ring-amber-200/60",
+  allyUltBar: "from-amber-400 to-amber-300 shadow-[0_0_6px_rgba(252,211,77,0.7)]",
+  crosshairColor: "text-sky-300 drop-shadow-[0_0_12px_rgba(56,189,248,1)]",
+  bossPriorityRing: "ring-2 ring-sky-300/70 ring-offset-2 ring-offset-slate-950",
+  statTrayBold: false,
+};
+
+export const HOLOGRAPHIC: ReturnType<typeof tokens> = {
+  pageBg: "bg-slate-950",
+  vignette: "shadow-[inset_0_0_120px_rgba(139,92,246,0.12)] ring-1 ring-inset ring-violet-400/15",
+  modePill: "hidden",
+  modeLabel: "",
+  modeBanner: null,
+  causalityBar: "from-cyan-600 to-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)]",
+  causalityLabel: "text-cyan-300",
+  skillActionableHint: true,
+  allyReadyBorder: "border-amber-400 shadow-[0_0_14px_rgba(251,191,36,0.55)]",
+  allyQueuedBorder: "border-amber-200 shadow-[0_0_22px_rgba(252,211,77,0.85)] ring-1 ring-amber-200/60",
+  allyUltBar: "from-amber-400 to-amber-300 shadow-[0_0_6px_rgba(252,211,77,0.7)]",
+  crosshairColor: "text-sky-300 drop-shadow-[0_0_12px_rgba(56,189,248,1)]",
+  bossPriorityRing: "ring-2 ring-sky-300/70 ring-offset-2 ring-offset-slate-950",
+  statTrayBold: false,
+};
 
 /* ============================================================
    Scene
    ============================================================ */
 
-export function Scene({ variant, state }: { variant: Variant; state: State }) {
+export function Scene({ variant, state, renderToggle }: { variant: Variant; state: State; renderToggle?: React.ReactNode }) {
   const t = tokens(variant);
+  const isNewVariant = variant === "neon-floating" || variant === "segmented" || variant === "holographic";
 
   return (
     <div className={`w-full min-h-screen ${t.pageBg} text-slate-100 flex justify-center`}>
@@ -142,7 +221,11 @@ export function Scene({ variant, state }: { variant: Variant; state: State }) {
       <div
         className={`relative w-full max-w-md h-[100dvh] flex flex-col overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 ${t.vignette}`}
       >
-        {t.modeBanner}
+        {isNewVariant ? (
+          renderToggle
+        ) : (
+          t.modeBanner
+        )}
 
         {/* Enemy zone */}
         <EnemyZone variant={variant} t={t} state={state} />
@@ -335,31 +418,50 @@ function AllyZone({ variant, t, state }: { variant: Variant; t: ReturnType<typeo
 
 /* ----- Control zone ----- */
 
-function ControlZone({ variant, t, state }: { variant: Variant; t: ReturnType<typeof tokens>; state: State }) {
+function ControlZone({ variant, t, state, renderToggle }: { variant: Variant; t: ReturnType<typeof tokens>; state: State; renderToggle?: React.ReactNode }) {
   const { causality, buffs, userStats } = state;
   const skills = [
     { key: "atk",    label: "ATTACK",  cost: 10, Icon: Sword,  color: "rose"  },
     { key: "shield", label: "DEFENSE", cost: 20, Icon: Shield, color: "cyan"  },
     { key: "speed",  label: "HASTE",   cost: 30, Icon: Zap,    color: "amber" },
   ];
+  const isNewVariant = variant === "neon-floating" || variant === "segmented" || variant === "holographic";
 
   return (
     <div className="p-3 flex flex-col z-20 backdrop-blur-md bg-[#0f172a]/80 border-t border-white/10 rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.3)]">
       {/* Causality + mode toggle */}
       <div className="flex items-center justify-between mb-3 px-1 gap-2">
-        <div className={`flex items-center gap-2 ${t.causalityLabel} font-bold tracking-wider text-xs drop-shadow-md`}>
-          <Sparkles size={14} className="animate-pulse" />
-          <span>CAUSALITY</span>
-        </div>
-        <div className="flex-1 mx-1 h-3 bg-slate-800/50 rounded-sm overflow-hidden border border-white/10 relative">
-          <div className={`h-full bg-gradient-to-r ${t.causalityBar} relative`} style={{ width: `${Math.min(100, causality)}%` }}>
-            <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/50 blur-[1px]" />
+        {isNewVariant && renderToggle ? (
+          <div className="flex items-center justify-between w-full gap-2">
+            <div className={`flex items-center gap-2 ${t.causalityLabel} font-bold tracking-wider text-xs drop-shadow-md`}>
+              <Sparkles size={14} className="animate-pulse" />
+              <span>CAUSALITY</span>
+            </div>
+            <div className="flex-1 mx-1 h-3 bg-slate-800/50 rounded-sm overflow-hidden border border-white/10 relative">
+              <div className={`h-full bg-gradient-to-r ${t.causalityBar} relative`} style={{ width: `${Math.min(100, causality)}%` }}>
+                <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/50 blur-[1px]" />
+              </div>
+            </div>
+            <span className="text-[11px] font-mono text-cyan-200 mr-1">{causality}<span className="text-slate-500">/100</span></span>
+            {renderToggle}
           </div>
-        </div>
-        <span className="text-[11px] font-mono text-cyan-200 mr-1">{causality}<span className="text-slate-500">/100</span></span>
-        <button className={`flex items-center justify-center px-2 py-1 rounded border font-mono text-[11px] font-bold tracking-wider transition-all duration-200 ${t.modePill}`}>
-          {t.modeLabel}
-        </button>
+        ) : (
+          <>
+            <div className={`flex items-center gap-2 ${t.causalityLabel} font-bold tracking-wider text-xs drop-shadow-md`}>
+              <Sparkles size={14} className="animate-pulse" />
+              <span>CAUSALITY</span>
+            </div>
+            <div className="flex-1 mx-1 h-3 bg-slate-800/50 rounded-sm overflow-hidden border border-white/10 relative">
+              <div className={`h-full bg-gradient-to-r ${t.causalityBar} relative`} style={{ width: `${Math.min(100, causality)}%` }}>
+                <div className="absolute right-0 top-0 bottom-0 w-1 bg-white/50 blur-[1px]" />
+              </div>
+            </div>
+            <span className="text-[11px] font-mono text-cyan-200 mr-1">{causality}<span className="text-slate-500">/100</span></span>
+            <button className={`flex items-center justify-center px-2 py-1 rounded border font-mono text-[11px] font-bold tracking-wider transition-all duration-200 ${t.modePill}`}>
+              {t.modeLabel}
+            </button>
+          </>
+        )}
       </div>
 
       {/* Skill buttons */}
