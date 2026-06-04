@@ -4,5 +4,9 @@ export const modules: ModuleMap = {
   "./components/mockups/battle-redesign/Disciplined.tsx": () => import("../components/mockups/battle-redesign/Disciplined.tsx"),
   "./components/mockups/battle-redesign/Holographic.tsx": () => import("../components/mockups/battle-redesign/Holographic.tsx"),
   "./components/mockups/battle-redesign/Neon.tsx": () => import("../components/mockups/battle-redesign/Neon.tsx"),
-  "./components/mockups/battle-redesign/Segmented.tsx": () => import("../components/mockups/battle-redesign/Segmented.tsx")
+  "./components/mockups/battle-redesign/Segmented.tsx": () => import("../components/mockups/battle-redesign/Segmented.tsx"),
+  "./components/mockups/battle-redesign-copy-POKuI-JU/BattleRedesignCopyPOKuIJU.tsx": () => import("../components/mockups/battle-redesign-copy-POKuI-JU/BattleRedesignCopyPOKuIJU.tsx"),
+  "./components/mockups/battle-redesign-copy-POKuI-JU/Disciplined.tsx": () => import("../components/mockups/battle-redesign-copy-POKuI-JU/Disciplined.tsx"),
+  "./components/mockups/battle-redesign-copy-POKuI-JU/Holographic.tsx": () => import("../components/mockups/battle-redesign-copy-POKuI-JU/Holographic.tsx"),
+  "./components/mockups/battle-redesign-copy-POKuI-JU/Segmented.tsx": () => import("../components/mockups/battle-redesign-copy-POKuI-JU/Segmented.tsx")
 };
