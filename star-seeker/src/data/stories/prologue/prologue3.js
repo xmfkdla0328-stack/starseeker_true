@@ -7,38 +7,38 @@ export const prologue3_event = {
   scenes: [
     {
       id: 1, type: 'monologue',
-      text: "눈을 떴다. 끝을 알 수 없는 어둠 속, 차가운 비석들만이 줄지어 서 있다.",
+      text: "...스템 동기화....",
       speaker: "???", bg: "black",
     },
     {
       id: 2, type: 'monologue',
-      text: "이름 없는 무덤. 누구의 것도 아닌, 그러나 모두의 것인 장소.",
+      text: "...888회차 각성을 시도합니다.",
       speaker: "???", bg: "black",
     },
     {
       id: 3, type: 'script',
-      text: "…드디어 깨어났군. 오랫동안 너를 기다렸다.",
+      text: "대상자의 자아 인지를 확인합니다.",
       speaker: "???", bg: "black",
     },
     {
       id: 4, type: 'question',
-      text: "너를 무엇이라 부르면 되겠나? 너의 코드 네임을 말해라.",
+      text: "당신의 코드 네임은 무엇입니까?",
       speaker: "???", bg: "black",
     },
     {
       id: 5, type: 'input',
-      prompt: "어둠 속의 목소리가 너의 이름을 묻는다.",
+      prompt: "나를 부르는 말은 무엇인가?",
       placeholder: "코드 네임 입력...",
       confirmText: "이 코드 네임이 맞습니까?",
     },
     {
       id: 6, type: 'script',
-      text: "「{name}」. 그래, 그것이 너의 이름이다. 이제부터 그 이름으로 새겨지리라.",
+      text: "「{name}」. 대상자가 입력한 코드 네임 확인. 저장되었습니다.",
       speaker: "???", bg: "black",
     },
     {
       id: 7, type: 'script',
-      text: "가거라, {name}. 너의 인과(因果)가 이곳에서 다시 시작된다.",
+      text: "대상자의 자아인지 상의 외형을 확인합니다.",
       speaker: "???", bg: "black",
       isEnd: true, nextAction: 'story_node_select',
     },
