@@ -119,7 +119,7 @@ export default function EventScreen({
     }
   };
 
-  // 풀 스킵: 현재 씬부터 다음 분기점(선택지/입력) 또는 이벤트 종료(전투 진입 등)까지 한 번에 건너뜀
+  // 풀 스킵: 현재 씬부터 다음 분기점(선택지/입력/키워드 획득) 또는 이벤트 종료(전투 진입 등)까지 한 번에 건너뜀
   const handleSkip = () => {
     if (isPaused) return;
     if (!currentScene || !eventData) return;
@@ -157,9 +157,10 @@ export default function EventScreen({
         return;
       }
 
-      // 다음 씬이 분기점(선택지/코드네임 입력)이면 그 앞에서 멈춤
+      // 다음 씬이 분기점(선택지/코드네임 입력) 또는 키워드 획득 구간이면 그 씬에서 멈춤
+      // (키워드 해금은 해당 씬이 currentScene이 될 때만 발동되므로 직접 노출해야 함)
       const nextScene = scenes[nextIdx];
-      if (nextScene.type === 'choice' || nextScene.type === 'input') {
+      if (nextScene.type === 'choice' || nextScene.type === 'input' || nextScene.keywordUnlock) {
         if (collected.length) setHistory(prev => [...prev, ...collected]);
         setCurrentSceneIndex(nextIdx);
         setPhase(phaseForScene(nextScene));
