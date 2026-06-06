@@ -1,0 +1,1 @@
+- [Story scene effects](story-scene-effects.md) — keyword/image_reveal side-effects fire only when the scene becomes currentScene; full-skip must STOP on them, not walk past.

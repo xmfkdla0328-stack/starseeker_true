@@ -37,9 +37,15 @@ export const prologue3_event = {
       speaker: "???", bg: "black",
     },
     {
-      id: 7, type: 'script',
+      id: 7, type: 'image_reveal',
       text: "대상자의 자아인지 상의 외형을 확인합니다.",
       speaker: "???", bg: "black",
+      image: "/images/cutsceen/cutsceen_04_외형확인.png",
+    },
+    {
+      id: 8, type: 'script',
+      text: "확인했습니다.",
+      speaker: "{name}", bg: "black",
       isEnd: true, nextAction: 'story_node_select',
     },
   ],

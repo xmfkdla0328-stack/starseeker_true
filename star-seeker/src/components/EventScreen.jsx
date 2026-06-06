@@ -6,6 +6,7 @@ import StoryViewer from './event/StoryViewer';
 import ChoicePanel from './event/ChoicePanel';
 import CodeNameInput from './event/CodeNameInput';
 import KeywordToast from './event/KeywordToast'; // [New] 분리된 컴포넌트 import
+import ImageReveal from './event/ImageReveal';
 
 // Hooks & Data
 import { getStoryEvent } from '../data/storyRegistry';
@@ -20,6 +21,7 @@ const phaseForScene = (scene) => {
   if (!scene) return 'story';
   if (scene.type === 'choice') return 'choice';
   if (scene.type === 'input') return 'input';
+  if (scene.type === 'image_reveal') return 'image';
   return 'story';
 };
 
@@ -97,7 +99,7 @@ export default function EventScreen({
     if (!currentScene) return;
     if (isPaused) return;
 
-    if ((currentScene.type === 'script' || currentScene.type === 'monologue' || currentScene.type === 'question') && currentScene.text) {
+    if ((currentScene.type === 'script' || currentScene.type === 'monologue' || currentScene.type === 'question' || currentScene.type === 'image_reveal') && currentScene.text) {
         setHistory(prev => [...prev, {
           ...currentScene,
           text: applyNickname(currentScene.text, nickname),
@@ -128,7 +130,7 @@ export default function EventScreen({
     const collected = [];
 
     const pushDialogue = (scene) => {
-      if ((scene.type === 'script' || scene.type === 'monologue' || scene.type === 'question') && scene.text) {
+      if ((scene.type === 'script' || scene.type === 'monologue' || scene.type === 'question' || scene.type === 'image_reveal') && scene.text) {
         collected.push({
           ...scene,
           text: applyNickname(scene.text, nickname),
@@ -157,10 +159,10 @@ export default function EventScreen({
         return;
       }
 
-      // 다음 씬이 분기점(선택지/코드네임 입력) 또는 키워드 획득 구간이면 그 씬에서 멈춤
-      // (키워드 해금은 해당 씬이 currentScene이 될 때만 발동되므로 직접 노출해야 함)
+      // 다음 씬이 분기점(선택지/코드네임 입력/이미지 컷씬) 또는 키워드 획득 구간이면 그 씬에서 멈춤
+      // (키워드 해금/이미지 컷씬은 해당 씬이 currentScene이 될 때만 노출되므로 직접 보여줘야 함)
       const nextScene = scenes[nextIdx];
-      if (nextScene.type === 'choice' || nextScene.type === 'input' || nextScene.keywordUnlock) {
+      if (nextScene.type === 'choice' || nextScene.type === 'input' || nextScene.type === 'image_reveal' || nextScene.keywordUnlock) {
         if (collected.length) setHistory(prev => [...prev, ...collected]);
         setCurrentSceneIndex(nextIdx);
         setPhase(phaseForScene(nextScene));
@@ -219,7 +221,7 @@ export default function EventScreen({
   if (phase === 'loading') return <div className="text-white p-6">Loading...</div>;
   if (phase === 'error') return <div className="text-rose-400 p-6">Error loading event.</div>;
 
-  const isStoryMode = phase === 'story' || (currentScene && currentScene.type === 'question');
+  const isStoryMode = phase === 'story' || phase === 'image' || (currentScene && currentScene.type === 'question');
 
   return (
     <div className={`flex-1 flex flex-col relative z-10 animate-fade-in h-full bg-[#0f172a] ${isStoryMode ? 'p-0' : 'p-6'}`}>
@@ -268,6 +270,15 @@ export default function EventScreen({
                     partySkills={partySkills}
                     nickname={nickname}
                     onSkip={handleSkip}
+                />
+            )}
+            {phase === 'image' && (
+                <ImageReveal 
+                    key={currentScene.id}
+                    scene={currentScene} 
+                    onNext={handleNext} 
+                    paused={isPaused}
+                    nickname={nickname}
                 />
             )}
             {phase === 'input' && (
