@@ -63,5 +63,25 @@ export const prologue3_event = {
       effect: "warp_white",
       bg: "/images/background/배경_01_요람.png",
     },
+    {
+      id: 12, type: 'script',
+      text: "…여긴….",
+      speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
+    },
+    {
+      id: 13, type: 'monologue',
+      text: "조명이 없어 캄캄하여 당장 코 앞도 보기가 힘들지만, 곧 깨닫는다.",
+      speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
+    },
+    {
+      id: 14, type: 'monologue',
+      text: "이 곳은 내게 익숙한 곳이다.",
+      speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
+    },
+    {
+      id: 15, type: 'script',
+      text: "…그런데 왜─.",
+      speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
+    },
   ],
 };
