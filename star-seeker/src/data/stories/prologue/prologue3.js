@@ -40,7 +40,7 @@ export const prologue3_event = {
       id: 7, type: 'image_reveal',
       text: "대상자의 자아인지 상의 외형을 확인합니다.",
       speaker: "???", bg: "black",
-      image: "/images/cutsceen/cutsceen_04_외형확인.png",
+      image: "/images/excutseen/excutseen_01_외형확인.png",
     },
     {
       id: 8, type: 'script',
