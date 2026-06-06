@@ -36,7 +36,7 @@ export default function ImageReveal({ scene, onNext, paused, nickname }) {
 
   return (
     <div
-      className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden cursor-pointer select-none"
+      className="relative w-full h-full bg-black flex items-start justify-center overflow-hidden cursor-pointer select-none"
       onClick={handleClick}
       onMouseEnter={() => setRevealed(true)}
       onMouseLeave={() => setRevealed(false)}
@@ -46,7 +46,7 @@ export default function ImageReveal({ scene, onNext, paused, nickname }) {
         src={scene.image}
         alt=""
         draggable={false}
-        className={`max-w-[70%] max-h-[65%] object-contain transition-all duration-700 ease-out ${
+        className={`max-w-full max-h-[92%] object-contain object-top transition-all duration-700 ease-out ${
           revealed ? 'brightness-100 opacity-100 scale-100' : 'brightness-[0.2] opacity-70 scale-[0.98]'
         }`}
       />
