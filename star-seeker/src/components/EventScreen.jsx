@@ -119,6 +119,57 @@ export default function EventScreen({
     }
   };
 
+  // 풀 스킵: 현재 씬부터 다음 분기점(선택지/입력) 또는 이벤트 종료(전투 진입 등)까지 한 번에 건너뜀
+  const handleSkip = () => {
+    if (isPaused) return;
+    if (!currentScene || !eventData) return;
+
+    const scenes = eventData.scenes;
+    const collected = [];
+
+    const pushDialogue = (scene) => {
+      if ((scene.type === 'script' || scene.type === 'monologue' || scene.type === 'question') && scene.text) {
+        collected.push({
+          ...scene,
+          text: applyNickname(scene.text, nickname),
+          speaker: applyNickname(scene.speaker, nickname),
+        });
+      }
+    };
+
+    let idx = currentSceneIndex;
+    while (idx < scenes.length) {
+      const scene = scenes[idx];
+      pushDialogue(scene);
+
+      // 이벤트 종료 지점(전투 진입/스토리 복귀 등) → 이벤트 완료
+      if (scene.isEnd) {
+        if (collected.length) setHistory(prev => [...prev, ...collected]);
+        onEventComplete(scene.nextAction);
+        return;
+      }
+
+      const nextIdx = idx + 1;
+      // 더 이상 씬이 없으면 종료
+      if (nextIdx >= scenes.length) {
+        if (collected.length) setHistory(prev => [...prev, ...collected]);
+        onEventComplete();
+        return;
+      }
+
+      // 다음 씬이 분기점(선택지/코드네임 입력)이면 그 앞에서 멈춤
+      const nextScene = scenes[nextIdx];
+      if (nextScene.type === 'choice' || nextScene.type === 'input') {
+        if (collected.length) setHistory(prev => [...prev, ...collected]);
+        setCurrentSceneIndex(nextIdx);
+        setPhase(phaseForScene(nextScene));
+        return;
+      }
+
+      idx = nextIdx;
+    }
+  };
+
   // 코드 네임 입력 완료 → 전역 닉네임 연동 후 다음 씬으로 진행
   const handleCodeNameSubmit = (name) => {
     if (onSetNickname) onSetNickname(name);
@@ -215,6 +266,7 @@ export default function EventScreen({
                     userStats={userStats}
                     partySkills={partySkills}
                     nickname={nickname}
+                    onSkip={handleSkip}
                 />
             )}
             {phase === 'input' && (

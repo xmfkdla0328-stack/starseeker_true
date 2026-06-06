@@ -22,7 +22,7 @@ const applyNickname = (text, nickname) => {
   return text.replace(/\{name\}/g, nickname || '관측자');
 };
 
-export default function StoryViewer({ script, history, onNext, paused, userStats, partySkills, nickname }) {
+export default function StoryViewer({ script, history, onNext, onSkip, paused, userStats, partySkills, nickname }) {
   const hasPortrait = !!(script.characterImage && script.bg !== 'black' && !script.hideUI);
   const [showLog, setShowLog] = useState(false);
 
@@ -219,9 +219,12 @@ export default function StoryViewer({ script, history, onNext, paused, userStats
                   <History size={13} />
                   <span className="text-[10px] font-mono tracking-widest">LOG</span>
                 </button>
-                <span className="text-[11px] text-slate-500 font-mono tracking-widest uppercase animate-pulse">
-                  {isTyping ? '■ skip' : '▶ next'}
-                </span>
+                <button
+                  onClick={(e) => { e.stopPropagation(); if (!paused && onSkip) onSkip(); }}
+                  className="flex items-center gap-1.5 text-cyan-400/80 hover:text-cyan-300 transition-colors py-1 px-2.5 rounded-lg border border-cyan-500/20 hover:border-cyan-400/50 hover:bg-cyan-500/10"
+                >
+                  <span className="text-[11px] font-mono tracking-widest uppercase">▶ SKIP</span>
+                </button>
               </div>
             </div>
           </div>
