@@ -1,6 +1,6 @@
 export const STORY_CHAPTERS = [
-    { id: 'prologue', title: '서장: 누구를 위하여 종은 울리나?' },
-    { id: 'chapter1', title: '1장: 삶의 증명은 남겨진 자의 몫' },
+    { id: 'prologue', title: '서장: 누구를 위하여 종은 울리나?', subTitle: 'For Whom the Bell Tolls' },
+    { id: 'chapter1', title: '1장: 삶의 증명은 남겨진 자의 몫', subTitle: 'Proof of Life' },
 ];
 
 // 트리 구조 (x, y 좌표는 0~100% 비율)

@@ -69,10 +69,17 @@ export default function StoryNodeScreen({
       </div>
 
       {/* 2. 현재 챕터 제목 */}
-      <div className="flex-none px-4 py-3 border-b border-white/10 bg-black/40 backdrop-blur-md z-20">
-        <span className="text-sm font-bold tracking-widest text-cyan-300">
-          {currentChapter.title}
-        </span>
+      <div className="flex-none px-4 py-3 z-20">
+        <div className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-md px-5 py-3.5 shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
+          <h2 className="text-lg font-bold tracking-widest text-cyan-200 drop-shadow-[0_0_8px_rgba(34,211,238,0.25)]">
+            {currentChapter.title}
+          </h2>
+          {currentChapter.subTitle && (
+            <p className="mt-1 text-[11px] font-mono tracking-[0.25em] text-slate-500/80 uppercase">
+              {currentChapter.subTitle}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* 3. 트리 캔버스 */}
