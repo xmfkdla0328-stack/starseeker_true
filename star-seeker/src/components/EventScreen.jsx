@@ -246,7 +246,7 @@ export default function EventScreen({
       {newKeyword && <KeywordToast keywordId={newKeyword} onClose={() => setNewKeyword(null)} />}
 
       {/* 3. Navigation Bar (Non-Story Mode) */}
-      {!isStoryMode && !isPaused && phase !== 'choice' && (
+      {!isStoryMode && !isPaused && phase !== 'choice' && phase !== 'input' && (
         <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-4">
             <button onClick={() => navigate && navigate('Home')} className="p-2 text-slate-400 hover:text-white"><ArrowLeft size={20} /></button>
             <div className="flex items-center gap-2 text-amber-200">
