@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft, Lock, PlayCircle, CheckCircle2, Map } from 'lucide-react';
+import { ChevronLeft, Lock, PlayCircle, CheckCircle2 } from 'lucide-react';
 import { STORY_CHAPTERS, STORY_NODES, STORY_EDGES } from '../data/storyData';
 
 export default function StoryNodeScreen({ 
@@ -58,26 +58,13 @@ export default function StoryNodeScreen({
           <ChevronLeft size={24} />
         </button>
         <div className="flex flex-col">
-          <div className="flex items-center gap-2 text-white font-bold tracking-widest text-lg drop-shadow-md">
-            <Map size={18} />
-            <span>사건의 지평선</span>
-          </div>
-          <span className="text-[10px] text-cyan-600/80 font-mono tracking-wider pl-1">
-            CAUSALITY BRANCH
-          </span>
-        </div>
-      </div>
-
-      {/* 2. 현재 챕터 제목 */}
-      <div className="flex-none px-4 py-3 z-20">
-        <div className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-md px-5 py-3.5 shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
           <h2 className="text-lg font-bold tracking-widest text-cyan-200 drop-shadow-[0_0_8px_rgba(34,211,238,0.25)]">
             {currentChapter.title}
           </h2>
           {currentChapter.subTitle && (
-            <p className="mt-1 text-[11px] font-mono tracking-[0.25em] text-slate-500/80 uppercase">
+            <span className="text-[11px] font-mono tracking-[0.25em] text-slate-500/80 uppercase">
               {currentChapter.subTitle}
-            </p>
+            </span>
           )}
         </div>
       </div>
