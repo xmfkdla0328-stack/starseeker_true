@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ChevronLeft, Lock, PlayCircle, CheckCircle2, Map } from 'lucide-react';
 import { STORY_CHAPTERS, STORY_NODES, STORY_EDGES } from '../data/storyData';
 
 export default function StoryNodeScreen({ 
   onBack, 
   clearedNodes = [], 
-  onSelectStory 
+  onSelectStory,
+  selectedChapter: selectedChapterProp,
 }) {
-  const [selectedChapter, setSelectedChapter] = useState(STORY_CHAPTERS[0].id);
+  const selectedChapter = selectedChapterProp || STORY_CHAPTERS[0].id;
+  const currentChapter = STORY_CHAPTERS.find(c => c.id === selectedChapter) || STORY_CHAPTERS[0];
   const rawNodes = STORY_NODES[selectedChapter] || [];
   const rawEdges = STORY_EDGES[selectedChapter] || [];
 
@@ -66,17 +68,11 @@ export default function StoryNodeScreen({
         </div>
       </div>
 
-      {/* 2. 챕터 선택기 */}
-      <div className="flex-none overflow-x-auto flex gap-3 p-3 border-b border-white/10 bg-black/40 backdrop-blur-md z-20 scrollbar-hide">
-        {STORY_CHAPTERS.map(chap => (
-          <button key={chap.id} onClick={() => setSelectedChapter(chap.id)}
-            className={`px-4 py-2 text-xs font-bold tracking-widest rounded-lg border transition-all whitespace-nowrap active:scale-95
-            ${selectedChapter === chap.id 
-                ? 'bg-cyan-900/40 border-cyan-400 text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.3)]' 
-                : 'bg-slate-900 border-slate-700 text-slate-500 hover:text-slate-300'}`}>
-            {chap.title}
-          </button>
-        ))}
+      {/* 2. 현재 챕터 제목 */}
+      <div className="flex-none px-4 py-3 border-b border-white/10 bg-black/40 backdrop-blur-md z-20">
+        <span className="text-sm font-bold tracking-widest text-cyan-300">
+          {currentChapter.title}
+        </span>
       </div>
 
       {/* 3. 트리 캔버스 */}

@@ -62,6 +62,7 @@ export default function GameRouter({
       
       {nav.gameState === 'story_node_select' && (
         <StoryNodeScreen 
+            selectedChapter={nav.selectedChapterId}
             clearedNodes={data.clearedNodes} 
             onSelectStory={handleStartStoryEvent} 
             onBack={nav.goStorySelect} 
