@@ -47,39 +47,55 @@ export const prologue3_event = {
       speaker: "???", bg: "/images/background/배경_01_요람.png",
       image: "/images/excutseen/excutseen_01_외형확인.png",
     },
+
+       {
+      id: 9,
+      type: 'choice',
+      choices: [
+        {
+          id: 'use_power',
+          text: `외형 확인 완료.`,
+          type: 'risk',
+          riskText: '이 모습이 맞는 것 같다는 생각이 든다',
+          nextSceneId: 10,
+          condition: { type: 'keyword', id: 'kw_causality', name: '인과력' }
+        }
+      ]
+    },
+
     {
-      id: 9, type: 'script',
+      id: 10, type: 'script',
       text: "대상자의 자아 인지 상의 외형이 확인되었습니다.",
       speaker: "???", bg: "/images/background/배경_01_요람.png",
     },
      {
-      id: 10, type: 'script',
+      id: 11, type: 'script',
       text: "자아인지 정상 작동 여부 검사 결과, 정확도 수치 83% 출력. 작동 가능 수준으로 확인, 해치를 개방합니다.",
       speaker: "???", bg: "/images/background/배경_01_요람.png",
     },
      {
-      id: 11, type: 'script',
+      id: 12, type: 'script',
       hideUI: true, 
       effect: "warp_white",
       bg: "/images/background/배경_01_요람.png",
     },
     {
-      id: 12, type: 'script',
+      id: 13, type: 'script',
       text: "…여긴….",
       speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
     },
     {
-      id: 13, type: 'monologue',
+      id: 14, type: 'monologue',
       text: "조명이 없어 캄캄하여 당장 코 앞도 보기가 힘들지만, 곧 깨닫는다.",
       speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
     },
     {
-      id: 14, type: 'monologue',
+      id: 15, type: 'monologue',
       text: "이 곳은 내게 익숙한 곳이다.",
       speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
     },
     {
-      id: 15, type: 'script',
+      id: 16, type: 'script',
       text: "…그런데 왜─.",
       speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
     },
