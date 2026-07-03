@@ -98,7 +98,7 @@ export const prologue3_event = {
     },
     {
       id: 16, type: 'script',
-      text: "…그런데 왜─.",
+      text: "…그런데 왜 이렇게 어둡지?",
       speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
     },
   ],
