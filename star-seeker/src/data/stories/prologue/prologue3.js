@@ -27,7 +27,7 @@ export const prologue3_event = {
     },
     {
       id: 5, type: 'input',
-      prompt: "나를 부르는 말은 무엇인가?",
+      prompt: "나를 부르는 말은?",
       placeholder: "코드 네임 입력...",
       confirmText: "이 코드 네임이 맞습니까?",
     },
@@ -56,7 +56,7 @@ export const prologue3_event = {
           id: 'use_power',
           text: `외형 확인 완료.`,
           type: 'risk',
-          riskText: '이 모습이 맞는 것 같다는 생각이 든다',
+          riskText: '아마도 이 모습이 맞는 것 같다',
           nextSceneId: 10,
           condition: { type: 'keyword', id: 'kw_causality', name: '인과력' }
         }
@@ -65,7 +65,7 @@ export const prologue3_event = {
 
     {
       id: 10, type: 'script',
-      text: "대상자의 자아 인지 상의 외형이 확인되었습니다.",
+      text: "대상자의 외형 인지가 확인되었습니다.",
       speaker: "???", bg: "/images/background/배경_01_요람.png",
     },
      {
@@ -86,12 +86,14 @@ export const prologue3_event = {
     },
     {
       id: 14, type: 'monologue',
-      text: "조명이 없어 캄캄하여 당장 코 앞도 보기가 힘들지만, 곧 깨닫는다.",
+      text: `당신은 가물가물한 눈을 들어 주변을 돌아보지만, 무언가 거대한 유리 수조같은 것의 실루엣만을 간신히 확인할 뿐.
+      그 이상의 것들은 조명 하나 없는 어둠때문에 보지 못합니다.`,
       speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
     },
     {
       id: 15, type: 'monologue',
-      text: "이 곳은 내게 익숙한 곳이다.",
+      text: `그러나 그럼에도, 당신은 막연하게 확신합니다.
+      이 곳은 당신에게 있어 너무나도 익숙한 곳입니다.`,
       speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
     },
     {

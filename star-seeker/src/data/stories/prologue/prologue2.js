@@ -7,7 +7,7 @@ export const prologue2_event = {
   scenes: [
     { 
       id: 1, type: 'monologue', 
-      text: "거친 숨을 몰아쉬며, 당신은 무너져 내리는 적의 잔해를 바라본다.", 
+      text: "거친 숨을 몰아쉬며, 무너져 내리는 적의 잔해를 바라본다.", 
       speaker: "???", bg: "ruin_entrance", effect: "shake", 
     },
     { 
@@ -26,7 +26,7 @@ export const prologue2_event = {
       id: 6, type: 'script', text: "조심해, 에키드나! 이렇게 끝이 날 놈이 아니─.", speaker: "관측자", characterImage: "/images/characters/mainImage/list/noeloriginList.png", bg: "ruin_entrance",
     },
     {
-      id: 7, type: 'monologue', text: "쿠구구구궁...!", speaker: "???", bg: "ruin_entrance", effect: "shake",
+      id: 7, type: 'monologue', text: "말이 채 끝나기도 전에, 기이한 이명이 고막을 뒤흔든다.", speaker: "???", bg: "ruin_entrance", effect: "shake",
     },
     { 
       // [NEW] 1. 발끝부터 머리까지 천천히 위로 훑어보는 씬
@@ -39,7 +39,7 @@ export const prologue2_event = {
     { 
       // [NEW] 2. 훑어보기가 끝나고 전체 모습을 온전히 마주하는 씬
       id: 9, type: 'monologue', 
-      text: `당신은 보지 않고도 깨닫는다.
+      text: `보지 않고도 깨닫는다.
       그것은 죽지 않았다. 아니, 죽은 적이 없고, 없을 것이다.`, 
       speaker: "???", bg: "ruin_entrance",
       centerImage: "/images/enemy/disaster.png" 

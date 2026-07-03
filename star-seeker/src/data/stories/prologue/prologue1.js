@@ -33,7 +33,7 @@ export const prologue_event = {
       // [4] [연출 강화] 플래시 효과와 화면 흔들림으로 눈을 떴을 때의 충격과 고통 표현
       id: 4, 
       type: 'monologue',
-      text: "사지가 불타는 것만 같은, 강렬한 작열감이 당신을 장악한다.", 
+      text: "사지가 불타는 것만 같은, 강렬한 작열감이 온 몸을 장악한다.", 
       speaker: "???", 
       bg: "red_alert",
       effect: "flash_red_and_shake" // [NEW] 붉은 화면 번쩍임 + 흔들림
@@ -42,7 +42,7 @@ export const prologue_event = {
       // [5] 독백
       id: 5, 
       type: 'monologue',
-      text: `당신은 연신 눈 앞이 번쩍거리는 것을 무시하고, 몸의 상태를 확인한다.
+      text: `연신 눈 앞이 번쩍거리는 것을 무시하고, 몸의 상태를 확인한다.
 일단 생명 유지에 필수적인 장기들은 대다수 건재하다.`, 
       speaker: "???", 
       bg: "red_alert",
@@ -89,7 +89,7 @@ export const prologue_event = {
     { 
       id: 10, 
       type: 'monologue',
-      text: "당신은 의도적으로 그의 말을 끊고 끼어든다.", 
+      text: "의도적으로 그의 말을 끊고 끼어들었다.", 
       speaker: "???", 
       bg: "ruin_entrance",
     },
@@ -121,14 +121,14 @@ export const prologue_event = {
     { 
       id: 14, 
       type: 'monologue',
-      text: "당신은 말과 함께 앞을 바라본다.", 
+      text: "말과 함께 앞을 바라본다.", 
       speaker: "???", 
       bg: "ruin_entrance",
     },
     {
       id: 15, 
       type: 'monologue',
-      text: "'앞을 바라본다.' 라고 말했지만, 사실 딱히 눈 앞이 보이진 않는다.", 
+      text: "'앞을 바라본다.' 라고 말하긴 했지만, 사실 눈 앞이 잘 보이진 않는다.", 
       speaker: "???", 
       bg: "black", // [연출 강화] 이 대사와 함께 배경화면이 암전되면서 시각 상실을 유저가 직접 체감
       effect: "glitch" // [NEW] 지지직거리는 노이즈 이펙트로 신경계 손상 표현
@@ -136,14 +136,14 @@ export const prologue_event = {
     {
       id: 16, 
       type: 'monologue',
-      text: "어렴풋한 감일 뿐이지만, 아마 앞으로도 앞을 볼 가능성은 없을 것이다.", 
+      text: "어렴풋한 감일 뿐이지만, 아마 이후로도 앞을 볼 가능성은 없을 것이다.", 
       speaker: "???", 
       bg: "black", 
     },
     {
       id: 17,
       type: 'script',
-      text: `인과력을 감지하고, 다루는 데에는 아무런 문제도 없어.`,
+      text: `괜찮아. 인과력을 감지하고, 다루는 데에는 아무런 문제도 없어.`,
       keywordUnlock: 'kw_causality',
       speaker: "관측자",
       characterImage: "/images/characters/mainImage/list/noeloriginList.png",
@@ -177,7 +177,7 @@ export const prologue_event = {
     {
       id: 21, 
       type: 'monologue',
-      text: `화를 눌러 삼키는 기색으로, 에키드나는 당신의 앞에 선다.`, 
+      text: `화를 눌러 삼키는 기색으로, 에키드나는 내 앞에 선다.`, 
       speaker: "???", 
       bg: "red_alert", // [연출 강화] 보이지 않지만 분위기와 감각으로 인지함. 다시 붉은 경고등이 희미하게 들어오는 느낌.
     },
@@ -185,7 +185,7 @@ export const prologue_event = {
       id: 22, 
       type: 'monologue',
       text: `보이진 않지만, 알 수 있다.
-당신은 감사를 전하는 대신, 인과력의 파도 너머를 향해 고개를 든다.`, 
+감사를 전하는 대신, 인과력의 파도 너머를 향해 고개를 든다.`, 
       speaker: "???", 
       bg: "red_alert",
     },
