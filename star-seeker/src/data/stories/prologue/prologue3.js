@@ -101,5 +101,15 @@ export const prologue3_event = {
       text: "…그런데 왜 이렇게 어둡지?",
       speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
     },
+    {
+      id: 17, type: 'monologue',
+      text: "당신의 기억이 맞다면, 이 곳은 본래 이렇게 어두울 리가 없는 곳입니다.\n오히려 각각의 기계와 조명이 발하는 빛으로 시설 내의 인공 낮과 밤에 상관 없이 늘 밝아야 하는 곳입니다.",
+      speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
+    },
+    {
+      id: 18, type: 'monologue',
+      text: "혹시 시설에 무언가 문제라도 생긴 것일까요? 그렇다고 한다면 왜, 어떻게, 누가?\n그러나 당신에게 원인에 대해 생각해볼 여유는 주어지지 않았습니다.",
+      speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
+    },
   ],
 };
