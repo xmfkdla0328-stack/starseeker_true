@@ -198,7 +198,7 @@ export const prologue3_event = {
     },
     {
       id: 32, type: 'script',
-      text: "───.\n이건…상정 외의 상황이군요."
+      text: "───.\n이건…상정 외의 상황이군요.",
       speaker: "누군가",
       bg: "/images/cutsceen/cutsceen_03_사과나무의용.png",
     },
