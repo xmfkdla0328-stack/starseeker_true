@@ -111,48 +111,48 @@ export const prologue3_event = {
     },
     {
       id: 19, type: 'monologue',
-      text: "무언가 두껍고 단단한 것이 부서진 듯한 굉음과 함께, 당신의 몸이 일순 길쭉한 무언가에 붙잡혀 등 뒤의 벽에 처박힙니다.",
+      text: "무언가 두껍고 단단한 것이 부서진 듯한 굉음과 함께, 당신은 큰 충격을 느끼며 등 뒤의 벽에 처박힙니다.",
       speaker: "{name}", bg: "/images/background/배경_02_요람밖.png", effect: "shake",
     },
     {
       id: 20, type: 'monologue',
-      text: "강렬한 충격에 폐에서 빠져나온 공기가 입 밖으로 튀어나오고, 눈알이 빠져나올 것만 같습니다.\n그리고 직후, 길쭉한 관 같은 것이 당신의 목과 팔, 다리를 휘감습니다.",
-      speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
+      text: "강렬한 충격에 폐에서 빠져나온 공기가 입 밖으로 튀어나오고, 눈알이 빠져나올 것만 같습니다.\n그리고 무엇보다도, 돌 혹은 '그것'이 지닌 길쭉한 관에 스친 눈에서 화끈거리는 고통이 올라옵니다.",
+      speaker: "{name}", bg: "/images/cutsceen/cutsceen_01_기억상실.png",
     },
     {
       id: 21, type: 'script',
       text: "컥, 이, 거 놔…!!",
-      speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
+      speaker: "{name}", bg: "/images/cutsceen/cutsceen_01_기억상실.png",
     },
     {
       id: 22, type: 'monologue',
-      text: "있는 힘껏 팔과 다리를 흔들며 저항해보지만, 당신을 포박한 그것에 비해 당신의 힘은 너무나도 미약합니다.\n당신의 미약한 저항을 비웃듯, 그것은 또 다른 길쭉한 관을 뻗어 당신의 머리를 휘감습니다.",
-      speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
+      text: "있는 힘껏 팔과 다리를 흔들며 저항해보지만, 당신을 포박한 그것에 비해 당신의 힘은 너무나도 미약합니다.\n당신의 미약한 저항을 비웃듯, 그것은 또 다른 길쭉한 관을 뻗어 당신의 배를 찌릅니다.",
+      speaker: "{name}", bg: "/images/cutsceen/cutsceen_01_기억상실.png",
     },
     {
       id: 23, type: 'monologue',
-      text: "머리를 통째로 붙잡아 터뜨려, 당신을 즉사시키려 하는 걸까요?\n유감스럽게도, 아닙니다.",
-      speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
+      text: "당신의 뱃 속 내부 장기를 다치게 하여, 당신을 사망에 이르게 하려 한 것일까요?\n유감스럽게도, 아닙니다.",
+      speaker: "{name}", bg: "/images/cutsceen/cutsceen_01_기억상실.png",
     },
     {
       id: 22, type: 'monologue',
       text: "그것은 당신에게서 무언가를 '흡수'하고 있습니다.\n그리고 그것이 경험이나 데이터, 정보, 혹은 기억이라고 부르는 것이라는 것을, 당신은 이 시설을 부르는 말을 떠올리지 못하게 된 시점에서 깨닫습니다.",
-      speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
+      speaker: "{name}", bg: "/images/cutsceen/cutsceen_01_기억상실.png",
     },
     {
       id: 23, type: 'script',
       text: "…!!",
-      speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
+      speaker: "{name}", bg: "/images/cutsceen/cutsceen_01_기억상실.png",
     },
     {
       id: 24, type: 'monologue',
       text: "순식간에 수많은 기억들이 잊혀집니다. 아니, 사라집니다.\n이 시설을 부르는 이름, 익히 알고 지내왔던 이들의 이름, 당신의 이름, 그리고-당신이 지닌 사명까지도.",
-      speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
+      speaker: "{name}", bg: "/images/cutsceen/cutsceen_01_기억상실.png",
     },
     {
       id: 25, type: 'monologue',
       text: "이러한 상황에서, 당신은 어떻게 하겠습니까?",
-      speaker: "{name}", bg: "/images/background/배경_02_요람밖.png",
+      speaker: "{name}", bg: "/images/cutsceen/cutsceen_01_기억상실.png",
     },
     {
       id: 26,
@@ -160,15 +160,48 @@ export const prologue3_event = {
       choices: [
         {
           id: 'resist',
-          text: "부상과 죽음을 감수하고,\n저항한다.",
+          text: "부상을 감수하고,\n저항한다.",
           nextSceneId: 27,
         },
         {
           id: 'conform',
-          text: "순응하여,\n부상과 죽음을 피한다.",
+          text: "순응하여,\n부상을 피한다.",
           nextSceneId: 30,
         }
       ]
     },
+    {
+      id: 27, type: 'monologue',
+      text: "이런 상황에서 합리적인 선택은, 기억보단 목숨을 우선시하는 것일 겁니다.\n그러나 당신은 알 수 없는-아니, 알 수 없게된 이유로 그를 거부합니다.",
+      speaker: "{name}", bg: "/images/cutsceen/cutsceen_01_기억상실.png",
+    },
+    {
+      id: 28, type: 'monologue',
+      text: "소리를 지르고, 붙잡힌 팔과 다리를 있는 힘껏 휘젓고, 고개를 젓습니다.\n당신의 거친 저항에, 그것이 언뜻 주춤하는 것을 느낄 수 있습니다.",
+      speaker: "{name}", bg: "/images/cutsceen/cutsceen_01_기억상실.png",
+    },
+    {
+      id: 29, type: 'monologue',
+      text: "───.\n그것이 소리를 냅니다. 말이었던 것 같기도 하고, 울음소리였던 것 같기도 하며, 비명이었던 것 같기도 합니다.",
+      speaker: "{name}", bg: "/images/cutsceen/cutsceen_01_기억상실.png",
+    },
+    {
+      id: 30, type: 'monologue',
+      text: "그러나 그것은 잠시간이었을 뿐.\n다시금 머리를 옥죈 관으로부터, 기억이 뽑혀나가는 것을 느끼며 당신이 비명을 지르려던 순간─.",
+      speaker: "{name}", bg: "/images/cutsceen/cutsceen_01_기억상실.png",
+    },
+    {
+      id: 31, type: 'monologue',
+      text: "뚜벅, 하고. 발소리가 들려옵니다.",
+      speaker: "{name}",
+      bg: "/images/cutsceen/cutsceen_02_임시구조.png",
+    },
+    {
+      id: 32, type: 'script',
+      text: "───.\n이건 상정 외의 상황이군요."
+      speaker: "누군가",
+      bg: "/images/cutsceen/cutsceen_03_사과나무의용.png",
+    },
+
   ],
 };
