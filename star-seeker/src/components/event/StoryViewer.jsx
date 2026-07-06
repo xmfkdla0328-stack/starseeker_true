@@ -96,6 +96,17 @@ export default function StoryViewer({ script, history, onNext, onSkip, paused, u
           100% { transform: scale(1.25) translateY(0); opacity: 1; }
         }
         .animate-pan-up { animation: panUp 3.5s ease-out forwards; }
+
+        /* 카메라 워킹: 배경 하단에서 상단으로 초점 이동 후 전체 노출 */
+        @keyframes bgCameraPan {
+          0%   { transform: scale(1.7) translateY(-18%); }
+          50%  { transform: scale(1.7) translateY(18%); }
+          100% { transform: scale(1)   translateY(0); }
+        }
+        .animate-bg-camera-pan {
+          transform-origin: center;
+          animation: bgCameraPan 4.5s ease-in-out forwards;
+        }
       `}</style>
 
       {showLog && <LogModal history={history} onClose={() => setShowLog(false)} />}
@@ -134,7 +145,14 @@ export default function StoryViewer({ script, history, onNext, onSkip, paused, u
         style={!script.hideUI ? { height: `${BG_RATIO * 100}%` } : undefined}
       >
         {isBgImage && (
-          <img src={script.bg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />
+          <img
+            key={script.effect === 'camera_pan_up' ? `pan-${script.id}` : 'bg-static'}
+            src={script.bg}
+            alt=""
+            className={`absolute inset-0 w-full h-full object-cover opacity-60 ${
+              script.effect === 'camera_pan_up' ? 'animate-bg-camera-pan' : ''
+            }`}
+          />
         )}
 
         {script.centerImage && (
